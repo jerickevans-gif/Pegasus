@@ -53,8 +53,14 @@
     .mode-pill { backdrop-filter: blur(8px); }
 
     /* Card hover lift */
-    .card { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+    .card { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; position: relative; }
     .card:hover { transform: translateY(-1px); border-color: #44403c; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+
+    /* Cards with copyable content show a copy hint on hover + cursor pointer on whole card */
+    .card[data-copyable="1"] { cursor: pointer; }
+    .card[data-copyable="1"]::after { content: "📋 click to copy"; position: absolute; top: 0.5rem; right: 0.75rem; font-size: 0.65rem; color: #a8a29e; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
+    .card[data-copyable="1"]:hover::after { opacity: 1; }
+    @media (prefers-color-scheme: dark) { .card[data-copyable="1"]::after { color: #57534e; } }
 
     /* Copy feedback */
     .copied { background-color: #16a34a !important; color: white !important; }
@@ -642,7 +648,7 @@ const glossary = [
 
 function renderTemplates() {
   document.getElementById('templates-grid').innerHTML = templates.map(t => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${t.track || 'both'}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${t.track || 'both'}" data-copyable="1" data-card-copy="${t.cmd}">
       <h3 class="font-medium font-serif text-xl">${t.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${t.desc}</p>
       <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${t.cmd}">${t.cmd}</button>
@@ -652,7 +658,7 @@ function renderTemplates() {
 
 function renderCommands() {
   document.getElementById('commands-list').innerHTML = commands.map(c => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search data-track="both">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search data-track="both" data-copyable="1" data-card-copy="${c.cmd}">
       <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-1.5 rounded w-full text-left mb-1.5" data-copy="${c.cmd}">${c.cmd}</button>
       <p class="text-xs text-stone-600 dark:text-stone-400 px-1">${c.note}</p>
     </div>
@@ -661,7 +667,7 @@ function renderCommands() {
 
 function renderSkills() {
   document.getElementById('skills-list').innerHTML = skills.map(s => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}" data-copyable="1" data-card-copy="${s.invoke}">
       <h3 class="font-medium font-serif text-xl">${s.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${s.summary}</p>
       <div class="text-xs text-stone-500 mb-1">Try saying:</div>
@@ -682,7 +688,7 @@ function renderMcps() {
 
 function renderPrompts() {
   document.getElementById('prompts-list').innerHTML = prompts.map(p => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search data-track="${p.track || 'both'}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search data-track="${p.track || 'both'}" data-copyable="1" data-card-copy="${p.text.replace(/\'/g, '&#39;')}">
       <div class="text-xs uppercase tracking-wider text-stone-500 mb-1">${p.goal}</div>
       <button class="copy text-left text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full" data-copy='${p.text.replace(/'/g, "&#39;")}'>${p.text}</button>
     </div>
@@ -691,7 +697,7 @@ function renderPrompts() {
 
 function renderRecommended() {
   document.getElementById('recommended-list').innerHTML = recommended.map(r => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}" data-copyable="1" data-card-copy="${r.clone}">
       <div class="flex items-baseline justify-between">
         <h3 class="font-medium font-mono text-sm">${r.name}</h3>
         <span class="text-xs text-stone-500">★ ${r.stars}</span>
@@ -769,6 +775,23 @@ if (!localStorage.getItem(FIRST_RUN_KEY)) {
 // ─────────────────────────────────────────────
 // COPY-TO-CLIPBOARD
 // ─────────────────────────────────────────────
+
+// Whole-card copy: click anywhere on a card with data-copyable to copy its primary text
+document.addEventListener('click', e => {
+  const card = e.target.closest('[data-copyable="1"]');
+  if (!card) return;
+  if (e.target.closest('.copy, button, a, input, textarea')) return;  // let inner controls handle their own clicks
+  const text = card.dataset.cardCopy;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    card.style.outline = '2px solid #16a34a';
+    showToast('Copied · ' + text.slice(0, 60));
+    const sectionId = card.closest('section')?.id || '';
+    const kindMap = { templates: 'Template', workflows: 'Workflow', commands: 'Command', skills: 'Skill', mcps: 'Bridge', prompts: 'Prompt', recommended: 'Repo', glossary: 'Term' };
+    trackCopy(text.slice(0, 60), kindMap[sectionId] || 'Other');
+    setTimeout(() => { card.style.outline = ''; }, 600);
+  }).catch(() => showToast('Press ⌘+C to copy'));
+});
 
 document.querySelectorAll('.copy').forEach(btn => {
   btn.addEventListener('click', async () => {

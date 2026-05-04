@@ -334,7 +334,10 @@ for skill in ux-ui-audit job-finder vector-workflow interview-prep content-write
              figma-converter weekly-review \
              portfolio-case-study \
              resume-tailor cover-letter-generator portfolio-case-study-writer interview-prep-generator salary-negotiation-prep \
-             career-ops-evaluate career-ops-outreach career-ops-research career-ops-tailor-resume career-ops-triage; do
+             creative-portfolio-resume linkedin-profile-optimizer job-description-analyzer offer-comparison-analyzer resume-ats-optimizer \
+             career-ops-evaluate career-ops-outreach career-ops-research career-ops-tailor-resume career-ops-triage \
+             career-ops-scan career-ops-apply career-ops-compare career-ops-help \
+             mp-to-prd mp-zoom-out mp-diagnose mp-git-guardrails; do
   SKILL_DIR="$CLAUDE_DIR/skills/$skill"; mkdir -p "$SKILL_DIR"
   download_to "$PEGASUS_RAW/skills/$skill/SKILL.md" "$SKILL_DIR/SKILL.md"
   # optional companions (only ux-ui-audit has them)
