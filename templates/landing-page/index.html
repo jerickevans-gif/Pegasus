@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project — coming soon</title>
+  <meta name="description" content="One-line pitch for the thing you're launching." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+</head>
+<body class="bg-white text-stone-900 font-sans antialiased min-h-screen flex flex-col">
+
+  <header class="px-6 py-6">
+    <a href="/" class="font-bold text-lg">brand</a>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center px-6">
+    <div class="max-w-3xl text-center">
+      <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-none">
+        The headline that makes someone stop scrolling.
+      </h1>
+      <p class="mt-6 text-xl md:text-2xl text-stone-600 max-w-2xl mx-auto">
+        A subhead that explains who it's for and what changes after they use it. One sentence.
+      </p>
+
+      <form class="mt-10 max-w-md mx-auto flex gap-2" onsubmit="event.preventDefault(); document.getElementById('thanks').classList.remove('hidden'); this.classList.add('hidden')">
+        <input
+          type="email"
+          required
+          placeholder="you@example.com"
+          class="flex-1 px-4 py-3 rounded-lg border border-stone-300 focus:border-stone-900 focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="px-6 py-3 rounded-lg bg-stone-900 text-white font-medium hover:bg-stone-700 transition"
+        >
+          Get early access
+        </button>
+      </form>
+      <p id="thanks" class="hidden mt-10 text-lg text-green-700">Thanks — we'll be in touch.</p>
+
+      <p class="mt-6 text-sm text-stone-500">
+        Three sentences max. No spam. Unsubscribe in one click.
+      </p>
+    </div>
+  </main>
+
+  <footer class="px-6 py-6 text-sm text-stone-500 text-center">
+    © 2026 brand · Made with <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">Pegasus</a>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,349 @@
+#!/usr/bin/env bash
+# Pegasus helper command
+#
+# Usage:
+#   pegasus new <type> <name>   create a new project from a template
+#   pegasus deploy              deploy current folder to Vercel
+#   pegasus tour                show the 5-minute walkthrough
+#   pegasus jobs                run the job-finder skill (BuiltIn + LinkedIn ranked pull)
+#   pegasus signin              open browser tabs to sign into all the services
+#   pegasus doctor              diagnose what's installed / broken
+#   pegasus update              refresh templates + skills from GitHub
+#   pegasus uninstall           remove Pegasus (keeps your projects)
+#   pegasus help                this help
+
+set -euo pipefail
+
+PEGASUS_HOME="${PEGASUS_HOME:-$HOME/.pegasus}"
+TEMPLATES_DIR="$PEGASUS_HOME/templates"
+PROJECTS_DIR="$HOME/Design-Projects"
+RAW="https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main"
+
+BOLD=$(printf '\033[1m'); GREEN=$(printf '\033[32m'); RED=$(printf '\033[31m'); YELLOW=$(printf '\033[33m'); BLUE=$(printf '\033[34m'); RESET=$(printf '\033[0m')
+ok()   { printf "%s✓ %s%s\n" "$GREEN" "$1" "$RESET"; }
+say()  { printf "%s%s%s\n" "$BLUE" "$1" "$RESET"; }
+warn() { printf "%s! %s%s\n" "$YELLOW" "$1" "$RESET"; }
+err()  { printf "%s✗ %s%s\n" "$RED" "$1" "$RESET"; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+open_url() {
+  if have open; then open "$1"
+  elif have xdg-open; then xdg-open "$1"
+  else echo "Open this URL: $1"
+  fi
+}
+
+cmd_help() {
+  cat <<EOF
+${BOLD}Pegasus${RESET} — designer's coding launchpad
+
+  ${BOLD}pegasus new${RESET} <type> <name>     create a new project (opens VS Code)
+        types: portfolio, case-study-deck, scroll-case-study,
+               landing-page, resume, link-in-bio
+  ${BOLD}pegasus deploy${RESET}                deploy current folder to Vercel
+  ${BOLD}pegasus dashboard${RESET}             open the visual dashboard in your browser
+  ${BOLD}pegasus tour${RESET}                  5-minute walkthrough
+  ${BOLD}pegasus jobs${RESET}                  run the job-finder (BuiltIn + LinkedIn, ranked)
+  ${BOLD}pegasus clone${RESET} <url> <name>    clone any GitHub repo as a starter project
+  ${BOLD}pegasus signin${RESET}                open browser tabs to log into all services
+  ${BOLD}pegasus doctor${RESET}                diagnose what's installed / broken
+  ${BOLD}pegasus update${RESET}                refresh templates + skills
+  ${BOLD}pegasus uninstall${RESET}             remove Pegasus
+  ${BOLD}pegasus help${RESET}                  this help
+
+Examples:
+  pegasus new portfolio jerick-site
+  pegasus new resume my-cv
+  cd ~/Design-Projects/jerick-site && pegasus deploy
+EOF
+}
+
+cmd_new() {
+  local type="${1:-}" name="${2:-}"
+  if [[ -z "$type" || -z "$name" ]]; then
+    warn "Usage: pegasus new <type> <name>"
+    echo "Available types:"
+    ls "$TEMPLATES_DIR" 2>/dev/null | sed 's/^/  /'
+    exit 1
+  fi
+  local src="$TEMPLATES_DIR/$type"
+  if [[ ! -d "$src" ]]; then
+    err "No template called '$type'."
+    echo "Available: $(ls "$TEMPLATES_DIR" 2>/dev/null | tr '\n' ' ')"
+    echo "Try: pegasus update"
+    exit 1
+  fi
+  mkdir -p "$PROJECTS_DIR"
+  local dest="$PROJECTS_DIR/$name"
+  if [[ -d "$dest" ]]; then
+    err "$dest already exists. Pick a different name."
+    exit 1
+  fi
+  cp -r "$src" "$dest"
+  cd "$dest"
+  git init -q
+  git add . >/dev/null 2>&1 || true
+  local email name_g
+  email="$(git config user.email 2>/dev/null || echo you@example.com)"
+  name_g="$(git config user.name 2>/dev/null || echo You)"
+  git -c user.email="$email" -c user.name="$name_g" commit -q -m "Initial $type from Pegasus" >/dev/null 2>&1 || true
+  ok "Created $dest"
+  echo
+  echo "Next:"
+  echo "  ${BOLD}cd $dest${RESET}"
+  echo "  ${BOLD}claude${RESET}             # start Claude Code"
+  echo "  ${BOLD}pegasus deploy${RESET}     # ship it live"
+  echo
+  if have code; then
+    say "Opening in VS Code..."
+    code "$dest"
+  fi
+}
+
+cmd_deploy() {
+  if ! have vercel; then
+    err "Vercel CLI not installed. Run: npm install -g vercel"
+    exit 1
+  fi
+  if [[ ! -f "vercel.json" ]] && [[ ! -f "package.json" ]] && [[ ! -f "index.html" ]]; then
+    warn "No index.html / package.json / vercel.json here. Are you in a project folder?"
+    echo "  cd ~/Design-Projects/<your-project>  # then re-run"
+    exit 1
+  fi
+  say "Deploying to Vercel..."
+  vercel --prod
+}
+
+cmd_dashboard() {
+  local dash="$PEGASUS_HOME/dashboard.html"
+  if [[ ! -f "$dash" ]]; then
+    say "Downloading dashboard..."
+    mkdir -p "$PEGASUS_HOME"
+    curl -fsSL "$RAW/dashboard.html" -o "$dash" 2>/dev/null \
+      && ok "Downloaded to $dash" || { err "Couldn't download dashboard."; exit 1; }
+  fi
+  if have open; then open "$dash"
+  elif have xdg-open; then xdg-open "$dash"
+  else echo "Open in your browser: $dash"
+  fi
+}
+
+cmd_clone() {
+  local url="${1:-}" name="${2:-}"
+  if [[ -z "$url" || -z "$name" ]]; then
+    warn "Usage: pegasus clone <github-url> <local-name>"
+    echo "Examples (curated MIT-licensed templates):"
+    echo "  pegasus clone https://github.com/santifer/career-ops job-search"
+    echo "  pegasus clone https://github.com/erlandv/case my-case-portfolio"
+    echo "  pegasus clone https://github.com/rendercv/rendercv academic-cv"
+    echo "See ~/Design-Projects/RECOMMENDED.md for the full curated list."
+    exit 1
+  fi
+  if ! have git; then err "git not installed."; exit 1; fi
+  mkdir -p "$PROJECTS_DIR"
+  local dest="$PROJECTS_DIR/$name"
+  if [[ -d "$dest" ]]; then err "$dest already exists."; exit 1; fi
+  warn "Cloning external code from $url"
+  warn "Verify the repo's license and contents before depending on it for production work."
+  git clone --depth 1 "$url" "$dest" || { err "Clone failed."; exit 1; }
+  rm -rf "$dest/.git"
+  cd "$dest"
+  git init -q && git add . >/dev/null 2>&1 || true
+  ok "Cloned to $dest"
+  if have code; then code "$dest"; fi
+}
+
+cmd_jobs() {
+  if ! have claude; then err "Claude Code not installed. Run install.sh first."; exit 1; fi
+  echo "Starting Claude with the job-finder skill..."
+  claude "Use the job-finder skill to pull and rank current design jobs from BuiltIn.com and LinkedIn against my profile. My resume is in ~/Design-Projects/."
+}
+
+cmd_signin() {
+  cat <<EOF
+${BOLD}Pegasus signin${RESET} — opening sign-in pages for the services you'll use.
+
+Steps:
+  1. ${BOLD}GitHub${RESET}      → for hosting code, opening PRs
+  2. ${BOLD}Vercel${RESET}      → for free deploys (\`pegasus deploy\`)
+  3. ${BOLD}Figma${RESET}       → desktop app, then enable Dev Mode MCP
+  4. ${BOLD}claude.ai${RESET}   → for Google connectors (Gmail/Drive/Calendar)
+  5. ${BOLD}Webflow${RESET}     → only if you use Webflow
+  6. ${BOLD}Adobe CC${RESET}    → only if you use Adobe
+
+Press Enter to continue (or Ctrl-C to skip).
+EOF
+  read -r _ </dev/tty || true
+
+  echo
+  say "1/6 → GitHub CLI auth"
+  if have gh; then
+    gh auth login </dev/tty || warn "gh auth incomplete, run later: gh auth login"
+  else
+    open_url "https://github.com/login"
+  fi
+
+  echo
+  say "2/6 → Vercel CLI auth"
+  if have vercel; then vercel login </dev/tty || warn "Vercel login incomplete."; else open_url "https://vercel.com/signup"; fi
+
+  echo
+  say "3/6 → Figma desktop"
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    if [[ ! -d "/Applications/Figma.app" ]]; then
+      have brew && brew install --cask figma 2>/dev/null && ok "Figma installed." || open_url "https://www.figma.com/downloads/"
+    else ok "Figma already installed."
+    fi
+    open -a Figma 2>/dev/null || true
+  else
+    open_url "https://www.figma.com/downloads/"
+  fi
+  echo "${BOLD}In Figma:${RESET} click the Figma logo → Preferences → toggle ON 'Enable Dev Mode MCP Server'."
+
+  echo
+  say "4/6 → claude.ai connectors (Google)"
+  open_url "https://claude.ai/settings/connectors"
+  echo "Click Connect on Google Drive, Gmail, and/or Calendar."
+
+  echo
+  say "5/6 → Webflow (skip if not used)"
+  open_url "https://webflow.com/dashboard"
+
+  echo
+  say "6/6 → Adobe Creative Cloud (skip if not used)"
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    if [[ ! -d "/Applications/Adobe Creative Cloud" ]]; then
+      have brew && brew install --cask adobe-creative-cloud 2>/dev/null && ok "Adobe CC installed." || open_url "https://creativecloud.adobe.com/apps/download/creative-cloud"
+    else ok "Adobe CC already installed."
+    fi
+  else
+    open_url "https://creativecloud.adobe.com/apps/download/creative-cloud"
+  fi
+
+  echo
+  ok "${BOLD}Sign-in complete.${RESET} You're ready to go."
+}
+
+cmd_doctor() {
+  echo "${BOLD}Pegasus doctor${RESET} — checking your setup..."
+  echo
+  local checks=(
+    "git|Git"
+    "node|Node.js"
+    "npm|npm"
+    "code|VS Code CLI"
+    "claude|Claude Code"
+    "opencode|OpenCode"
+    "vercel|Vercel CLI"
+    "gh|GitHub CLI"
+    "ffmpeg|ffmpeg"
+    "magick|ImageMagick"
+    "pegasus|Pegasus helper (this command)"
+  )
+  for c in "${checks[@]}"; do
+    local cmd="${c%|*}" name="${c#*|}"
+    if have "$cmd"; then ok "$name"
+    else err "$name (not on PATH)"
+    fi
+  done
+  echo
+  [[ -d "$PROJECTS_DIR" ]] && ok "~/Design-Projects exists" || warn "~/Design-Projects missing"
+  [[ -d "$TEMPLATES_DIR" ]] && ok "Templates installed at $TEMPLATES_DIR" || warn "No templates — run: pegasus update"
+  [[ -d "$HOME/.claude/skills/ux-ui-audit" ]] && ok "ux-ui-audit skill installed" || warn "ux-ui-audit skill missing"
+  [[ -d "$HOME/.claude/skills/job-finder" ]] && ok "job-finder skill installed" || warn "job-finder skill missing"
+  echo
+  if have claude; then
+    echo "${BOLD}Claude MCP servers:${RESET}"
+    claude mcp list 2>/dev/null | sed 's/^/  /' || warn "Couldn't list MCPs"
+  fi
+}
+
+cmd_update() {
+  mkdir -p "$TEMPLATES_DIR"
+  for type in portfolio case-study-deck scroll-case-study landing-page resume link-in-bio; do
+    say "Updating template: $type"
+    mkdir -p "$TEMPLATES_DIR/$type"
+    for f in index.html CLAUDE.md styles.css; do
+      curl -fsSL "$RAW/templates/$type/$f" -o "$TEMPLATES_DIR/$type/$f" 2>/dev/null || true
+    done
+  done
+  ok "Templates updated."
+  for skill in ux-ui-audit job-finder; do
+    say "Updating skill: $skill"
+    mkdir -p "$HOME/.claude/skills/$skill"
+    for f in SKILL.md checklist.md report-template.md; do
+      curl -fsSL "$RAW/skills/$skill/$f" -o "$HOME/.claude/skills/$skill/$f" 2>/dev/null || true
+    done
+  done
+  ok "Skills updated."
+  curl -fsSL "$RAW/bin/pegasus" -o "$(command -v pegasus)" 2>/dev/null && chmod +x "$(command -v pegasus)" && ok "Pegasus helper updated." || warn "Couldn't self-update."
+}
+
+cmd_uninstall() {
+  warn "This removes Pegasus templates, skills, and the helper."
+  warn "Your ~/Design-Projects folder is kept untouched."
+  printf "%sType 'remove' to confirm: %s" "$BOLD" "$RESET"
+  read -r reply </dev/tty || reply=""
+  if [[ "$reply" != "remove" ]]; then echo "Cancelled."; exit 0; fi
+  rm -rf "$PEGASUS_HOME"
+  rm -rf "$HOME/.claude/skills/ux-ui-audit" "$HOME/.claude/skills/job-finder"
+  rm -f /usr/local/bin/pegasus "$HOME/.local/bin/pegasus" 2>/dev/null || true
+  ok "Pegasus removed. Your projects are still in $PROJECTS_DIR."
+}
+
+cmd_tour() {
+  cat <<EOF
+${BOLD}Pegasus — 5-minute tour${RESET}
+
+${BOLD}1. Make your first project${RESET}
+   ${BLUE}pegasus new portfolio my-site${RESET}
+   Creates ~/Design-Projects/my-site with a working portfolio.
+   Opens in VS Code automatically.
+
+${BOLD}2. Make changes with Claude (or OpenCode)${RESET}
+   In your new project folder, open the integrated terminal in VS Code
+   (View → Terminal, or Ctrl-\`) and type one of:
+     ${BLUE}claude${RESET}         # Claude Code in your terminal
+     ${BLUE}opencode${RESET}       # OpenCode if you prefer
+   Then describe what you want:
+     "Replace the hero text with my name and tagline"
+     "Add a project card for [project] with a placeholder image"
+     "Make the page dark by default with a light-mode toggle"
+
+${BOLD}3. Preview it live${RESET}
+   In VS Code: right-click index.html → Show Preview.
+   Or in terminal: ${BLUE}npx serve .${RESET}
+
+${BOLD}4. Ship it${RESET}
+   ${BLUE}pegasus deploy${RESET}
+   Vercel returns a public URL within seconds.
+
+${BOLD}5. Look at jobs${RESET} (when you're ready)
+   ${BLUE}pegasus jobs${RESET}
+   Pulls + ranks design openings from BuiltIn and LinkedIn against your resume.
+
+${BOLD}6. Get help${RESET}
+   ${BLUE}open ~/Design-Projects/COMMANDS.md${RESET}      # cheatsheet
+   ${BLUE}open ~/Design-Projects/PROMPTS.md${RESET}       # copy-paste prompts
+   ${BLUE}open ~/Design-Projects/POSSIBILITIES.md${RESET} # what's possible
+   ${BLUE}open ~/Design-Projects/GLOSSARY.md${RESET}      # what every word means
+   ${BLUE}pegasus doctor${RESET}                          # diagnose issues
+
+That's the whole flow. Make → edit → preview → ship → repeat.
+EOF
+}
+
+case "${1:-help}" in
+  new)        shift; cmd_new "$@" ;;
+  deploy)     shift; cmd_deploy "$@" ;;
+  dashboard)  cmd_dashboard ;;
+  tour)       cmd_tour ;;
+  jobs)       cmd_jobs ;;
+  clone)      shift; cmd_clone "$@" ;;
+  signin)     cmd_signin ;;
+  doctor)     cmd_doctor ;;
+  update)     cmd_update ;;
+  uninstall)  cmd_uninstall ;;
+  help|-h|--help) cmd_help ;;
+  *) err "Unknown command: $1"; cmd_help; exit 1 ;;
+esac

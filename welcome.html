@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Pegasus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { serif: ['Crimson Pro','serif'], sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] } } } }
+  </script>
+</head>
+<body class="bg-stone-50 text-stone-900 font-sans">
+
+  <main class="max-w-3xl mx-auto px-6 py-16">
+
+    <p class="text-sm uppercase tracking-widest text-stone-500">Pegasus</p>
+    <h1 class="font-serif text-6xl mt-4 leading-none tracking-tight">You're set up.</h1>
+    <p class="mt-6 text-xl text-stone-700">
+      Your Mac is now a coding-ready studio. Below: the four things to do first.
+    </p>
+
+    <section class="mt-16">
+      <h2 class="font-serif text-3xl mb-4">1. Make your first project</h2>
+      <p class="text-stone-700 mb-4">In any terminal (including the one inside VS Code), type:</p>
+      <pre class="bg-stone-900 text-stone-100 rounded-lg p-4 font-mono text-sm overflow-x-auto"><code>pegasus new portfolio my-site</code></pre>
+      <p class="text-stone-600 mt-3">This creates <span class="font-mono">~/Design-Projects/my-site</span> with a working portfolio. VS Code opens automatically.</p>
+      <p class="text-stone-600 mt-2"><strong>Other types you can make:</strong></p>
+      <ul class="list-disc list-inside text-stone-600 mt-1 ml-2 space-y-1">
+        <li><span class="font-mono">case-study-deck</span> — slide deck for an interview</li>
+        <li><span class="font-mono">scroll-case-study</span> — long-form scrollable case study page</li>
+        <li><span class="font-mono">landing-page</span> — coming-soon / signup page</li>
+        <li><span class="font-mono">resume</span> — printable single-page CV</li>
+        <li><span class="font-mono">link-in-bio</span> — Linktree replacement on your own domain</li>
+        <li><span class="font-mono">illustration-gallery</span> — masonry grid for paintings, vector art, lettering</li>
+      </ul>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="font-serif text-3xl mb-4">2. Sign into your services</h2>
+      <p class="text-stone-700 mb-4">One command opens the sign-in pages for everything Pegasus can talk to (GitHub, Vercel, Figma, Adobe, Webflow, Google):</p>
+      <pre class="bg-stone-900 text-stone-100 rounded-lg p-4 font-mono text-sm overflow-x-auto"><code>pegasus signin</code></pre>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="font-serif text-3xl mb-4">3. Talk to Claude (or OpenCode)</h2>
+      <p class="text-stone-700 mb-4">Inside your project folder, type:</p>
+      <pre class="bg-stone-900 text-stone-100 rounded-lg p-4 font-mono text-sm overflow-x-auto"><code>claude       # Anthropic's agent
+opencode     # open-source equivalent</code></pre>
+      <p class="text-stone-600 mt-3">Then describe what you want in plain language. Examples:</p>
+      <ul class="list-disc list-inside text-stone-600 mt-2 space-y-1">
+        <li>"Replace the hero text with my name and tagline"</li>
+        <li>"Pull this Figma design and rebuild it: [paste URL]"</li>
+        <li>"Use the job-finder skill to find me design jobs"</li>
+        <li>"Use the vector-workflow skill to convert these Procreate exports"</li>
+      </ul>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="font-serif text-3xl mb-4">4. Ship it</h2>
+      <p class="text-stone-700 mb-4">When the project is ready:</p>
+      <pre class="bg-stone-900 text-stone-100 rounded-lg p-4 font-mono text-sm overflow-x-auto"><code>pegasus deploy</code></pre>
+      <p class="text-stone-600 mt-3">Vercel returns a public URL within seconds. Free for personal projects.</p>
+    </section>
+
+    <hr class="my-16 border-stone-300" />
+
+    <h2 class="font-serif text-3xl mb-4">Cheatsheets (in <span class="font-mono text-2xl">~/Design-Projects/</span>)</h2>
+    <ul class="space-y-2 text-stone-700">
+      <li>📋 <strong>COMMANDS.md</strong> — every command worth knowing</li>
+      <li>💬 <strong>PROMPTS.md</strong> — copy-paste prompts for portfolios, case studies, presentations</li>
+      <li>🌟 <strong>POSSIBILITIES.md</strong> — directory of what's possible</li>
+      <li>📖 <strong>GLOSSARY.md</strong> — what every dev word actually means</li>
+    </ul>
+
+    <h2 class="font-serif text-3xl mb-4 mt-12">Pegasus commands</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-sm">
+      <div class="bg-stone-100 rounded p-3"><strong>pegasus tour</strong><br><span class="text-stone-600">5-min walkthrough</span></div>
+      <div class="bg-stone-100 rounded p-3"><strong>pegasus jobs</strong><br><span class="text-stone-600">BuiltIn + LinkedIn ranked</span></div>
+      <div class="bg-stone-100 rounded p-3"><strong>pegasus doctor</strong><br><span class="text-stone-600">diagnose your install</span></div>
+      <div class="bg-stone-100 rounded p-3"><strong>pegasus update</strong><br><span class="text-stone-600">refresh templates + skills</span></div>
+      <div class="bg-stone-100 rounded p-3"><strong>pegasus signin</strong><br><span class="text-stone-600">log into all services</span></div>
+      <div class="bg-stone-100 rounded p-3"><strong>pegasus help</strong><br><span class="text-stone-600">all commands</span></div>
+    </div>
+
+    <hr class="my-16 border-stone-300" />
+
+    <p class="text-sm text-stone-500">
+      Stuck? Open <span class="font-mono">~/Design-Projects/TROUBLESHOOTING.md</span> or run <span class="font-mono">pegasus doctor</span>.
+      <br />
+      Made with ♥ for designers. <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">github.com/jerickevans-gif/Pegasus</a>
+    </p>
+
+  </main>
+
+</body>
+</html>

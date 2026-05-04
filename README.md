@@ -1,14 +1,14 @@
 # Pegasus
 
-A one-command setup that turns your laptop into a coding-ready studio for designers. Run one line in your terminal and walk away — when it's done, you'll have VS Code, Claude Code, OpenCode, the right extensions, the right CLI tools, and a `Design-Projects` folder ready to go.
+**A one-command setup that turns your laptop into an AI-powered design studio.**
 
-Built for designers who want to use AI coding tools to bring their work to life — portfolio sites, interactive case studies, presentation decks, prototype demos — without spending a weekend on machine setup.
+Built for designers (not developers) who want to use Claude Code or OpenCode to ship portfolios, case-study decks, presentations, and prototypes — without spending a weekend configuring a machine.
+
+Run one command. Walk away. Come back to a configured laptop with a visual dashboard, working starter projects, and AI agents ready to build whatever you describe.
 
 ## Quick start
 
 ### macOS
-
-Open the **Terminal** app (Spotlight → "Terminal") and paste:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/install.sh | bash
@@ -16,103 +16,107 @@ curl -fsSL https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/instal
 
 ### Windows
 
-Open **PowerShell** as Administrator (right-click Start → "Terminal (Admin)") and paste:
-
 ```powershell
 irm https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/install.ps1 | iex
 ```
 
-The installer will:
+The installer is **one-shot** by default: no questions after "Ready?", everything installs in 3–5 minutes. Pass `--custom` if you want the question-by-question flow.
 
-1. Ask before installing anything
-2. Install missing tools (skip whatever you already have)
-3. Install Visual Studio Code with the recommended extensions
-4. Install Claude Code, OpenCode, and useful CLIs (Vercel, ffmpeg, ImageMagick)
-5. Apply Pegasus's recommended Claude Code base settings
-6. Create `~/Design-Projects/` and drop the cheatsheet docs inside
-7. Offer to walk you through connecting your design tools (Figma, Webflow, etc.)
+When it finishes, a visual dashboard auto-opens in your browser and VS Code launches with the cheatsheet.
 
-When it's done, open your new folder in VS Code and run `claude` in the terminal — you're ready to design with code.
+## Then run
 
-## What gets installed
+```bash
+pegasus new portfolio my-site    # working portfolio + opens VS Code
+cd ~/Design-Projects/my-site
+claude                            # talk to the agent
+pegasus deploy                    # ship to Vercel
+```
 
-**CLIs and apps:**
-- **[Visual Studio Code](https://code.visualstudio.com/)** — your code editor
-- **[Claude Code](https://claude.com/claude-code)** — Anthropic's CLI agent
-- **[OpenCode](https://opencode.ai/)** — open-source AI coding agent
-- **Node.js**, **Git**, and **Homebrew/winget** as foundations
-- **[Vercel CLI](https://vercel.com/cli)** — deploy a portfolio in one command
-- **ffmpeg + ImageMagick** — video and image processing for case studies
+That's the whole loop. Make → edit → preview → ship → repeat.
 
-**VS Code extensions:**
-- Claude Code for VS Code
-- OpenCode for VS Code
-- Mermaid Chart
-- GitHub Actions
-- Live Preview (Microsoft)
-- Python
-- CodeSnap (beautiful code screenshots)
-- Plus designer extras: Tailwind CSS, Color Highlight, Image Preview, Prettier, Material Icon Theme, Figma for VS Code, Auto Rename Tag, HTML/CSS support
+## What you get
 
-**A `~/Design-Projects/` folder with:**
-- A starter [`CLAUDE.md`](config/CLAUDE.md) so Claude knows you're a designer
-- A copy of the cheatsheets below
+### Apps and CLIs
+- **VS Code** with 15 designer-friendly extensions (Tailwind, Live Preview, Color Highlight, Image Preview, Mermaid, GitHub Actions, CodeSnap, Python, Figma, Material Icons, more)
+- **Claude Code** + **OpenCode** — both AI coding agents, your choice
+- **Vercel CLI** — one-command deploys
+- **Bun, Node, npm, Git, Homebrew/winget** — the foundations
+- **ffmpeg, ImageMagick, SVGO, potrace** — image and vector toolchain
+- **Lighthouse, Pa11y, Wrangler** — performance, accessibility, Cloudflare
 
-**A bundled skill** (works in both Claude Code and OpenCode):
-- [`ux-ui-audit`](skills/ux-ui-audit/) — comprehensive 17-section audit covering accessibility, responsive breakpoints, performance, content design, and more. Just say "do a UX audit on this" and the agent picks it up automatically.
+### Templates (`pegasus new <type> <name>`)
+- **portfolio** — single-page with hero, project grid, about, contact
+- **case-study-deck** — reveal.js slide deck for interviews
+- **scroll-case-study** — long-form scrollable case study
+- **landing-page** — coming-soon page with email capture
+- **resume** — printable single-page CV
+- **link-in-bio** — Linktree replacement on your domain
+- **illustration-gallery** — masonry grid for paintings, vector art
 
-## The other Pegasus commands
+### Skills (auto-loaded by Claude and OpenCode)
+- **ux-ui-audit** — comprehensive 17-section audit
+- **job-finder** — pulls + ranks jobs from BuiltIn and LinkedIn against your resume
+- **vector-workflow** — Procreate / Adobe / SVG → web pipeline
+
+### Bridges (MCP servers — `connect.sh` installs them)
+- **Figma** (read designs into Claude)
+- **Playwright** (browser automation)
+- **Webflow, Notion, Linear, Stripe, Cloudflare**
+- **GitHub, Context7** (live docs)
+- **Adobe / Procreate / Framer** — workflow guides (no MCPs exist for these yet)
+- **Google** (Gmail/Drive/Calendar via claude.ai connectors)
+
+### A `~/Design-Projects/` folder containing
+- A starter `CLAUDE.md` so Claude knows it's working with a designer
+- **COMMANDS.md** — every command worth knowing
+- **PROMPTS.md** — copy-paste prompts grouped by use case
+- **POSSIBILITIES.md** — directory of what's possible
+- **GLOSSARY.md** — every dev word in plain English
+- **RECOMMENDED.md** — curated MIT-licensed external repos
+- **TROUBLESHOOTING.md** — five most common issues + fixes
+
+## The pegasus command
+
+After install, you have one helper that wraps the most common flows:
+
+| Command | What it does |
+|---|---|
+| `pegasus new <type> <name>` | Create a project from a template, git init, open VS Code |
+| `pegasus deploy` | Deploy current folder to Vercel |
+| `pegasus dashboard` | Open the visual dashboard in your browser |
+| `pegasus tour` | 5-minute guided walkthrough |
+| `pegasus jobs` | Run the job-finder skill |
+| `pegasus signin` | Open all the sign-in pages (GitHub, Vercel, Figma, Adobe, Webflow, Google) |
+| `pegasus clone <url> <name>` | Clone any GitHub repo as a starter project |
+| `pegasus doctor` | Diagnose what's installed / missing |
+| `pegasus update` | Refresh templates + skills from GitHub |
+| `pegasus help` | Full command list |
+
+## The companion commands
 
 After the main install, two more one-liners give you extras:
 
-### Connect your design tools
-
-Walks you through enabling Figma, Playwright, Webflow, Notion, GitHub, Context7, and Google connectors via MCP servers.
-
 ```bash
-# macOS
+# Connect every design tool (Figma, Playwright, Webflow, Notion, GitHub, Linear, Stripe, etc.)
 curl -fsSL https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/connect.sh | bash
 
-# Windows
-irm https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/connect.ps1 | iex
-```
-
-### Install the standalone desktop / terminal apps
-
-Adds the Claude desktop app (chat) plus the Claude Code and OpenCode CLIs for use in any terminal — outside VS Code.
-
-```bash
-# macOS
+# Install standalone desktop apps (Claude desktop, CLIs for use outside VS Code)
 curl -fsSL https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/desktop-apps.sh | bash
-
-# Windows
-irm https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/desktop-apps.ps1 | iex
 ```
 
-## Cheatsheets (in your Design-Projects folder after install)
+## Works with both agents
 
-- **[COMMANDS.md](docs/COMMANDS.md)** — every Claude Code, OpenCode, and VS Code command worth knowing
-- **[PROMPTS.md](docs/PROMPTS.md)** — copy-paste prompts for portfolios, case studies, and presentations
-- **[POSSIBILITIES.md](docs/POSSIBILITIES.md)** — directory of what's possible, organized by use case
+Whether a designer uses **Claude Code in VS Code** or **OpenCode in VS Code**, Pegasus works for both. Skills install to `~/.claude/skills/` which both agents read.
 
 ## Power user: faster Claude Code
 
-By default, Claude Code asks "Allow this?" before each action. If you're an experienced user and want to skip those prompts, see [Claude Code's permissions documentation](https://docs.claude.com/en/docs/claude-code/iam) for how to edit `~/.claude/settings.json` to set `permissions.defaultMode` to `bypassPermissions`. **Only do this once you understand what Claude can do** — it can delete files, run shell commands, and read anything on your machine without asking.
+By default Claude asks before each action. To skip those prompts (advanced — read the trade-offs), see [Claude Code's permissions docs](https://docs.claude.com/en/docs/claude-code/iam) for the `bypassPermissions` setting.
 
-## After install: first project
+## Privacy
 
-```bash
-cd ~/Design-Projects
-mkdir my-first-project && cd my-first-project
-claude
-```
-
-Tell Claude what you want to build. Examples (more in [PROMPTS.md](docs/PROMPTS.md)):
-
-- "Make a one-page portfolio site with my work organized into 3 sections"
-- "Convert this Figma file into a working HTML/CSS prototype: <paste Figma URL>"
-- "Build me a slide deck for a design case study using reveal.js"
+Pegasus has no telemetry, no analytics, no remote logging. Everything runs on your machine and only fetches from GitHub when you explicitly run `pegasus update`.
 
 ## License
 
-MIT — fork it, remix it, share it. See [LICENSE](LICENSE).
+MIT. Fork it, remix it, share it.

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pegasus Dashboard</title>
+  <meta name="description" content="Visual launcher for everything in your Pegasus install — templates, commands, skills, MCPs, prompts." />
+  <meta name="theme-color" content="#fafaf9" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Crimson Pro"', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    :root { color-scheme: light dark; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+
+    /* Visible focus ring at WCAG AA+ */
+    :focus-visible { outline: 2px solid #0c0a09; outline-offset: 3px; border-radius: 4px; }
+
+    /* Skip to main link */
+    .skip-link { position: absolute; left: -9999px; }
+    .skip-link:focus { left: 1rem; top: 1rem; z-index: 100; padding: 0.75rem 1rem; background: #0c0a09; color: white; border-radius: 6px; }
+
+    /* Mode pill */
+    .mode-pill { backdrop-filter: blur(8px); }
+
+    /* Card hover lift */
+    .card { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+    .card:hover { transform: translateY(-1px); border-color: #44403c; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+
+    /* Copy feedback */
+    .copied { background-color: #16a34a !important; color: white !important; }
+
+    /* Hidden by search */
+    .hidden-by-search { display: none !important; }
+
+    /* Section anchor offset */
+    section[id] { scroll-margin-top: 5rem; }
+
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      body { background: #0c0a09; color: #fafaf9; }
+      .card { background: #1c1917; border-color: #292524; }
+      .card:hover { border-color: #57534e; }
+      pre, code { background: #1c1917; }
+      :focus-visible { outline-color: #fafaf9; }
+      .border-stone-200 { border-color: #292524 !important; }
+    }
+  </style>
+</head>
+
+<body class="bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-50 font-sans antialiased min-h-screen">
+
+  <a href="#main" class="skip-link">Skip to main</a>
+
+  <!-- Mode pill (persistent) -->
+  <div class="mode-pill fixed top-3 right-3 bg-white/80 dark:bg-stone-900/80 border border-stone-300 dark:border-stone-700 rounded-full px-3 py-1.5 text-xs flex items-center gap-2 z-50 shadow-sm">
+    <span class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true"></span>
+    <span class="text-stone-700 dark:text-stone-300">offline-ready</span>
+    <span class="text-stone-400" aria-hidden="true">·</span>
+    <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> to search</span>
+  </div>
+
+  <!-- Header -->
+  <header class="max-w-6xl mx-auto px-6 pt-16 pb-8">
+    <p class="text-sm uppercase tracking-widest text-stone-500">Pegasus</p>
+    <h1 class="font-serif text-5xl md:text-7xl mt-3 leading-none tracking-tight">Dashboard</h1>
+    <p class="mt-4 text-lg text-stone-600 dark:text-stone-400 max-w-2xl">
+      Everything in your Pegasus install, on one page. Search, browse, copy, run.
+    </p>
+
+    <!-- Search bar -->
+    <div class="mt-8 relative max-w-xl">
+      <input
+        type="search"
+        id="search"
+        placeholder="Search templates, commands, prompts, terms…"
+        aria-label="Search the dashboard"
+        class="w-full px-5 py-3 pr-12 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none text-base"
+      />
+      <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-stone-100 dark:bg-stone-800 text-xs font-mono text-stone-500">/</kbd>
+    </div>
+
+    <!-- Section nav -->
+    <nav aria-label="Sections" class="mt-8 flex flex-wrap gap-2 text-sm">
+      <a href="#start" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Quick start</a>
+      <a href="#templates" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Templates</a>
+      <a href="#commands" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Commands</a>
+      <a href="#skills" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Skills</a>
+      <a href="#mcps" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Bridges (MCPs)</a>
+      <a href="#prompts" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Prompts</a>
+      <a href="#recommended" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Recommended</a>
+      <a href="#glossary" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Glossary</a>
+      <a href="#help" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Help</a>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1" class="max-w-6xl mx-auto px-6 pb-24" data-search-root>
+
+    <!-- QUICK START -->
+    <section id="start" class="py-12">
+      <h2 class="font-serif text-3xl mb-6">Quick start · 3 commands</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+          <div class="text-sm text-stone-500 mb-1">1. Make</div>
+          <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="pegasus new portfolio my-site">pegasus new portfolio my-site</button>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Creates a working portfolio + opens VS Code.</p>
+        </div>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+          <div class="text-sm text-stone-500 mb-1">2. Edit</div>
+          <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="claude">claude</button>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">In your project. Then describe what you want.</p>
+        </div>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+          <div class="text-sm text-stone-500 mb-1">3. Ship</div>
+          <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="pegasus deploy">pegasus deploy</button>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Vercel returns a public URL within seconds.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMPLATES -->
+    <section id="templates" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Templates · 7</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Each one is a working starter. <span class="font-mono">pegasus new &lt;type&gt; &lt;name&gt;</span></p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="templates-grid">
+        <!-- Cards inserted by JS from data below -->
+      </div>
+    </section>
+
+    <!-- COMMANDS -->
+    <section id="commands" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-6">Commands</h2>
+      <div id="commands-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Skills · auto-loaded by Claude & OpenCode</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Just describe what you want — the right skill activates.</p>
+      <div id="skills-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- MCPs -->
+    <section id="mcps" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Bridges (MCPs)</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Run <span class="font-mono">pegasus signin</span> first, then these light up.</p>
+      <div id="mcps-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- PROMPTS -->
+    <section id="prompts" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Prompts</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Click to copy. Paste into Claude / OpenCode.</p>
+      <div id="prompts-list" class="space-y-3"></div>
+    </section>
+
+    <!-- RECOMMENDED -->
+    <section id="recommended" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Recommended external repos</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Hand-picked. All MIT-licensed. Use <span class="font-mono">pegasus clone &lt;url&gt; &lt;name&gt;</span>.</p>
+      <div id="recommended-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section id="glossary" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Glossary · plain English</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Every dev word that might confuse you, decoded.</p>
+      <div id="glossary-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"></div>
+    </section>
+
+    <!-- HELP -->
+    <section id="help" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-6">Help</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+          <h3 class="font-medium mb-2">Something not working?</h3>
+          <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="pegasus doctor">pegasus doctor</button>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Diagnoses what's installed and what's missing.</p>
+        </div>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+          <h3 class="font-medium mb-2">Common issues</h3>
+          <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/TROUBLESHOOTING.md" class="text-sm underline">Open TROUBLESHOOTING.md →</a>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Five most common issues, fixes for each.</p>
+        </div>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+          <h3 class="font-medium mb-2">Update everything</h3>
+          <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="pegasus update">pegasus update</button>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Refreshes templates and skills from GitHub.</p>
+        </div>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+          <h3 class="font-medium mb-2">Walkthrough</h3>
+          <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="pegasus tour">pegasus tour</button>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">5-minute guided tour in your terminal.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-6 py-8 text-sm text-stone-500 border-t border-stone-200 dark:border-stone-800">
+    <p>
+      Pegasus · made for designers · <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">github.com/jerickevans-gif/Pegasus</a>
+    </p>
+    <p class="mt-1 text-xs">No tracking. No analytics. This page works fully offline once loaded.</p>
+  </footer>
+
+  <!-- Toast -->
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm opacity-0 transition-opacity pointer-events-none">
+    Copied
+  </div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+
+const templates = [
+  { name: 'portfolio',           desc: 'Single-page portfolio with hero, project grid, about, contact.', cmd: 'pegasus new portfolio my-site' },
+  { name: 'case-study-deck',     desc: 'reveal.js slide deck for an interview presentation.',           cmd: 'pegasus new case-study-deck acme-redesign' },
+  { name: 'scroll-case-study',   desc: 'Long-form scrollable case study page with stats + figures.',    cmd: 'pegasus new scroll-case-study redesign-2026' },
+  { name: 'landing-page',        desc: 'Coming-soon page with email signup form.',                      cmd: 'pegasus new landing-page launch' },
+  { name: 'resume',              desc: 'Printable single-page CV. Ctrl-P → Save as PDF.',              cmd: 'pegasus new resume my-cv' },
+  { name: 'link-in-bio',         desc: 'Linktree replacement on your own domain.',                      cmd: 'pegasus new link-in-bio bio' },
+  { name: 'illustration-gallery',desc: 'Masonry grid for paintings, vector art, lettering.',           cmd: 'pegasus new illustration-gallery gallery' },
+];
+
+const commands = [
+  { cmd: 'pegasus new <type> <name>',    note: 'create a new project from a template' },
+  { cmd: 'pegasus deploy',               note: 'deploy current folder to Vercel' },
+  { cmd: 'pegasus jobs',                 note: 'BuiltIn + LinkedIn job-finder skill, ranked' },
+  { cmd: 'pegasus signin',               note: 'open browser tabs to log into all services' },
+  { cmd: 'pegasus clone <url> <name>',   note: 'clone any GitHub repo as a starter' },
+  { cmd: 'pegasus tour',                 note: '5-minute guided walkthrough' },
+  { cmd: 'pegasus doctor',               note: 'diagnose what\'s installed / broken' },
+  { cmd: 'pegasus update',               note: 'refresh templates + skills from GitHub' },
+  { cmd: 'claude',                       note: 'start Claude Code in current folder' },
+  { cmd: 'opencode',                     note: 'start OpenCode in current folder' },
+  { cmd: 'claude /clear',                note: 'clear conversation, keep project context' },
+  { cmd: 'claude /init',                 note: 'have Claude write a CLAUDE.md for the project' },
+  { cmd: 'claude /memory',               note: 'view or edit Claude\'s saved memory' },
+  { cmd: 'claude /agents',               note: 'manage subagents' },
+  { cmd: 'claude /mcp',                  note: 'manage MCP servers' },
+  { cmd: 'npx serve .',                  note: 'preview a static site at localhost:3000' },
+  { cmd: 'svgo input.svg',               note: 'optimize an SVG file' },
+  { cmd: 'magick in.png -resize 1600x out.webp', note: 'resize + convert to WebP' },
+  { cmd: 'potrace logo.bmp --svg',       note: 'trace a bitmap into vectors' },
+  { cmd: 'lighthouse https://yoursite.com', note: 'performance + accessibility audit' },
+  { cmd: 'pa11y https://yoursite.com',   note: 'accessibility scan' },
+];
+
+const skills = [
+  {
+    name: 'ux-ui-audit',
+    summary: 'Comprehensive 17-section UX audit with accessibility, performance, content design, responsive checks.',
+    invoke: 'Do a UX/UI audit on this site.',
+  },
+  {
+    name: 'job-finder',
+    summary: 'Pulls openings from BuiltIn + LinkedIn, ranks against your resume + LinkedIn profile, returns a shortlist.',
+    invoke: 'Use the job-finder skill to find me design jobs.',
+  },
+  {
+    name: 'vector-workflow',
+    summary: 'Procreate / Adobe / SVG → web pipeline. Bitmap-to-vector tracing, SVG optimization, Lottie embed.',
+    invoke: 'Use the vector-workflow skill to clean up these Procreate exports and embed them.',
+  },
+];
+
+const mcps = [
+  { name: 'Figma',      desc: 'Read Figma files; turn designs into code',         note: 'Requires Figma desktop + Dev Mode toggle' },
+  { name: 'Playwright', desc: 'Open a real browser; click, screenshot, scrape',   note: '' },
+  { name: 'Webflow',    desc: 'Read + edit Webflow sites',                        note: 'OAuth on first use' },
+  { name: 'Context7',   desc: 'Live docs for Tailwind, React, Astro, etc.',       note: 'No auth needed' },
+  { name: 'GitHub',     desc: 'Create repos, open PRs, manage issues',            note: 'Needs GITHUB_PERSONAL_ACCESS_TOKEN' },
+  { name: 'Notion',     desc: 'Pull case study content from Notion',              note: 'OAuth on first use' },
+  { name: 'Linear',     desc: 'Manage issues + projects',                         note: 'OAuth on first use' },
+  { name: 'Stripe',     desc: 'For designers selling things',                     note: 'API key required' },
+  { name: 'Cloudflare', desc: 'DNS + Pages alternative to Vercel',                note: 'Cloudflare account required' },
+  { name: 'Google',     desc: 'Gmail, Drive, Calendar (via claude.ai connectors)', note: 'Set up at claude.ai/settings/connectors' },
+  { name: 'Adobe',      desc: 'No MCP yet — export & let Claude handle the file', note: 'Use vector-workflow skill' },
+  { name: 'Procreate',  desc: 'No API — export PNG, AirDrop in, then ask Claude', note: 'Use vector-workflow skill' },
+  { name: 'Framer',     desc: 'No MCP yet — paste public URLs or use Playwright', note: '' },
+];
+
+const prompts = [
+  { goal: 'Start a portfolio',          text: 'Build me a single-page portfolio at /. I\'m a [graphic / product / illustrator] designer. Sections: hero with name + tagline, project grid (6 placeholder cards), about, contact link. Tailwind. Editorial style — large serif headlines, generous whitespace. Responsive. Start a Live Preview when done.' },
+  { goal: 'Convert a Figma design',     text: 'Here\'s the Figma file: [URL]. Use the Figma MCP tools to read it and turn it into HTML/Tailwind that matches as closely as possible. Show me a preview when done.' },
+  { goal: 'Build a case study deck',    text: 'I have a case study about [project + 1-line desc]. Build me a slide deck as a single HTML file using reveal.js. Around 10 slides: cover, problem, research, ideation, design decisions (3 slides), final result, impact, thanks. Polished design portfolio style — minimalist, big imagery, sans-serif. Drop <!-- TODO: image --> placeholder on each slide.' },
+  { goal: 'Find me jobs',               text: 'Use the job-finder skill to pull current design jobs from BuiltIn.com and LinkedIn against my profile. My resume is at ~/Design-Projects/resume/.' },
+  { goal: 'Procreate art → website',    text: 'Use the vector-workflow skill. I have these Procreate exports in ./art/ — clean them up for the web (WebP at 1600px wide, lazy-loaded) and add them to the gallery in index.html.' },
+  { goal: 'Audit my site',              text: 'Use the ux-ui-audit skill on this project. I want the full 17-section pass with priorities and concrete fixes.' },
+  { goal: 'Deploy + custom domain',     text: 'Deploy this to Vercel and walk me through pointing my custom domain (yourname.com) at it — exact DNS records I need to add.' },
+  { goal: 'Accessibility check',        text: 'Audit this page for accessibility. Show me a list of issues ranked by severity, then fix the easy ones automatically.' },
+  { goal: 'Optimize images',            text: 'Resize all images in ./images/ to max 1600px wide, convert to WebP, and update the HTML to point at the new files.' },
+  { goal: 'Explain this code',          text: 'Explain what\'s happening in this file like I\'m new to JavaScript: [drop file in chat]' },
+];
+
+const recommended = [
+  { name: 'santifer/career-ops',           stars: '42k', desc: 'AI-powered job search with 14 skill modes, dashboard, PDF generation.', clone: 'pegasus clone https://github.com/santifer/career-ops job-search' },
+  { name: 'Paramchoudhary/ResumeSkills',   stars: '406', desc: 'Skills for resume writing, ATS optimization, interview prep.',          clone: 'pegasus clone https://github.com/Paramchoudhary/ResumeSkills resume-skills' },
+  { name: 'andrew-shwetzer/career-ops-plugin', stars: '268', desc: '9 AI skills for job seekers across any industry.',                  clone: 'pegasus clone https://github.com/andrew-shwetzer/career-ops-plugin career-ops-plugin' },
+  { name: 'Gsync/jobsync',                 stars: '548', desc: 'Self-hosted job application tracker with AI assistant.',                clone: 'pegasus clone https://github.com/Gsync/jobsync jobsync-tracker' },
+  { name: 'rendercv/rendercv',             stars: '16k', desc: 'YAML-driven resume builder for academics + engineers.',                 clone: 'pegasus clone https://github.com/rendercv/rendercv rendercv' },
+  { name: 'erlandv/case',                  stars: '44',  desc: 'Case-study-first portfolio theme for Astro.',                           clone: 'pegasus clone https://github.com/erlandv/case my-case-portfolio' },
+];
+
+const glossary = [
+  { term: 'Terminal',     def: 'The text window where you type commands. macOS: Terminal/iTerm. Windows: PowerShell.' },
+  { term: 'Command',      def: 'A line of text you type and press Enter.' },
+  { term: 'Directory',    def: 'A folder. Devs say "directory".' },
+  { term: 'cd',           def: 'Change directory. cd ~/Design-Projects puts you inside that folder.' },
+  { term: 'ls',           def: 'List what\'s inside the current folder.' },
+  { term: '~',            def: 'Your home folder. ~/Design-Projects = /Users/you/Design-Projects.' },
+  { term: 'Repo',         def: 'A project folder tracked by Git.' },
+  { term: 'Git',          def: 'The system that remembers every change. Like infinite undo with notes.' },
+  { term: 'Commit',       def: 'A saved snapshot of your project at a moment in time.' },
+  { term: 'GitHub',       def: 'The website where you put a repo to share or back up.' },
+  { term: 'HTML',         def: 'The structure of a webpage.' },
+  { term: 'CSS',          def: 'The styling — colors, fonts, spacing, layout.' },
+  { term: 'JavaScript',   def: 'The logic — clicks, animations, interactivity.' },
+  { term: 'Tailwind',     def: 'Way of writing CSS with utility classes in your HTML.' },
+  { term: 'CDN',          def: 'Loading a library from someone else\'s server via <script>. No install.' },
+  { term: 'Build step',   def: 'When code has to be processed before browsers can read it. Pegasus templates skip this.' },
+  { term: 'Local server', def: 'Tiny web server on your laptop for previewing. npx serve . starts one.' },
+  { term: 'Deploy',       def: 'Make your site available on the public internet.' },
+  { term: 'Claude Code',  def: 'Anthropic\'s terminal coding agent. Type claude.' },
+  { term: 'OpenCode',     def: 'Open-source equivalent of Claude Code. Type opencode.' },
+  { term: 'MCP',          def: 'Model Context Protocol. Plug system that lets agents talk to tools.' },
+  { term: 'Skill',        def: 'A structured instruction sheet that activates when relevant.' },
+  { term: 'Slash command',def: 'Inside a Claude session, commands starting with / (e.g. /clear).' },
+  { term: 'Prompt',       def: 'What you type to the agent. Good prompts state the goal, not the implementation.' },
+  { term: 'Extension',    def: 'A plugin for VS Code. Pegasus auto-installs ~15 of them.' },
+];
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+
+function renderTemplates() {
+  document.getElementById('templates-grid').innerHTML = templates.map(t => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+      <h3 class="font-medium font-serif text-xl">${t.name}</h3>
+      <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${t.desc}</p>
+      <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${t.cmd}">${t.cmd}</button>
+    </div>
+  `).join('');
+}
+
+function renderCommands() {
+  document.getElementById('commands-list').innerHTML = commands.map(c => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search>
+      <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-1.5 rounded w-full text-left mb-1.5" data-copy="${c.cmd}">${c.cmd}</button>
+      <p class="text-xs text-stone-600 dark:text-stone-400 px-1">${c.note}</p>
+    </div>
+  `).join('');
+}
+
+function renderSkills() {
+  document.getElementById('skills-list').innerHTML = skills.map(s => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+      <h3 class="font-medium font-serif text-xl">${s.name}</h3>
+      <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${s.summary}</p>
+      <div class="text-xs text-stone-500 mb-1">Try saying:</div>
+      <button class="copy bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left text-sm italic" data-copy='${s.invoke.replace(/'/g, "&#39;")}'>"${s.invoke}"</button>
+    </div>
+  `).join('');
+}
+
+function renderMcps() {
+  document.getElementById('mcps-list').innerHTML = mcps.map(m => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search>
+      <h3 class="font-medium">${m.name}</h3>
+      <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">${m.desc}</p>
+      ${m.note ? `<p class="text-xs text-stone-500 mt-2">${m.note}</p>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderPrompts() {
+  document.getElementById('prompts-list').innerHTML = prompts.map(p => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search>
+      <div class="text-xs uppercase tracking-wider text-stone-500 mb-1">${p.goal}</div>
+      <button class="copy text-left text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full" data-copy='${p.text.replace(/'/g, "&#39;")}'>${p.text}</button>
+    </div>
+  `).join('');
+}
+
+function renderRecommended() {
+  document.getElementById('recommended-list').innerHTML = recommended.map(r => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+      <div class="flex items-baseline justify-between">
+        <h3 class="font-medium font-mono text-sm">${r.name}</h3>
+        <span class="text-xs text-stone-500">★ ${r.stars}</span>
+      </div>
+      <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${r.desc}</p>
+      <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${r.clone}">${r.clone}</button>
+    </div>
+  `).join('');
+}
+
+function renderGlossary() {
+  document.getElementById('glossary-list').innerHTML = glossary.map(g => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search>
+      <span class="font-medium font-mono text-xs">${g.term}</span>
+      <p class="text-xs text-stone-600 dark:text-stone-400 mt-1">${g.def}</p>
+    </div>
+  `).join('');
+}
+
+renderTemplates();
+renderCommands();
+renderSkills();
+renderMcps();
+renderPrompts();
+renderRecommended();
+renderGlossary();
+
+// ─────────────────────────────────────────────
+// COPY-TO-CLIPBOARD
+// ─────────────────────────────────────────────
+
+document.querySelectorAll('.copy').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const text = btn.dataset.copy;
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.classList.add('copied');
+      const original = btn.innerHTML;
+      btn.innerHTML = '✓ Copied';
+      const toast = document.getElementById('toast');
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = original;
+        toast.style.opacity = '0';
+      }, 1200);
+    } catch (e) {
+      btn.innerHTML = 'Press ⌘+C';
+    }
+  });
+});
+
+// ─────────────────────────────────────────────
+// SEARCH
+// ─────────────────────────────────────────────
+
+const searchInput = document.getElementById('search');
+
+function applySearch(q) {
+  q = (q || '').trim().toLowerCase();
+  const cards = document.querySelectorAll('[data-search]');
+  if (!q) {
+    cards.forEach(c => c.classList.remove('hidden-by-search'));
+    return;
+  }
+  cards.forEach(c => {
+    const txt = c.textContent.toLowerCase();
+    c.classList.toggle('hidden-by-search', !txt.includes(q));
+  });
+}
+
+searchInput.addEventListener('input', e => applySearch(e.target.value));
+
+// `/` focuses search
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }
+  if (e.key === 'Escape' && document.activeElement === searchInput) {
+    searchInput.value = '';
+    applySearch('');
+    searchInput.blur();
+  }
+});
+
+</script>
+</body>
+</html>

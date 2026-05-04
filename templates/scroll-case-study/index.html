@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Case Study · Project Name</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { serif: ['Crimson Pro', 'serif'], sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-900 font-sans">
+
+  <header class="max-w-3xl mx-auto px-6 pt-32 pb-20">
+    <p class="text-sm uppercase tracking-widest text-stone-500">Case study · 2026</p>
+    <h1 class="font-serif text-6xl md:text-7xl mt-6 leading-none tracking-tight">
+      Project Name
+    </h1>
+    <p class="mt-8 text-2xl text-stone-700 leading-relaxed">
+      A one-sentence promise that pulls the reader in. What changed and for whom.
+    </p>
+    <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+      <div><div class="text-stone-500">Role</div><div class="font-medium">Lead designer</div></div>
+      <div><div class="text-stone-500">Team</div><div class="font-medium">5 people</div></div>
+      <div><div class="text-stone-500">Timeline</div><div class="font-medium">12 weeks</div></div>
+      <div><div class="text-stone-500">Year</div><div class="font-medium">2026</div></div>
+    </div>
+  </header>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-6">The problem</h2>
+    <p class="text-lg text-stone-700 leading-relaxed">
+      One paragraph on what was broken. Be specific about whose problem it was and how it showed up in their day.
+    </p>
+  </section>
+
+  <figure class="max-w-5xl mx-auto px-6 py-8">
+    <div class="aspect-[16/9] bg-stone-200 rounded-lg overflow-hidden">
+      <!-- TODO: hero image showing the problem state -->
+    </div>
+    <figcaption class="text-sm text-stone-500 mt-3 text-center">Caption: what this image shows.</figcaption>
+  </figure>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-6">Research</h2>
+    <p class="text-lg text-stone-700 leading-relaxed mb-4">
+      Who you spoke to. What you learned. The single most surprising finding.
+    </p>
+    <ul class="list-disc list-outside ml-5 text-stone-700 space-y-2">
+      <li>Insight 1 — pulled directly from a conversation or observation.</li>
+      <li>Insight 2 — pattern across multiple users.</li>
+      <li>Insight 3 — what *didn't* turn out to be true.</li>
+    </ul>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-6">The approach</h2>
+    <p class="text-lg text-stone-700 leading-relaxed">
+      What you decided to make and why. One paragraph.
+    </p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-6">Decision · 1</h2>
+    <h3 class="text-xl font-medium mb-3">Title of the design call you made</h3>
+    <p class="text-lg text-stone-700 leading-relaxed">
+      Why you made this choice. What you considered and discarded.
+    </p>
+  </section>
+
+  <figure class="max-w-5xl mx-auto px-6 py-8">
+    <div class="aspect-[16/9] bg-stone-200 rounded-lg overflow-hidden"></div>
+    <figcaption class="text-sm text-stone-500 mt-3 text-center">Visual showing this decision.</figcaption>
+  </figure>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-6">Decision · 2</h2>
+    <h3 class="text-xl font-medium mb-3">Second meaningful design call</h3>
+    <p class="text-lg text-stone-700 leading-relaxed">Reasoning.</p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-6">The result</h2>
+    <p class="text-lg text-stone-700 leading-relaxed">What you shipped.</p>
+  </section>
+
+  <figure class="max-w-5xl mx-auto px-6 py-8">
+    <div class="aspect-[16/9] bg-stone-200 rounded-lg overflow-hidden"></div>
+    <figcaption class="text-sm text-stone-500 mt-3 text-center">Hero shot of the final work.</figcaption>
+  </figure>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-8">Impact</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <div class="font-serif text-5xl">3×</div>
+        <div class="text-stone-600 mt-1">faster than baseline</div>
+      </div>
+      <div>
+        <div class="font-serif text-5xl">92%</div>
+        <div class="text-stone-600 mt-1">first-week retention</div>
+      </div>
+      <div>
+        <div class="font-serif text-5xl">$2M</div>
+        <div class="text-stone-600 mt-1">in attributable revenue</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <h2 class="font-serif text-3xl mb-6">What I'd do differently</h2>
+    <p class="text-lg text-stone-700 leading-relaxed">
+      Honesty here builds more trust than perfection. One paragraph.
+    </p>
+  </section>
+
+  <footer class="max-w-3xl mx-auto px-6 py-16 border-t border-stone-200">
+    <p class="text-stone-600">
+      <a href="mailto:you@example.com" class="underline decoration-stone-400 underline-offset-4">you@example.com</a>
+      · <a href="/" class="underline decoration-stone-400 underline-offset-4">More work</a>
+    </p>
+  </footer>
+
+</body>
+</html>

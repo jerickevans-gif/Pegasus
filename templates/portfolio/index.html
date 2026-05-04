@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name — Designer</title>
+  <meta name="description" content="Designer working at the intersection of [your fields]." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Crimson Pro"', 'Georgia', 'serif'],
+            sans:  ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-stone-50 text-stone-900 font-sans antialiased">
+
+  <header class="max-w-5xl mx-auto px-6 pt-24 pb-12">
+    <p class="text-sm uppercase tracking-widest text-stone-500">Portfolio · 2026</p>
+    <h1 class="font-serif text-6xl md:text-8xl mt-4 leading-none tracking-tight">
+      Your Name
+    </h1>
+    <p class="mt-6 text-xl md:text-2xl max-w-2xl text-stone-700">
+      A one-line tagline about the work you do and the people you do it for.
+    </p>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6">
+
+    <section id="work" class="py-12">
+      <h2 class="font-serif text-3xl mb-8">Selected Work</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <article class="group cursor-pointer">
+          <div class="aspect-[4/3] bg-stone-200 rounded-lg overflow-hidden mb-4">
+            <!-- TODO: drop a project image into ./images/ and link it here -->
+          </div>
+          <h3 class="font-serif text-2xl">Project One</h3>
+          <p class="text-stone-600 mt-1">A two-line summary of what this project was, your role, and the outcome.</p>
+        </article>
+
+        <article class="group cursor-pointer">
+          <div class="aspect-[4/3] bg-stone-200 rounded-lg overflow-hidden mb-4"></div>
+          <h3 class="font-serif text-2xl">Project Two</h3>
+          <p class="text-stone-600 mt-1">A two-line summary of what this project was, your role, and the outcome.</p>
+        </article>
+
+        <article class="group cursor-pointer">
+          <div class="aspect-[4/3] bg-stone-200 rounded-lg overflow-hidden mb-4"></div>
+          <h3 class="font-serif text-2xl">Project Three</h3>
+          <p class="text-stone-600 mt-1">A two-line summary of what this project was, your role, and the outcome.</p>
+        </article>
+
+        <article class="group cursor-pointer">
+          <div class="aspect-[4/3] bg-stone-200 rounded-lg overflow-hidden mb-4"></div>
+          <h3 class="font-serif text-2xl">Project Four</h3>
+          <p class="text-stone-600 mt-1">A two-line summary of what this project was, your role, and the outcome.</p>
+        </article>
+
+      </div>
+    </section>
+
+    <section id="about" class="py-16 border-t border-stone-200">
+      <h2 class="font-serif text-3xl mb-6">About</h2>
+      <div class="max-w-2xl text-lg text-stone-700 space-y-4">
+        <p>One paragraph about who you are, what you do, and what you care about. Keep it human.</p>
+        <p>A second paragraph about what you're currently working on or learning, and the kinds of projects you'd love to take on next.</p>
+      </div>
+    </section>
+
+    <section id="contact" class="py-16 border-t border-stone-200">
+      <h2 class="font-serif text-3xl mb-6">Get in touch</h2>
+      <p class="text-lg">
+        <a href="mailto:you@example.com" class="underline decoration-stone-400 underline-offset-4 hover:decoration-stone-900">you@example.com</a>
+      </p>
+      <ul class="mt-4 flex gap-6 text-stone-600">
+        <li><a href="#" class="hover:text-stone-900">LinkedIn</a></li>
+        <li><a href="#" class="hover:text-stone-900">Read.cv</a></li>
+        <li><a href="#" class="hover:text-stone-900">Are.na</a></li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-6 py-12 text-sm text-stone-500 border-t border-stone-200">
+    © 2026 Your Name. Made with <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">Pegasus</a>.
+  </footer>
+
+</body>
+</html>

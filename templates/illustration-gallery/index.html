@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Illustration Gallery — Your Name</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { serif: ['Crimson Pro','serif'], sans: ['Inter','sans-serif'] } } } }
+  </script>
+</head>
+<body class="bg-stone-100 text-stone-900 font-sans">
+
+  <header class="max-w-6xl mx-auto px-6 pt-20 pb-12">
+    <p class="text-sm uppercase tracking-widest text-stone-500">Gallery · 2026</p>
+    <h1 class="font-serif text-5xl md:text-7xl mt-4 leading-none tracking-tight">Your Name</h1>
+    <p class="mt-6 text-xl text-stone-700 max-w-2xl">
+      Illustrator · Painter · Whatever you want here.
+    </p>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 pb-20">
+
+    <!-- Masonry grid via columns -->
+    <div class="columns-1 sm:columns-2 lg:columns-3 gap-4">
+      <!-- Drop your art here. PNG/JPG for paintings, SVG for vector. -->
+      <!-- Each item: -->
+
+      <figure class="mb-4 break-inside-avoid">
+        <div class="aspect-[4/5] bg-stone-300 rounded overflow-hidden">
+          <!-- <img src="art/painting-1.jpg" alt="..." loading="lazy" class="w-full h-full object-cover" /> -->
+        </div>
+        <figcaption class="text-xs text-stone-500 mt-1 px-1">Title · 2026</figcaption>
+      </figure>
+
+      <figure class="mb-4 break-inside-avoid">
+        <div class="aspect-square bg-stone-300 rounded overflow-hidden"></div>
+        <figcaption class="text-xs text-stone-500 mt-1 px-1">Title · 2026</figcaption>
+      </figure>
+
+      <figure class="mb-4 break-inside-avoid">
+        <div class="aspect-[3/4] bg-stone-300 rounded overflow-hidden"></div>
+        <figcaption class="text-xs text-stone-500 mt-1 px-1">Title · 2026</figcaption>
+      </figure>
+
+      <figure class="mb-4 break-inside-avoid">
+        <div class="aspect-[4/3] bg-stone-300 rounded overflow-hidden"></div>
+        <figcaption class="text-xs text-stone-500 mt-1 px-1">Title · 2026</figcaption>
+      </figure>
+
+      <figure class="mb-4 break-inside-avoid">
+        <div class="aspect-[3/5] bg-stone-300 rounded overflow-hidden"></div>
+        <figcaption class="text-xs text-stone-500 mt-1 px-1">Title · 2026</figcaption>
+      </figure>
+
+      <figure class="mb-4 break-inside-avoid">
+        <div class="aspect-square bg-stone-300 rounded overflow-hidden"></div>
+        <figcaption class="text-xs text-stone-500 mt-1 px-1">Title · 2026</figcaption>
+      </figure>
+
+    </div>
+
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-6 py-12 text-sm text-stone-500 border-t border-stone-200">
+    © 2026 Your Name · <a href="mailto:you@example.com" class="underline">you@example.com</a> · Made with <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">Pegasus</a>
+  </footer>
+
+</body>
+</html>
