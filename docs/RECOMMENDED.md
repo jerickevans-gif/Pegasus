@@ -66,6 +66,17 @@ pegasus clone https://github.com/rendercv/rendercv rendercv
 
 ---
 
+## MCP servers
+
+### elsahafy/ux-mcp-server · 12★ · MIT
+> 28 UX knowledge resources, 23 analysis tools, 4 workflow prompts. WCAG, Nielsen heuristics, design systems, e-commerce, PWA, AI/ML guidance.
+
+Auto-installed by Pegasus's `connect.sh` (or run `claude mcp add ux-knowledge npx -- @elsahafy/ux-mcp-server`). Once added, ask Claude "audit this against Nielsen heuristics" or "show me the WCAG criteria for this color contrast."
+
+→ <https://github.com/elsahafy/ux-mcp-server>
+
+---
+
 ## Skills (drop into ~/.claude/skills/)
 
 ### SonwaneyY/Portfolio-Case-Study · MIT · ⭐ HIGHLY SUGGESTED for designers

@@ -128,6 +128,13 @@ echo "  2. AirDrop to your Mac → into your project folder."
 echo "  3. Ask Claude: \"use the vector-workflow skill to convert and embed.\""
 echo "Pegasus pre-installs ${BOLD}potrace${RESET} (bitmap → vector) and ${BOLD}svgo${RESET} (SVG optimizer)."
 
+# 6b. UX knowledge MCP
+header "UX Knowledge (WCAG, Nielsen, design systems via elsahafy/ux-mcp-server)"
+echo "Gives Claude direct access to 28 UX knowledge resources, 23 analysis tools."
+if ask_yes_no "Add UX Knowledge MCP?"; then
+  mcp_add_safe ux-knowledge ux-knowledge npx -- @elsahafy/ux-mcp-server
+fi
+
 # 7. Context7
 header "Context7 (current library docs)"
 echo "Live docs for Tailwind, React, Astro — keeps Claude's library knowledge fresh."
