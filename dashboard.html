@@ -223,8 +223,9 @@
         id="search"
         placeholder="Search templates, commands, prompts, terms…"
         aria-label="Search the dashboard"
-        class="w-full px-5 py-3 pr-12 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none text-base"
+        class="w-full px-5 py-3 pr-20 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none text-base"
       />
+      <button id="searchClear" type="button" aria-label="Clear search" class="hidden absolute right-10 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-stone-200 hover:bg-stone-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-600 dark:text-stone-300 text-sm leading-none">×</button>
       <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-stone-100 dark:bg-stone-800 text-xs font-mono text-stone-500">/</kbd>
     </div>
 
@@ -607,12 +608,12 @@
   </div>
 
   
-  <!-- Snapshot drop zone (overlays when user drags a .json file) -->
+  <!-- Drop overlay (accepts pegasus-snapshot.json AND jobs-today-*.md) -->
   <div id="snapDrop" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-stone-900/80 pointer-events-none">
     <div class="bg-white dark:bg-stone-900 rounded-2xl p-12 text-center shadow-2xl">
-      <div class="text-6xl mb-4">📦</div>
-      <p class="font-serif text-2xl">Drop your pegasus-snapshot.json</p>
-      <p class="text-stone-500 mt-2">to restore your profile + activity</p>
+      <div class="text-6xl mb-4">📥</div>
+      <p class="font-serif text-2xl">Drop your file</p>
+      <p class="text-stone-500 mt-2"><span class="font-mono">jobs-today-*.md</span> for job results · <span class="font-mono">pegasus-snapshot.json</span> to restore profile</p>
     </div>
   </div>
 
@@ -1311,7 +1312,17 @@ function applySearch(q) {
   });
 }
 
-searchInput.addEventListener('input', e => applySearch(e.target.value));
+const searchClearBtn = document.getElementById('searchClear');
+function syncSearchClear() {
+  searchClearBtn.classList.toggle('hidden', !searchInput.value);
+}
+searchInput.addEventListener('input', e => { applySearch(e.target.value); syncSearchClear(); });
+searchClearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  applySearch('');
+  syncSearchClear();
+  searchInput.focus();
+});
 
 // ─────────────────────────────────────────────
 // PROFILE (autosave to localStorage; export to JSON for `pegasus profile import`)
