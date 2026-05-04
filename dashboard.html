@@ -498,6 +498,8 @@ const templates = [
   { name: 'illustration-gallery',track: 'design', desc: 'Masonry grid for paintings, vector art, lettering.',            cmd: 'pegasus new illustration-gallery gallery' },
   { name: 'mood-board',          track: 'design', desc: 'Image grid + palette + type pairings + direction notes.',       cmd: 'pegasus new mood-board direction-1' },
   { name: 'components-lab',      track: 'design', desc: 'Copy-paste-ready Tailwind components: buttons, cards, inputs.', cmd: 'pegasus new components-lab my-system' },
+  { name: 'agency-page',         track: 'design', desc: 'Solo studio one-pager: hero, services, process, pricing, work, contact.',  cmd: 'pegasus new agency-page my-studio' },
+  { name: 'error-page',          track: 'design', desc: 'Calm 404 page. Drop into any project as 404.html.',                       cmd: 'pegasus new error-page my-404' },
 ];
 
 const commands = [
@@ -541,6 +543,8 @@ const skills = [
   { name: 'career-ops-research',        track: 'jobs',   summary: 'Company intelligence brief — culture, financials, news, contacts.',         invoke: 'Use career-ops-research on [company].' },
   { name: 'career-ops-outreach',        track: 'jobs',   summary: 'Personalized LinkedIn / hiring-manager outreach (under 300 chars).',        invoke: 'Use career-ops-outreach to message [person].' },
   { name: 'career-ops-triage',          track: 'jobs',   summary: 'Quick-score your pipeline of scanned roles by fit.',                        invoke: 'Use career-ops-triage on my pipeline.' },
+  { name: 'figma-converter',            track: 'design', summary: 'Figma URL → matching HTML/Tailwind. Reads via Figma MCP, maps tokens, ships.', invoke: 'Use the figma-converter skill on this Figma URL: <url>.' },
+  { name: 'weekly-review',              track: 'both',   summary: 'Sunday check-in: shipped / stalled / Pulse / next week\'s 3.',                  invoke: 'Run my weekly review.' },
 ];
 
 const mcps = [

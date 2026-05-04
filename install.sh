@@ -282,7 +282,7 @@ download_to "$PEGASUS_RAW/config/PROJECTS_README.md" "$PROJECTS_DIR/README.md"
 
 # Templates → ~/.pegasus/templates
 mkdir -p "$PEGASUS_HOME/templates"
-for type in portfolio case-study-deck scroll-case-study landing-page resume link-in-bio illustration-gallery mood-board components-lab; do
+for type in portfolio case-study-deck scroll-case-study landing-page resume link-in-bio illustration-gallery mood-board components-lab agency-page error-page; do
   mkdir -p "$PEGASUS_HOME/templates/$type"
   for f in index.html CLAUDE.md styles.css .gitignore; do
     download_to "$PEGASUS_RAW/templates/$type/$f" "$PEGASUS_HOME/templates/$type/$f"
@@ -331,6 +331,7 @@ else
 fi
 
 for skill in ux-ui-audit job-finder vector-workflow interview-prep content-writer \
+             figma-converter weekly-review \
              portfolio-case-study \
              resume-tailor cover-letter-generator portfolio-case-study-writer interview-prep-generator salary-negotiation-prep \
              career-ops-evaluate career-ops-outreach career-ops-research career-ops-tailor-resume career-ops-triage; do
