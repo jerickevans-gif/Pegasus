@@ -49,6 +49,14 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus signin${RESET}                open browser tabs to log into all services
   ${BOLD}pegasus doctor${RESET}                diagnose what's installed / broken
   ${BOLD}pegasus update${RESET}                refresh templates + skills
+  ${BOLD}pegasus self-update${RESET}           update the pegasus helper itself
+  ${BOLD}pegasus link${RESET} <project>        symlink to ~/Sites for HTTP preview
+  ${BOLD}pegasus icons${RESET}                 open Icônes (free icon library browser)
+  ${BOLD}pegasus colors${RESET}                open Coolors palette generator
+  ${BOLD}pegasus search${RESET} <query>        search docs / templates / skills
+  ${BOLD}pegasus open${RESET} <doc>            open a cheatsheet (commands/prompts/glossary/etc)
+  ${BOLD}pegasus model${RESET}                 list / switch agents (claude/opencode/cursor)
+  ${BOLD}pegasus version${RESET}               print version + paths
   ${BOLD}pegasus uninstall${RESET}             remove Pegasus
   ${BOLD}pegasus help${RESET}                  this help
 
@@ -138,6 +146,40 @@ cmd_deploy() {
       exit 1
       ;;
   esac
+}
+
+PEGASUS_VERSION="0.4.0"
+
+cmd_version() { echo "Pegasus $PEGASUS_VERSION"; echo "Repo:    https://github.com/jerickevans-gif/Pegasus"; echo "Helper:  $(command -v pegasus 2>/dev/null || echo not-on-PATH)"; }
+
+cmd_link() {
+  local proj="${1:-}"
+  if [[ -z "$proj" ]]; then warn "Usage: pegasus link <project-name>"; exit 1; fi
+  local src="$PROJECTS_DIR/$proj"
+  if [[ ! -d "$src" ]]; then err "$src doesn't exist."; exit 1; fi
+  mkdir -p "$HOME/Sites"
+  ln -sf "$src" "$HOME/Sites/$proj"
+  ok "Symlinked $src → ~/Sites/$proj"
+  echo "If you have macOS personal web sharing on, this is now at http://localhost/~$USER/$proj/"
+  echo "Or run: cd ~/Sites/$proj && npx serve ."
+}
+
+cmd_icons() {
+  open_url "https://icones.js.org/"
+  echo "Opened Icônes — free icon library access (Material, Lucide, Phosphor, Heroicons, etc.)"
+  echo "Find an icon, click 'Copy SVG', paste it directly into your HTML."
+}
+
+cmd_colors() {
+  open_url "https://coolors.co/generate"
+  echo "Opened Coolors — generate a 5-color palette. Hit space to refresh."
+}
+
+cmd_self_update() {
+  local self="$(command -v pegasus 2>/dev/null)"
+  if [[ -z "$self" ]]; then err "Pegasus not on PATH."; exit 1; fi
+  say "Updating pegasus helper itself..."
+  curl -fsSL "$RAW/bin/pegasus" -o "$self" && chmod +x "$self" && ok "Updated pegasus to latest." || err "Couldn't self-update."
 }
 
 cmd_search() {
@@ -384,7 +426,7 @@ cmd_update() {
     done
   done
   ok "Templates updated."
-  for skill in ux-ui-audit job-finder; do
+  for skill in ux-ui-audit job-finder vector-workflow interview-prep content-writer; do
     say "Updating skill: $skill"
     mkdir -p "$HOME/.claude/skills/$skill"
     for f in SKILL.md checklist.md report-template.md; do
@@ -460,6 +502,11 @@ case "${1:-help}" in
   search)     shift; cmd_search "$@" ;;
   open)       shift; cmd_open "$@" ;;
   model)      shift; cmd_model "$@" ;;
+  link)       shift; cmd_link "$@" ;;
+  icons)      cmd_icons ;;
+  colors)     cmd_colors ;;
+  version|-v|--version) cmd_version ;;
+  self-update) cmd_self_update ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;

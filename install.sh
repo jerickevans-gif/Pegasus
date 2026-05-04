@@ -140,6 +140,7 @@ fi
 
 # ---------- 4. VS Code ----------
 header "4 / 9  Visual Studio Code"
+if have cursor; then ok "Cursor IDE detected (alternative to VS Code, also supported by Pegasus)."; fi
 if have code; then
   ok "VS Code already installed."
 else
@@ -277,6 +278,7 @@ download_to "$PEGASUS_RAW/docs/POSSIBILITIES.md"   "$PROJECTS_DIR/POSSIBILITIES.
 download_to "$PEGASUS_RAW/docs/GLOSSARY.md"        "$PROJECTS_DIR/GLOSSARY.md"
 download_to "$PEGASUS_RAW/docs/RECOMMENDED.md"     "$PROJECTS_DIR/RECOMMENDED.md"
 download_to "$PEGASUS_RAW/docs/TROUBLESHOOTING.md" "$PROJECTS_DIR/TROUBLESHOOTING.md"
+download_to "$PEGASUS_RAW/config/PROJECTS_README.md" "$PROJECTS_DIR/README.md"
 
 # Templates → ~/.pegasus/templates
 mkdir -p "$PEGASUS_HOME/templates"
@@ -317,7 +319,10 @@ else
   curl -fsSL "$PEGASUS_RAW/config/claude-settings.json" -o "$CLAUDE_SETTINGS" 2>/dev/null \
     && ok "Applied Pegasus base settings." || warn "Couldn't write base settings."
 fi
-for skill in ux-ui-audit job-finder vector-workflow; do
+for skill in ux-ui-audit job-finder vector-workflow interview-prep content-writer \
+             portfolio-case-study \
+             resume-tailor cover-letter-generator portfolio-case-study-writer interview-prep-generator salary-negotiation-prep \
+             career-ops-evaluate career-ops-outreach career-ops-research career-ops-tailor-resume career-ops-triage; do
   SKILL_DIR="$CLAUDE_DIR/skills/$skill"; mkdir -p "$SKILL_DIR"
   download_to "$PEGASUS_RAW/skills/$skill/SKILL.md" "$SKILL_DIR/SKILL.md"
   # optional companions (only ux-ui-audit has them)

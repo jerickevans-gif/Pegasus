@@ -168,7 +168,7 @@ $claudeSettings = Join-Path $claudeDir "settings.json"
 if (Test-Path $claudeSettings) { Write-Ok "Existing ~/.claude/settings.json — leaving it alone." }
 else { Download-To "$pegasusRaw/config/claude-settings.json" $claudeSettings }
 
-foreach ($skill in @("ux-ui-audit","job-finder","vector-workflow")) {
+foreach ($skill in @("ux-ui-audit","job-finder","vector-workflow","interview-prep","content-writer")) {
     $skillDir = Join-Path $claudeDir "skills/$skill"
     if (-not (Test-Path $skillDir)) { New-Item -ItemType Directory -Path $skillDir -Force | Out-Null }
     Download-To "$pegasusRaw/skills/$skill/SKILL.md" (Join-Path $skillDir "SKILL.md")

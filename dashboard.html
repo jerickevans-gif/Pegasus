@@ -57,7 +57,52 @@
     .hidden-by-search { display: none !important; }
 
     /* Section anchor offset */
-    section[id] { scroll-margin-top: 5rem; }
+    section[id] { scroll-margin-top: 8rem; }
+
+    /* Sticky nav */
+    .sticky-nav { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+    .sticky-nav.scrolled { border-bottom-color: #e7e5e4; background: rgba(250, 250, 249, 0.85); }
+    @media (prefers-color-scheme: dark) { .sticky-nav.scrolled { background: rgba(12, 10, 9, 0.85); border-bottom-color: #292524; } }
+    .nav-pill.active { background: #0c0a09; color: white; }
+    @media (prefers-color-scheme: dark) { .nav-pill.active { background: #fafaf9; color: #0c0a09; } }
+
+    /* Inline search highlight */
+    mark { background-color: #fef08a; color: inherit; padding: 0 2px; border-radius: 2px; }
+    @media (prefers-color-scheme: dark) { mark { background-color: #ca8a04; color: white; } }
+
+    /* Back to top */
+    .back-to-top { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 45; padding: 0.75rem 1rem; background: #0c0a09; color: white; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
+    .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .back-to-top:hover { background: #44403c; }
+
+    /* Cmd-K palette modal */
+    .palette-overlay { position: fixed; inset: 0; background: rgba(12, 10, 9, 0.5); backdrop-filter: blur(4px); z-index: 80; display: none; align-items: flex-start; justify-content: center; padding-top: 12vh; }
+    .palette-overlay.open { display: flex; }
+    .palette-modal { width: 90%; max-width: 600px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+    @media (prefers-color-scheme: dark) { .palette-modal { background: #1c1917; } }
+    .palette-input { width: 100%; padding: 1rem 1.25rem; font-size: 1rem; border: none; outline: none; background: transparent; color: inherit; }
+    .palette-results { max-height: 50vh; overflow-y: auto; border-top: 1px solid #e7e5e4; }
+    @media (prefers-color-scheme: dark) { .palette-results { border-top-color: #292524; } }
+    .palette-item { padding: 0.75rem 1.25rem; cursor: pointer; border-left: 3px solid transparent; }
+    .palette-item:hover, .palette-item.selected { background: #f5f5f4; border-left-color: #0c0a09; }
+    @media (prefers-color-scheme: dark) { .palette-item:hover, .palette-item.selected { background: #292524; border-left-color: #fafaf9; } }
+
+    /* Help overlay */
+    .help-overlay { position: fixed; inset: 0; background: rgba(12, 10, 9, 0.7); backdrop-filter: blur(4px); z-index: 90; display: none; align-items: center; justify-content: center; padding: 2rem; }
+    .help-overlay.open { display: flex; }
+    .help-modal { background: white; padding: 2rem; border-radius: 12px; max-width: 480px; }
+    @media (prefers-color-scheme: dark) { .help-modal { background: #1c1917; } }
+    kbd { background: #f5f5f4; border: 1px solid #d6d3d1; border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+    @media (prefers-color-scheme: dark) { kbd { background: #292524; border-color: #44403c; } }
+
+    /* Print */
+    @media print {
+      .mode-pill, .sticky-nav, .back-to-top, .palette-overlay, .help-overlay, #toast, button.copy { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .card { break-inside: avoid; border-color: #ccc !important; box-shadow: none !important; }
+      a { color: black !important; text-decoration: underline; }
+      a[href]::after { content: " (" attr(href) ")"; font-size: 0.75em; color: #666; }
+    }
 
     /* Dark mode */
     @media (prefers-color-scheme: dark) {
@@ -103,19 +148,22 @@
       <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-stone-100 dark:bg-stone-800 text-xs font-mono text-stone-500">/</kbd>
     </div>
 
-    <!-- Section nav -->
-    <nav aria-label="Sections" class="mt-8 flex flex-wrap gap-2 text-sm">
-      <a href="#start" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Quick start</a>
-      <a href="#templates" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Templates</a>
-      <a href="#commands" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Commands</a>
-      <a href="#skills" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Skills</a>
-      <a href="#mcps" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Bridges (MCPs)</a>
-      <a href="#prompts" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Prompts</a>
-      <a href="#recommended" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Recommended</a>
-      <a href="#glossary" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Glossary</a>
-      <a href="#help" class="px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition">Help</a>
-    </nav>
   </header>
+
+  <!-- Sticky section nav -->
+  <div class="sticky-nav" id="stickyNav">
+    <nav aria-label="Sections" class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-2 text-sm overflow-x-auto">
+      <a href="#start"       data-nav="start"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Quick start</a>
+      <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500" data-count="templates"></span></a>
+      <a href="#commands"    data-nav="commands"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Commands <span class="text-stone-500" data-count="commands"></span></a>
+      <a href="#skills"      data-nav="skills"      class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Skills <span class="text-stone-500" data-count="skills"></span></a>
+      <a href="#mcps"        data-nav="mcps"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Bridges <span class="text-stone-500" data-count="mcps"></span></a>
+      <a href="#prompts"     data-nav="prompts"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompts <span class="text-stone-500" data-count="prompts"></span></a>
+      <a href="#recommended" data-nav="recommended" class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Recommended <span class="text-stone-500" data-count="recommended"></span></a>
+      <a href="#glossary"    data-nav="glossary"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Glossary <span class="text-stone-500" data-count="glossary"></span></a>
+      <a href="#help"        data-nav="help"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Help</a>
+    </nav>
+  </div>
 
   <main id="main" tabindex="-1" class="max-w-6xl mx-auto px-6 pb-24" data-search-root>
 
@@ -238,8 +286,36 @@
   </footer>
 
   <!-- Toast -->
-  <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm opacity-0 transition-opacity pointer-events-none">
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm opacity-0 transition-opacity pointer-events-none z-50">
     Copied
+  </div>
+
+  <!-- Back to top -->
+  <button id="backToTop" class="back-to-top text-sm" aria-label="Back to top">↑ Top</button>
+
+  <!-- Cmd-K command palette -->
+  <div id="palette" class="palette-overlay" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="palette-modal">
+      <input id="paletteInput" class="palette-input" type="text" placeholder="Search everything…  (esc to close)" aria-label="Palette search" />
+      <div id="paletteResults" class="palette-results"></div>
+    </div>
+  </div>
+
+  <!-- Keyboard shortcut help -->
+  <div id="helpOverlay" class="help-overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <div class="help-modal">
+      <h2 class="font-serif text-2xl mb-4">Keyboard shortcuts</h2>
+      <ul class="space-y-2 text-sm">
+        <li><kbd>/</kbd> — focus the inline search</li>
+        <li><kbd>⌘</kbd> + <kbd>K</kbd> — open the command palette</li>
+        <li><kbd>?</kbd> — show this help</li>
+        <li><kbd>Esc</kbd> — close palette / clear search</li>
+        <li><kbd>↑</kbd> <kbd>↓</kbd> — navigate palette results</li>
+        <li><kbd>Enter</kbd> — copy / open the selected item</li>
+        <li><kbd>g</kbd> + section letter — jump to section (g+t templates, g+c commands…)</li>
+      </ul>
+      <button onclick="document.getElementById('helpOverlay').classList.remove('open')" class="mt-6 px-4 py-2 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded">Close</button>
+    </div>
   </div>
 
 <script>
@@ -255,6 +331,8 @@ const templates = [
   { name: 'resume',              desc: 'Printable single-page CV. Ctrl-P → Save as PDF.',              cmd: 'pegasus new resume my-cv' },
   { name: 'link-in-bio',         desc: 'Linktree replacement on your own domain.',                      cmd: 'pegasus new link-in-bio bio' },
   { name: 'illustration-gallery',desc: 'Masonry grid for paintings, vector art, lettering.',           cmd: 'pegasus new illustration-gallery gallery' },
+  { name: 'mood-board',          desc: 'Image grid + palette + type pairings + direction notes.',       cmd: 'pegasus new mood-board direction-1' },
+  { name: 'components-lab',      desc: 'Copy-paste-ready Tailwind components: buttons, cards, inputs.', cmd: 'pegasus new components-lab my-system' },
 ];
 
 const commands = [
@@ -296,6 +374,21 @@ const skills = [
     name: 'vector-workflow',
     summary: 'Procreate / Adobe / SVG → web pipeline. Bitmap-to-vector tracing, SVG optimization, Lottie embed.',
     invoke: 'Use the vector-workflow skill to clean up these Procreate exports and embed them.',
+  },
+  {
+    name: 'interview-prep',
+    summary: 'Company brief, 8 likely questions ranked, portfolio walk-through plan, design challenge prep, rehearsal mode.',
+    invoke: 'Use the interview-prep skill — I have an interview Tuesday with [Company] for [Role].',
+  },
+  {
+    name: 'content-writer',
+    summary: 'Hero copy, taglines, project summaries, about pages. Three-version output: Tight / Direct / Warm.',
+    invoke: 'Use the content-writer skill to refine my hero tagline.',
+  },
+  {
+    name: 'portfolio-case-study',
+    summary: 'Crafts portfolio-ready design case studies with intake + structured story format. (External skill — install separately.)',
+    invoke: 'Use the portfolio-case-study skill to draft a case study for my latest project.',
   },
 ];
 
@@ -501,17 +594,202 @@ function applySearch(q) {
 
 searchInput.addEventListener('input', e => applySearch(e.target.value));
 
-// `/` focuses search
-document.addEventListener('keydown', e => {
-  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
-    e.preventDefault();
-    searchInput.focus();
-    searchInput.select();
+// ─────────────────────────────────────────────
+// COUNT BADGES IN NAV
+// ─────────────────────────────────────────────
+const counts = { templates: templates.length, commands: commands.length, skills: skills.length, mcps: mcps.length, prompts: prompts.length, recommended: recommended.length, glossary: glossary.length };
+document.querySelectorAll('[data-count]').forEach(el => {
+  const k = el.dataset.count;
+  if (counts[k]) el.textContent = `· ${counts[k]}`;
+});
+
+// ─────────────────────────────────────────────
+// STICKY NAV STYLING + ACTIVE SECTION
+// ─────────────────────────────────────────────
+const stickyNav = document.getElementById('stickyNav');
+window.addEventListener('scroll', () => {
+  stickyNav.classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
+
+const navLinks = document.querySelectorAll('.nav-pill');
+const sectionsForObserver = ['start','templates','commands','skills','mcps','prompts','recommended','glossary','help']
+  .map(id => document.getElementById(id))
+  .filter(Boolean);
+const setActiveNav = id => navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id));
+const observer = new IntersectionObserver(entries => {
+  const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio);
+  if (visible.length) setActiveNav(visible[0].target.id);
+}, { rootMargin: '-30% 0px -60% 0px' });
+sectionsForObserver.forEach(s => observer.observe(s));
+
+// ─────────────────────────────────────────────
+// INLINE SEARCH HIGHLIGHT (replaces simple hide)
+// ─────────────────────────────────────────────
+const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const cards = document.querySelectorAll('[data-search]');
+const originals = new Map();
+cards.forEach(c => originals.set(c, c.innerHTML));
+
+function applySearchHL(q) {
+  q = (q || '').trim();
+  cards.forEach(c => {
+    if (!q) {
+      c.classList.remove('hidden-by-search');
+      c.innerHTML = originals.get(c);
+      return;
+    }
+    const orig = originals.get(c);
+    const re = new RegExp(`(${escapeRe(q)})`, 'gi');
+    if (!re.test(c.textContent)) {
+      c.classList.add('hidden-by-search');
+      c.innerHTML = orig;
+    } else {
+      c.classList.remove('hidden-by-search');
+      // highlight only within text nodes — naive but works because card content is data-driven
+      c.innerHTML = orig.replace(/(>)([^<]+)(<)/g, (_, lt, text, gt) =>
+        lt + text.replace(re, '<mark>$1</mark>') + gt
+      );
+      // re-bind copy buttons that got their innerHTML rewritten
+      c.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+    }
+  });
+}
+searchInput.removeEventListener('input', () => {});
+searchInput.addEventListener('input', e => applySearchHL(e.target.value));
+
+// ─────────────────────────────────────────────
+// COPY HELPER (reusable for re-bound buttons)
+// ─────────────────────────────────────────────
+async function copyAndFlash(btn) {
+  const text = btn.dataset.copy;
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.classList.add('copied');
+    const original = btn.innerHTML;
+    btn.innerHTML = '✓ Copied';
+    const toast = document.getElementById('toast');
+    toast.style.opacity = '1';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = original;
+      toast.style.opacity = '0';
+    }, 1200);
+  } catch (e) { btn.innerHTML = 'Press ⌘+C'; }
+}
+
+// ─────────────────────────────────────────────
+// BACK TO TOP
+// ─────────────────────────────────────────────
+const backToTop = document.getElementById('backToTop');
+backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+window.addEventListener('scroll', () => {
+  backToTop.classList.toggle('visible', window.scrollY > 600);
+}, { passive: true });
+
+// ─────────────────────────────────────────────
+// CMD-K PALETTE
+// ─────────────────────────────────────────────
+const palette = document.getElementById('palette');
+const paletteInput = document.getElementById('paletteInput');
+const paletteResults = document.getElementById('paletteResults');
+
+const allItems = [
+  ...templates.map(t => ({ kind: 'Template', label: `pegasus new ${t.name}`, sub: t.desc, copy: t.cmd })),
+  ...commands.map(c => ({ kind: 'Command', label: c.cmd, sub: c.note, copy: c.cmd })),
+  ...skills.map(s => ({ kind: 'Skill', label: s.name, sub: s.summary, copy: s.invoke })),
+  ...mcps.map(m => ({ kind: 'Bridge', label: m.name, sub: m.desc, copy: m.name })),
+  ...prompts.map(p => ({ kind: 'Prompt', label: p.goal, sub: p.text.slice(0, 100) + '…', copy: p.text })),
+  ...recommended.map(r => ({ kind: 'Repo', label: r.name, sub: r.desc, copy: r.clone })),
+  ...glossary.map(g => ({ kind: 'Glossary', label: g.term, sub: g.def, copy: g.term })),
+];
+
+let paletteSelection = 0;
+
+function renderPaletteResults(filter) {
+  filter = (filter || '').toLowerCase().trim();
+  const matches = allItems.filter(i =>
+    !filter || i.label.toLowerCase().includes(filter) || i.sub.toLowerCase().includes(filter) || i.kind.toLowerCase().includes(filter)
+  ).slice(0, 30);
+  if (!matches.length) {
+    paletteResults.innerHTML = '<div class="palette-item text-stone-500">No matches.</div>';
+    return;
   }
-  if (e.key === 'Escape' && document.activeElement === searchInput) {
-    searchInput.value = '';
-    applySearch('');
-    searchInput.blur();
+  paletteResults.innerHTML = matches.map((m, i) => `
+    <div class="palette-item ${i === paletteSelection ? 'selected' : ''}" data-index="${i}">
+      <div class="text-xs uppercase tracking-wider text-stone-500">${m.kind}</div>
+      <div class="font-medium">${m.label}</div>
+      <div class="text-xs text-stone-600 dark:text-stone-400 truncate">${m.sub}</div>
+    </div>
+  `).join('');
+  paletteResults.querySelectorAll('.palette-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.index, 10);
+      navigator.clipboard.writeText(matches[idx].copy);
+      closePalette();
+      const toast = document.getElementById('toast');
+      toast.textContent = 'Copied — ' + matches[idx].label;
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; toast.textContent = 'Copied'; }, 1500);
+    });
+  });
+  paletteResults._matches = matches;
+}
+
+function openPalette() {
+  palette.classList.add('open');
+  paletteInput.value = '';
+  paletteSelection = 0;
+  renderPaletteResults('');
+  setTimeout(() => paletteInput.focus(), 50);
+}
+function closePalette() { palette.classList.remove('open'); }
+
+paletteInput.addEventListener('input', e => { paletteSelection = 0; renderPaletteResults(e.target.value); });
+palette.addEventListener('click', e => { if (e.target === palette) closePalette(); });
+
+// ─────────────────────────────────────────────
+// HELP OVERLAY
+// ─────────────────────────────────────────────
+const helpOverlay = document.getElementById('helpOverlay');
+helpOverlay.addEventListener('click', e => { if (e.target === helpOverlay) helpOverlay.classList.remove('open'); });
+
+// ─────────────────────────────────────────────
+// KEYBOARD SHORTCUTS
+// ─────────────────────────────────────────────
+let lastG = false;
+document.addEventListener('keydown', e => {
+  // Cmd-K / Ctrl-K → open palette
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openPalette(); return; }
+
+  // ? → help
+  if (e.key === '?' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); helpOverlay.classList.add('open'); return; }
+
+  // / → focus inline search
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault(); searchInput.focus(); searchInput.select(); return;
+  }
+
+  // Escape
+  if (e.key === 'Escape') {
+    if (palette.classList.contains('open')) { closePalette(); return; }
+    if (helpOverlay.classList.contains('open')) { helpOverlay.classList.remove('open'); return; }
+    if (document.activeElement === searchInput) { searchInput.value = ''; applySearchHL(''); searchInput.blur(); return; }
+  }
+
+  // Palette navigation
+  if (palette.classList.contains('open')) {
+    const matches = paletteResults._matches || [];
+    if (e.key === 'ArrowDown') { e.preventDefault(); paletteSelection = Math.min(paletteSelection + 1, matches.length - 1); renderPaletteResults(paletteInput.value); }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); paletteSelection = Math.max(paletteSelection - 1, 0); renderPaletteResults(paletteInput.value); }
+    if (e.key === 'Enter')     { e.preventDefault(); const item = matches[paletteSelection]; if (item) { navigator.clipboard.writeText(item.copy); closePalette(); } }
+  }
+
+  // g+letter shortcuts
+  if (document.activeElement.tagName === 'INPUT') return;
+  if (e.key === 'g' && !lastG) { lastG = true; setTimeout(() => lastG = false, 800); return; }
+  if (lastG) {
+    const map = { t: 'templates', c: 'commands', s: 'skills', m: 'mcps', p: 'prompts', r: 'recommended', l: 'glossary', h: 'help', q: 'start' };
+    if (map[e.key]) { e.preventDefault(); document.getElementById(map[e.key])?.scrollIntoView({ behavior: 'smooth' }); lastG = false; }
   }
 });
 
