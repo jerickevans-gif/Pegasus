@@ -1,0 +1,34 @@
+# Dependabot — keeps GitHub Actions + npm tooling current.
+# Pegasus has no runtime npm deps; package.json is build-only (Tailwind CLI).
+# We watch GH Actions weekly because the matrix runs every push, and watch npm
+# weekly because tailwindcss patches occasionally.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - npm
+    commit-message:
+      prefix: build
