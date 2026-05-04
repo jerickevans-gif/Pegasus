@@ -2,7 +2,7 @@
 // Versioned cache so new dashboard releases force-refresh without manual reload.
 // Bump CACHE_VERSION when shipping a meaningful dashboard change.
 
-const CACHE_VERSION = 'pegasus-v9-2026-05-04';
+const CACHE_VERSION = 'pegasus-v10-2026-05-04';
 const ASSETS = [
   './dashboard.html',
   './manifest.webmanifest',
