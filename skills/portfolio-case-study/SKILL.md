@@ -1,5 +1,5 @@
 ---
-name: case-study
+name: portfolio-case-study
 description: Craft portfolio-ready case studies that tell the story of a design project. Runs a structured intake first, then drafts in the story format that best fits the project and audience.
 ---
 

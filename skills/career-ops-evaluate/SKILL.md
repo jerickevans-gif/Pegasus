@@ -1,5 +1,5 @@
 ---
-name: evaluate
+name: career-ops-evaluate
 description: "Evaluate how well a job posting matches your background. Paste a JD or URL and get an honest A-F scored assessment with match analysis, compensation research, positioning strategy, and interview prep. Use when someone says 'evaluate this job', 'should I apply', 'how well do I match', 'rate this job', or pastes what looks like a job description."
 argument-hint: "<job posting URL or paste the full JD text>"
 user-invocable: true

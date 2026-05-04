@@ -1,5 +1,5 @@
 ---
-name: triage
+name: career-ops-triage
 description: "Quick-score your pipeline of scan results. Ranks every role in your pipeline by fit and recommends which ones deserve a full evaluation. Use when someone says 'triage my pipeline', 'which scanned jobs should I apply to', 'rank my pipeline', or 'process my scan results'."
 argument-hint: "['all' or company name to triage]"
 user-invocable: true

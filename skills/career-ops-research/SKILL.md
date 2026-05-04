@@ -1,5 +1,5 @@
 ---
-name: research
+name: career-ops-research
 description: "Research a company before applying or interviewing. Get an intelligence brief with culture, financials, recent news, team structure, key contacts, and smart interview questions. Use when someone says 'research this company', 'tell me about', 'what do you know about', or 'prep me for my interview at'."
 argument-hint: "<company name>"
 user-invocable: true

@@ -1,5 +1,5 @@
 ---
-name: outreach
+name: career-ops-outreach
 description: "Draft personalized outreach messages for LinkedIn connections, hiring managers, or recruiters. Creates targeted messages using a hook + proof + proposal structure. Under 300 characters for connection requests. Use when someone says 'draft outreach', 'message the recruiter', 'reach out to', or 'write a LinkedIn message'."
 argument-hint: "<contact name and company, or 'outreach for Company'>"
 user-invocable: true
