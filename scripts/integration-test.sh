@@ -23,7 +23,7 @@ if [[ -x "$PEG_BIN" ]]; then ok "pegasus helper at $PEG_BIN"
 else fail "pegasus helper missing at $PEG_BIN"; exit 1; fi
 
 V=$("$PEG_BIN" version 2>&1 | head -1)
-if [[ "$V" == *"0.8"* ]]; then ok "version output: $V"
+if [[ "$V" =~ Pegasus[[:space:]][0-9]+\.[0-9]+\.[0-9]+ ]]; then ok "version output: $V"
 else fail "version output unexpected: $V"; fi
 
 # ─────────────────────────────────────────────
