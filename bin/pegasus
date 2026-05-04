@@ -62,6 +62,7 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus init${RESET}                  guided 2-min first-run setup
   ${BOLD}pegasus test${RESET}                  end-to-end install verification
   ${BOLD}pegasus bug${RESET}                   file a bug report with diagnostics pre-filled
+  ${BOLD}pegasus pulse${RESET}                 view your activity stats (in dashboard)
   ${BOLD}pegasus uninstall${RESET}             remove Pegasus
   ${BOLD}pegasus help${RESET}                  this help
 
@@ -156,6 +157,22 @@ cmd_deploy() {
 PEGASUS_VERSION="0.4.0"
 
 cmd_version() { echo "Pegasus $PEGASUS_VERSION"; echo "Repo:    https://github.com/jerickevans-gif/Pegasus"; echo "Helper:  $(command -v pegasus 2>/dev/null || echo not-on-PATH)"; }
+
+cmd_pulse() {
+  echo "${BOLD}Pegasus Pulse${RESET} — your activity from the dashboard"
+  echo
+  echo "Note: stats live in the dashboard's localStorage. Run \`pegasus dashboard\` and"
+  echo "scroll to the Pulse section to see counts, weekly activity, skills tried, day streak,"
+  echo "and your recently-used items."
+  echo
+  echo "If you've never opened the dashboard, all counts will be zero."
+  echo
+  if have open || have xdg-open; then
+    printf "%sOpen dashboard now? [Y/n] %s" "$BOLD" "$RESET"
+    read -r yn </dev/tty || yn="y"
+    [[ "${yn:-y}" =~ ^[Yy]$ ]] && cmd_dashboard
+  fi
+}
 
 cmd_test() {
   echo "${BOLD}Pegasus end-to-end test${RESET}"
@@ -714,6 +731,7 @@ case "${1:-help}" in
   init)       cmd_init ;;
   test)       cmd_test ;;
   bug)        cmd_bug ;;
+  pulse)      cmd_pulse ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;

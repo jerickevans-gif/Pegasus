@@ -735,6 +735,21 @@ renderGlossary();
 // Apply persisted track choice on initial load
 applyTrack(activeTrack);
 
+// Restore scroll position from last visit (within 30 minutes)
+const SCROLL_KEY = 'pegasus.scroll';
+const scrollData = JSON.parse(localStorage.getItem(SCROLL_KEY) || 'null');
+if (scrollData && (Date.now() - scrollData.at) < 1000 * 60 * 30) {
+  setTimeout(() => window.scrollTo(0, scrollData.y), 100);
+}
+let scrollSaveT;
+window.addEventListener('scroll', () => {
+  clearTimeout(scrollSaveT);
+  scrollSaveT = setTimeout(() => {
+    localStorage.setItem(SCROLL_KEY, JSON.stringify({ y: window.scrollY, at: Date.now() }));
+  }, 200);
+}, { passive: true });
+
+
 // First-run hint
 const FIRST_RUN_KEY = 'pegasus.firstRunSeen';
 function dismissFirstRun() {
