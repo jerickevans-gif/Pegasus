@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ux-knowledge": {
+      "command": "npx",
+      "args": ["@elsahafy/ux-mcp-server"]
+    },
+    "figma": {
+      "type": "sse",
+      "url": "http://127.0.0.1:3845/sse"
+    }
+  }
+}

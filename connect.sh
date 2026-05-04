@@ -74,16 +74,23 @@ BANNER
   echo
 fi
 
-# 1. Figma
-header "Figma"
-echo "Read Figma files into Claude — designs become code."
-if ask_yes_no "Connect Figma?"; then
-  if [[ "$(uname -s)" == "Darwin" ]] && [[ ! -d "/Applications/Figma.app" ]]; then
-    have brew && brew install --cask figma >/dev/null 2>&1 && ok "Figma installed." || warn "Get Figma from https://www.figma.com/downloads/"
+# 0. Pegasus DEFAULTS — always installed, no opt-out
+header "Pegasus defaults — UX Knowledge + Figma (always on)"
+
+# UX Knowledge MCP
+echo "${BOLD}1) UX Knowledge${RESET} — 28 UX resources, 23 analysis tools, WCAG, Nielsen heuristics, design systems."
+mcp_add_safe ux-knowledge ux-knowledge npx -- @elsahafy/ux-mcp-server
+
+# Figma MCP (also default)
+echo "${BOLD}2) Figma${RESET} — read Figma files directly into Claude, turn designs into code."
+if [[ "$(uname -s)" == "Darwin" ]] && [[ ! -d "/Applications/Figma.app" ]]; then
+  if have brew; then
+    say "Installing Figma desktop (required for Figma MCP)..."
+    brew install --cask figma >/dev/null 2>&1 && ok "Figma desktop installed." || warn "Get Figma from https://www.figma.com/downloads/"
   fi
-  mcp_add_safe figma --transport sse figma http://127.0.0.1:3845/sse
-  echo "${BOLD}Final step in Figma:${RESET} Figma desktop → Preferences → toggle ON 'Enable Dev Mode MCP Server'."
 fi
+mcp_add_safe figma --transport sse figma http://127.0.0.1:3845/sse
+echo "${BOLD}One-time step in Figma:${RESET} Figma desktop → Preferences → toggle ON 'Enable Dev Mode MCP Server'."
 
 # 2. Playwright
 header "Playwright (browser automation)"
@@ -127,13 +134,6 @@ echo "  1. Procreate: Actions (wrench) → Share → PNG (max resolution)."
 echo "  2. AirDrop to your Mac → into your project folder."
 echo "  3. Ask Claude: \"use the vector-workflow skill to convert and embed.\""
 echo "Pegasus pre-installs ${BOLD}potrace${RESET} (bitmap → vector) and ${BOLD}svgo${RESET} (SVG optimizer)."
-
-# 6b. UX knowledge MCP
-header "UX Knowledge (WCAG, Nielsen, design systems via elsahafy/ux-mcp-server)"
-echo "Gives Claude direct access to 28 UX knowledge resources, 23 analysis tools."
-if ask_yes_no "Add UX Knowledge MCP?"; then
-  mcp_add_safe ux-knowledge ux-knowledge npx -- @elsahafy/ux-mcp-server
-fi
 
 # 7. Context7
 header "Context7 (current library docs)"
