@@ -386,6 +386,10 @@ download_to "$PEGASUS_RAW/dashboard.html"        "$PEGASUS_HOME/dashboard.html"
 download_to "$PEGASUS_RAW/favicon.svg"           "$PEGASUS_HOME/favicon.svg"
 download_to "$PEGASUS_RAW/manifest.webmanifest"  "$PEGASUS_HOME/manifest.webmanifest"
 download_to "$PEGASUS_RAW/sw.js"                 "$PEGASUS_HOME/sw.js"
+download_to "$PEGASUS_RAW/og-image.png"          "$PEGASUS_HOME/og-image.png"
+download_to "$PEGASUS_RAW/profile.schema.json"   "$PEGASUS_HOME/profile.schema.json"
+mkdir -p "$PEGASUS_HOME/scripts"
+download_to "$PEGASUS_RAW/scripts/validate-profile.js" "$PEGASUS_HOME/scripts/validate-profile.js"
 
 # ---------- finish ----------
 header "All done"

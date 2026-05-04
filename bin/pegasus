@@ -58,9 +58,8 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus open${RESET} <doc>            open a cheatsheet (commands/prompts/glossary/etc)
   ${BOLD}pegasus model${RESET}                 list / switch agents (claude/opencode/cursor)
   ${BOLD}pegasus version${RESET}               print version + paths
-  ${BOLD}pegasus profile${RESET} <show|import>  manage your profile (used by job/interview/content skills)
+  ${BOLD}pegasus profile${RESET} <show|import|validate>  manage your profile (used by job/interview/content skills)
   ${BOLD}pegasus init${RESET}                  guided 2-min first-run setup
-  ${BOLD}pegasus test${RESET}                  end-to-end install verification
   ${BOLD}pegasus bug${RESET}                   file a bug report with diagnostics pre-filled
   ${BOLD}pegasus pulse${RESET}                 view your activity stats (in dashboard)
   ${BOLD}pegasus run${RESET} <W##>             walk through a workflow recipe (W1-W10)
@@ -70,7 +69,8 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
   ${BOLD}pegasus log${RESET}                   tail the install log
   ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
-  ${BOLD}pegasus voice${RESET} <install|transcribe|speak>  Whisper STT + Kokoro TTS
+  ${BOLD}pegasus voice${RESET} <install|check|transcribe|speak>  Whisper STT + Kokoro TTS
+  ${BOLD}pegasus test${RESET} [--all]            install verification (--all runs the full dev suite)
   ${BOLD}pegasus uninstall${RESET}             remove Pegasus
   ${BOLD}pegasus help${RESET}                  this help
 
@@ -717,7 +717,10 @@ cmd_profile() {
       if [[ -z "$src" || ! -f "$src" ]]; then err "Usage: pegasus profile import <path-to-profile.json>"; exit 1; fi
       mkdir -p "$PEGASUS_HOME"
       # Validate against schema before writing — catches typos early.
-      local schema_script="$(dirname "$(readlink "$0" 2>/dev/null || echo "$0")")/../scripts/validate-profile.js"
+      local schema_script
+      for cand in "$PEGASUS_HOME/scripts/validate-profile.js" "$(dirname "$(readlink "$0" 2>/dev/null || echo "$0")")/../scripts/validate-profile.js" "./scripts/validate-profile.js"; do
+        [[ -f "$cand" ]] && { schema_script="$cand"; break; }
+      done
       if [[ -f "$schema_script" ]] && have node; then
         if ! node "$schema_script" "$src" >/dev/null 2>&1; then
           warn "Profile failed schema check. Re-run with: node $schema_script $src"
@@ -729,7 +732,10 @@ cmd_profile() {
       ;;
     validate)
       local target="${2:-$PROFILE_FILE}"
-      local schema_script="$(dirname "$(readlink "$0" 2>/dev/null || echo "$0")")/../scripts/validate-profile.js"
+      local schema_script
+      for cand in "$PEGASUS_HOME/scripts/validate-profile.js" "$(dirname "$(readlink "$0" 2>/dev/null || echo "$0")")/../scripts/validate-profile.js" "./scripts/validate-profile.js"; do
+        [[ -f "$cand" ]] && { schema_script="$cand"; break; }
+      done
       if [[ ! -f "$schema_script" ]]; then
         err "validate-profile.js not found. Re-install Pegasus or run from inside the repo."
         exit 1

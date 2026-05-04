@@ -10,7 +10,7 @@
 
 Designers who want to use Claude Code or OpenCode to ship portfolios, case-study decks, interview presentations, and prototypes — without spending a weekend configuring a machine.
 
-**Run one command. Walk away.** Come back to a configured laptop with a visual dashboard, working starter projects, 16 AI skills auto-loaded, and a `pegasus` helper command that wraps every common workflow.
+**Run one command. Walk away.** Come back to a configured laptop with a visual dashboard, working starter projects, 31 AI skills auto-loaded, 13 templates, 10 cross-pollinating workflow recipes, 16 MCP bridges, and a `pegasus` helper command that wraps every common workflow.
 
 ## Two tracks, one setup
 
@@ -59,7 +59,7 @@ That's the whole loop. Make → edit → preview → ship → repeat.
 - **ffmpeg, ImageMagick, SVGO, potrace** — image and vector toolchain
 - **Lighthouse, Pa11y, Wrangler** — performance, accessibility, Cloudflare
 
-### Templates (`pegasus new <type> <name>`)
+### Templates — 13 (`pegasus new <type> <name>`)
 - **portfolio** — single-page with hero, project grid, about, contact
 - **case-study-deck** — reveal.js slide deck for interviews
 - **scroll-case-study** — long-form scrollable case study
@@ -67,11 +67,21 @@ That's the whole loop. Make → edit → preview → ship → repeat.
 - **resume** — printable single-page CV
 - **link-in-bio** — Linktree replacement on your domain
 - **illustration-gallery** — masonry grid for paintings, vector art
+- **mood-board, components-lab, agency-page, error-page, podcast-page, newsletter-archive** — see the dashboard for the rest
 
-### Skills (auto-loaded by Claude and OpenCode)
-- **ux-ui-audit** — comprehensive 17-section audit
-- **job-finder** — pulls + ranks jobs from BuiltIn and LinkedIn against your resume
-- **vector-workflow** — Procreate / Adobe / SVG → web pipeline
+### Skills — 31 (auto-loaded by Claude and OpenCode)
+- **Design:** ux-ui-audit (17-section audit), vector-workflow (Procreate → web), portfolio-case-study, content-writer
+- **Job search:** job-finder (BuiltIn + LinkedIn ranked), resume-tailor, cover-letter-generator, interview-prep, salary-negotiation-prep, career-ops-* (research, outreach, evaluate, triage, tailor-resume)
+- Plus 16 more — see the **Skills** section in the dashboard for the full list with descriptions.
+
+### Visual dashboard
+- **Two-track filter** (🎨 UX Design / 💼 Job Search / ⊕ Both) for templates, skills, MCPs, prompts.
+- **Workflow recipes** with a "📋 Copy all prompts" button on every card.
+- **Profile system** that skills reference for personalized output. JSON-Schema-validated.
+- **Job Results** local database — paste/drop the markdown table Claude returns, see ranked cards.
+- **Dark mode toggle** (system / light / dark).
+- **Pulse widget**, Cmd-K palette, keyboard shortcuts.
+- **PWA installable** with offline service worker.
 
 ### Bridges (MCP servers — `connect.sh` installs them)
 - **Figma** (read designs into Claude)

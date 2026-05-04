@@ -8,13 +8,29 @@
 const fs = require('fs');
 const path = require('path');
 
-const schemaPath = path.resolve(__dirname, '..', 'profile.schema.json');
+// Look for the schema in install location first, then repo, then cwd.
+const schemaCandidates = [
+  path.join(process.env.HOME || '', '.pegasus', 'profile.schema.json'),
+  path.resolve(__dirname, '..', 'profile.schema.json'),
+  path.resolve('profile.schema.json'),
+];
+const schemaPath = schemaCandidates.find(p => fs.existsSync(p));
+if (!schemaPath) {
+  console.error('Schema not found. Looked in:\n  ' + schemaCandidates.join('\n  '));
+  process.exit(2);
+}
 const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
 let target = process.argv[2];
 let profile;
 if (target) {
-  profile = JSON.parse(fs.readFileSync(target, 'utf8'));
+  if (!fs.existsSync(target)) {
+    console.error(`Profile file not found: ${target}`);
+    console.error('Tip: open the dashboard, fill in your profile, click Download, then re-run.');
+    process.exit(1);
+  }
+  try { profile = JSON.parse(fs.readFileSync(target, 'utf8')); }
+  catch (e) { console.error(`${target} is not valid JSON: ${e.message}`); process.exit(1); }
 } else {
   profile = schema.examples[0];
   target = '(example from schema)';
