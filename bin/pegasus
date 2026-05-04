@@ -162,7 +162,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="1.1.0"
+PEGASUS_VERSION="1.1.5"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {
@@ -1135,7 +1135,22 @@ cmd_doctor() {
   [[ -d "$HOME/.claude/skills/ux-ui-audit" ]] && ok "ux-ui-audit skill installed" || warn "ux-ui-audit skill missing"
   [[ -d "$HOME/.claude/skills/job-finder" ]] && ok "job-finder skill installed" || warn "job-finder skill missing"
   echo
+  # Service worker cache check — catches the "I refreshed but the dashboard
+  # didn't update" class of bug. If the local sw.js is older than what's
+  # currently on main, the user is running stale cached assets.
+  local local_sw="$PEGASUS_HOME/sw.js"
+  if [[ -f "$local_sw" ]]; then
+    local local_ver upstream_ver
+    local_ver=$(grep -o "CACHE_VERSION = '[^']*'" "$local_sw" 2>/dev/null | head -1 | cut -d"'" -f2)
+    upstream_ver=$(curl -fsSL --max-time 3 "$RAW/sw.js" 2>/dev/null | grep -o "CACHE_VERSION = '[^']*'" | head -1 | cut -d"'" -f2)
+    if [[ -n "$local_ver" && -n "$upstream_ver" && "$local_ver" != "$upstream_ver" ]]; then
+      warn "Dashboard cache: local $local_ver, latest $upstream_ver — run: pegasus update && hard-reload the dashboard tab"
+    elif [[ -n "$local_ver" ]]; then
+      ok "Dashboard service worker: $local_ver"
+    fi
+  fi
   if have claude; then
+    echo
     echo "${BOLD}Claude MCP servers:${RESET}"
     claude mcp list 2>/dev/null | sed 's/^/  /' || warn "Couldn't list MCPs"
   fi

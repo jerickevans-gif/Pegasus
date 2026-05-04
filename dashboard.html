@@ -33,20 +33,20 @@
       } catch (e) { /* private mode — ignore, fall back to system via @media */ }
     })();
   </script>
-  <script src="https://cdn.tailwindcss.com/3.4.16"></script>  <!-- pinned v3 — avoids surprise breaks -->
+  <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
+       Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
+  <link rel="stylesheet" href="./dashboard.css" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
-    tailwind.config = {
+    // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            serif: ['"Crimson Pro"', 'Georgia', 'serif'],
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-          },
-        },
-      },
-    }
+      theme: { extend: { fontFamily: {
+        serif: ['"Crimson Pro"', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      } } },
+    };
   </script>
 
   <style>
@@ -197,6 +197,35 @@
     :root.dark pre, :root.dark code { background: #1c1917; }
     :root.dark :focus-visible { outline-color: #fafaf9; }
     :root.dark .border-stone-200 { border-color: #292524 !important; }
+
+    /* Version dot — drives the green/amber/grey state from JS */
+    #versionDot[data-version-state="ok"]      { background: #22c55e; }
+    #versionDot[data-version-state="behind"]  { background: #f59e0b; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); animation: dotPulse 2s ease-out infinite; }
+    #versionDot[data-version-state="unknown"] { background: #d6d3d1; }
+    :root.dark #versionDot[data-version-state="unknown"] { background: #57534e; }
+    @keyframes dotPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+      70%  { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    /* First-run pulse around the theme toggle (one-time, dismissed by click) */
+    .theme-toggle.pulse-hint { position: relative; }
+    .theme-toggle.pulse-hint::after {
+      content: ''; position: absolute; inset: -4px; border-radius: 9999px;
+      box-shadow: 0 0 0 0 rgba(120, 113, 108, 0.6);
+      animation: ringPulse 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes ringPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(120, 113, 108, 0.55); }
+      70%  { box-shadow: 0 0 0 12px rgba(120, 113, 108, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(120, 113, 108, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #versionDot[data-version-state="behind"],
+      .theme-toggle.pulse-hint::after { animation: none !important; }
+    }
   </style>
 </head>
 
@@ -205,27 +234,34 @@
   <a href="#main" class="skip-link">Skip to main</a>
 
   <!-- TOP APP BAR — full-width, always visible, holds the primary theme toggle -->
-  <div id="topBar" class="sticky top-0 z-50 bg-white/90 dark:bg-stone-900/90 backdrop-blur border-b border-stone-200 dark:border-stone-800">
-    <div class="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between gap-4">
-      <!-- Left: brand mark + version -->
-      <div class="flex items-center gap-2 text-xs">
-        <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.1.0 — green = up to date"></span>
+  <header id="topBar" role="banner" class="sticky top-0 z-50 bg-white/90 dark:bg-stone-900/90 backdrop-blur border-b border-stone-200 dark:border-stone-800">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 h-12 flex items-center justify-between gap-2 sm:gap-4">
+      <!-- Left: brand button (scroll-to-top) + version -->
+      <button id="brandBtn" type="button"
+              aria-label="Scroll to top of dashboard"
+              class="flex items-center gap-2 text-xs rounded-full px-2 py-1 -mx-2 hover:bg-stone-100 dark:hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 dark:focus-visible:ring-stone-100 transition">
+        <span id="versionDot" data-version-state="unknown"
+              class="inline-block w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600"
+              aria-hidden="true"
+              title="Checking for updates…"></span>
         <span class="font-serif text-base text-stone-900 dark:text-stone-100">Pegasus</span>
-        <span class="text-stone-500 dark:text-stone-400">v1.1.0</span>
-      </div>
+        <span class="text-stone-500 dark:text-stone-400" data-version-label>v1.1.5</span>
+      </button>
       <!-- Right: keyboard hints (md+) + prominent theme toggle (always visible) -->
-      <div class="flex items-center gap-3 text-xs">
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
         <span class="hidden md:inline text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> search</span>
         <span class="hidden md:inline text-stone-700 dark:text-stone-300"><kbd class="font-mono">⌘K</kbd> palette</span>
         <span class="hidden md:inline text-stone-700 dark:text-stone-300"><kbd class="font-mono">?</kbd> help</span>
-        <button id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme: system → light → dark"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 text-stone-700 dark:text-stone-200 transition text-sm font-medium">
+        <button id="themeToggle" type="button"
+                aria-label="Toggle theme — currently System"
+                title="Toggle theme: system → light → dark"
+                class="theme-toggle inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 dark:focus-visible:ring-stone-100 text-stone-700 dark:text-stone-200 transition text-sm font-medium">
           <span data-theme-icon class="text-base leading-none">🖥️</span>
-          <span data-theme-label>System</span>
+          <span data-theme-label class="hidden sm:inline">System</span>
         </button>
       </div>
     </div>
-  </div>
+  </header>
 
   <!-- Header -->
   <header class="max-w-6xl mx-auto px-6 pt-16 pb-8">
@@ -627,7 +663,7 @@
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">Pegasus dashboard v1.1.0 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700 dark:hover:text-stone-200">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">Pegasus dashboard v1.1.5 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');_safeStorage.removeItem('pegasus.themeToggleSeen');_safeStorage.removeItem('pegasus.latestTag');location.reload()}" class="underline hover:text-stone-700 dark:hover:text-stone-200">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -1812,7 +1848,10 @@ function applyTheme(pref) {
   document.querySelectorAll('[data-theme-icon]').forEach(el => el.textContent = themeIcons[pref]);
   document.querySelectorAll('[data-theme-label]').forEach(el => el.textContent = themeLabels[pref]);
   const btn = document.getElementById('themeToggle');
-  if (btn) btn.title = `Theme: ${pref} — click to cycle (system → light → dark)`;
+  if (btn) {
+    btn.title = `Theme: ${pref} — click to cycle (system → light → dark)`;
+    btn.setAttribute('aria-label', `Toggle theme — currently ${themeLabels[pref]}`);
+  }
 }
 function cycleTheme() {
   const order = ['system', 'light', 'dark'];
@@ -1821,12 +1860,85 @@ function cycleTheme() {
   else _safeStorage.setItem('pegasus.theme', next);
   applyTheme(next);
   showToast(`Theme: ${next}`);
+  // First-run pulse hint: dismissed forever after first interaction
+  _safeStorage.setItem('pegasus.themeToggleSeen', '1');
+  document.getElementById('themeToggle')?.classList.remove('pulse-hint');
 }
 applyTheme(getThemePref());
 document.getElementById('themeToggle')?.addEventListener('click', cycleTheme);
 try { window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
   if (getThemePref() === 'system') applyTheme('system');
 }); } catch {}
+
+// One-shot pulse to draw attention to the theme toggle for first-time users.
+// Skipped if user has already clicked it OR if reduced-motion is preferred.
+(function firstRunThemePulse() {
+  try {
+    if (_safeStorage.getItem('pegasus.themeToggleSeen')) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    setTimeout(() => btn.classList.add('pulse-hint'), 1500);
+    // Auto-stop after 12s so it doesn't pulse forever even if untouched
+    setTimeout(() => btn.classList.remove('pulse-hint'), 13500);
+  } catch {}
+})();
+
+// ─────────────────────────────────────────────
+// BRAND BUTTON — scroll-to-top (real button, not just a label)
+// ─────────────────────────────────────────────
+document.getElementById('brandBtn')?.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ─────────────────────────────────────────────
+// VERSION DOT — fetch latest tag once, mark green/amber, cache for 6h
+// Compares the embedded dashboard version (data-version-label) to GitHub's
+// most-recent tag. Quiet failure on offline / rate-limit (stays grey).
+// ─────────────────────────────────────────────
+(function checkLatestVersion() {
+  const dot = document.getElementById('versionDot');
+  const labelEl = document.querySelector('[data-version-label]');
+  if (!dot || !labelEl) return;
+  const local = (labelEl.textContent || '').replace(/^v/, '').trim();
+  const cmp = (a, b) => {
+    const pa = a.split('.').map(n => parseInt(n, 10) || 0);
+    const pb = b.split('.').map(n => parseInt(n, 10) || 0);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) - (pb[i] || 0);
+    }
+    return 0;
+  };
+  const setState = (state, latest) => {
+    dot.dataset.versionState = state;
+    if (state === 'ok')      dot.title = `Pegasus dashboard v${local} — up to date`;
+    else if (state === 'behind') dot.title = `Pegasus dashboard v${local} — v${latest} is available. Run: pegasus update`;
+    else                     dot.title = `Pegasus dashboard v${local} — couldn't check for updates`;
+  };
+  const cacheKey = 'pegasus.latestTag';
+  const cached = (() => { try { return JSON.parse(_safeStorage.getItem(cacheKey) || 'null'); } catch { return null; } })();
+  const SIX_HOURS = 6 * 60 * 60 * 1000;
+  if (cached && cached.tag && (Date.now() - cached.at) < SIX_HOURS) {
+    setState(cmp(local, cached.tag) >= 0 ? 'ok' : 'behind', cached.tag);
+    return;
+  }
+  if (typeof fetch !== 'function') { setState('unknown'); return; }
+  fetch('https://api.github.com/repos/jerickevans-gif/Pegasus/tags?per_page=10', {
+    headers: { 'Accept': 'application/vnd.github+json' }
+  })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(tags => {
+      const latest = (tags || [])
+        .map(t => (t.name || '').replace(/^v/, ''))
+        .filter(t => /^\d+\.\d+\.\d+$/.test(t))
+        .sort(cmp)
+        .pop();
+      if (!latest) { setState('unknown'); return; }
+      try { _safeStorage.setItem(cacheKey, JSON.stringify({ tag: latest, at: Date.now() })); } catch {}
+      setState(cmp(local, latest) >= 0 ? 'ok' : 'behind', latest);
+    })
+    .catch(() => setState('unknown'));
+})();
 
 // ─────────────────────────────────────────────
 // BACK TO TOP
@@ -2409,7 +2521,7 @@ const learnDocs = {
     meta: 'browse · plain English',
     title: 'Glossary',
     desc: 'Every dev word that might confuse you, decoded.',
-    body: `<p>The full glossary is right here on the dashboard — scroll to the <a href="#glossary" onclick="closeWorkflowModal()" class="underline">Glossary section</a> below. 25 terms, searchable.</p>
+    body: `<p>The full glossary is right here on the dashboard — scroll to the <a href="#glossary" onclick="closeWorkflowModal()" class="underline">Glossary section</a> below.</p>
 <p>Examples:</p>
 <ul>
   <li><strong>Terminal</strong> — the text window where you type commands</li>
@@ -2417,12 +2529,13 @@ const learnDocs = {
   <li><strong>Token</strong> — machine-generated password for one specific service</li>
   <li><strong>MCP</strong> — Model Context Protocol; the plug system that lets agents talk to tools</li>
   <li><strong>Skill</strong> — a structured instruction sheet that activates when relevant</li>
-</ul>`
+</ul>
+<p class="mt-4 text-sm text-stone-600 dark:text-stone-400">Want the full reference (basics, project tools, web, AI agent, VS Code)? <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/GLOSSARY.md" target="_blank" rel="noopener" class="underline">Read GLOSSARY.md on GitHub →</a></p>`
   },
   troubleshooting: {
-    meta: '5 min · five most common issues',
+    meta: '~5 min · the most common stuck-points',
     title: 'Troubleshooting',
-    desc: 'The 5 most common stuck-points and how to fix each.',
+    desc: 'The most common stuck-points and how to fix each.',
     body: `<h3>1. "command not found: pegasus"</h3>
 <p>The helper isn\'t on your PATH. Add to <code>~/.zshrc</code>: <code>export PATH="$HOME/.local/bin:$PATH"</code>, then re-source.</p>
 <h3>2. "command not found: claude / opencode / surge / code"</h3>
@@ -2431,10 +2544,17 @@ const learnDocs = {
 <p>The <code>code</code> CLI wasn\'t on PATH at install time. Open VS Code → Cmd+Shift+P → "Shell Command: Install \'code\' command in PATH". Then run <code>pegasus update</code>.</p>
 <h3>4. "Claude can\'t see my Figma files"</h3>
 <p>Figma desktop → Preferences → toggle ON "Enable Dev Mode MCP Server". Restart Claude.</p>
-<h3>5. The install hangs</h3>
+<h3>5. The install hangs at "Installing Homebrew"</h3>
 <p>Homebrew install can take 10+ minutes on a fresh machine. Don\'t kill it.</p>
+<h3>6. "I want to undo something Claude did"</h3>
+<p><code>pegasus new</code> git-inits your project, so you can roll back: <code>cd ~/Design-Projects/&lt;project&gt; &amp;&amp; git checkout -- .</code> discards uncommitted changes. <code>git reset --hard HEAD~1</code> rewinds one commit (destructive).</p>
+<h3>7. "Claude is being too cautious / asks too many questions"</h3>
+<p>Edit <code>~/.claude/settings.json</code> and add <code>{"permissions":{"defaultMode":"bypassPermissions"}}</code>. Only enable if you trust your prompts — Claude will run commands without asking.</p>
+<h3>8. "OpenCode and Claude Code show different things"</h3>
+<p>Different agents. Skills at <code>~/.claude/skills/</code> work in both, but slash commands and MCP configs differ.</p>
 <h3>Self-heal</h3>
-<p><code>pegasus heal</code> — auto-repairs missing skills, templates, dashboard, cheatsheets. Use <code>--dry-run</code> first to preview.</p>`
+<p><code>pegasus heal</code> — auto-repairs missing skills, templates, dashboard, cheatsheets. Use <code>--dry-run</code> first to preview.</p>
+<p class="mt-4 text-sm text-stone-600 dark:text-stone-400">Still stuck? <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noopener" class="underline">Read the full TROUBLESHOOTING.md on GitHub →</a> or <a href="https://github.com/jerickevans-gif/Pegasus/issues" target="_blank" rel="noopener" class="underline">open an issue</a>.</p>`
   }
 };
 

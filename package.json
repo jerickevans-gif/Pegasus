@@ -1,0 +1,8 @@
+{
+  "name": "pegasus-dashboard-build",
+  "private": true,
+  "description": "Build tooling for Pegasus dashboard.css (Tailwind CLI). Not published.",
+  "scripts": {
+    "build:css": "npx tailwindcss@3.4.16 -c tailwind.config.js -i src/tailwind.input.css -o dashboard.css --minify"
+  }
+}
