@@ -21,11 +21,20 @@ warn()   { printf "%s! %s%s\n" "$YELLOW" "$1" "$RESET"; }
 header() { printf "\n%s%s%s\n%s%s%s\n\n" "$BOLD" "$1" "$RESET" "$DIM" "──────────────────────────────────────────" "$RESET"; }
 
 CUSTOM=0
+DEBUG=0
 for arg in "$@"; do
   case "$arg" in
     --custom) CUSTOM=1 ;;
+    --debug)  DEBUG=1 ;;
   esac
 done
+
+if [[ "$DEBUG" -eq 1 ]]; then
+  mkdir -p "$HOME/.pegasus"
+  exec > >(tee -a "$HOME/.pegasus/install.log") 2>&1
+  echo "[DEBUG mode] Logging everything to ~/.pegasus/install.log"
+  set -x
+fi
 
 ask_yes_no() {
   if [[ "$CUSTOM" -eq 0 ]]; then return 0; fi  # one-shot mode = always yes

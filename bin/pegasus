@@ -66,6 +66,7 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus run${RESET} <W##>             walk through a workflow recipe (W1-W10)
   ${BOLD}pegasus snapshot${RESET}              export profile + pulse + state to JSON for backup
   ${BOLD}pegasus install${RESET} <skill|url>   install a skill from name or GitHub URL
+  ${BOLD}pegasus tutorial${RESET}              interactive 8-step guided walkthrough
   ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
   ${BOLD}pegasus log${RESET}                   tail the install log
   ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
@@ -161,7 +162,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="0.9.1"
+PEGASUS_VERSION="1.0.0"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {
@@ -242,6 +243,66 @@ For activity stats (copies, weekly, streaks), open the dashboard:
 EOF
 }
 
+cmd_tutorial() {
+  clear || true
+  local STEPS=8
+  local STEP=0
+
+  pause() { printf "\n${BOLD}Press Enter to continue (or Ctrl-C to bail)...${RESET}"; read -r _ </dev/tty || true; }
+  step() { STEP=$((STEP+1)); printf "\n${BOLD}━━━ Step %d/%d: %s ━━━${RESET}\n\n" "$STEP" "$STEPS" "$1"; }
+
+  echo "${BOLD}Pegasus interactive tutorial${RESET}"
+  echo "8 quick steps. ~10 minutes. Bail anytime with Ctrl-C."
+  pause
+
+  step "Make sure your install is healthy"
+  cmd_check
+  pause
+
+  step "Pick where your work lives"
+  echo "Pegasus puts every project under ~/Design-Projects/."
+  echo "Right now you have:"
+  ls "$PROJECTS_DIR" 2>/dev/null | head -10
+  pause
+
+  step "See your active skills (Claude Code + OpenCode read these)"
+  echo "Top 5 of $(ls "$HOME/.claude/skills/" 2>/dev/null | wc -l | tr -d ' ') installed skills:"
+  ls "$HOME/.claude/skills/" 2>/dev/null | head -5 | sed 's/^/  · /'
+  echo "(Run 'pegasus skills' for the full list with descriptions)"
+  pause
+
+  step "Make a test project"
+  echo "We'll scaffold a test portfolio (you can delete after):"
+  echo "  ${BLUE}pegasus new portfolio tutorial-test${RESET}"
+  printf "Run it now? [Y/n] "
+  read -r ans </dev/tty || ans="y"
+  if [[ "${ans:-y}" =~ ^[Yy]$ ]]; then cmd_new portfolio tutorial-test 2>&1 | tail -5; fi
+  pause
+
+  step "Open the visual dashboard"
+  echo "  ${BLUE}pegasus dashboard${RESET}"
+  echo "  Click any card → copies to clipboard. Paste into VS Code terminal."
+  pause
+
+  step "Try a workflow recipe"
+  echo "  ${BLUE}pegasus run W4${RESET}   (Case Study Quick Drop, 30 min recipe)"
+  echo "Walks you through chaining skills end-to-end."
+  pause
+
+  step "Set up your profile (optional but recommended)"
+  echo "  ${BLUE}pegasus init${RESET}     (or edit in dashboard's Profile section)"
+  echo "Skills like job-finder + interview-prep + content-writer use it."
+  pause
+
+  step "When you get stuck"
+  echo "  ${BLUE}pegasus doctor${RESET}      diagnose what's installed"
+  echo "  ${BLUE}pegasus heal${RESET}        self-repair missing assets"
+  echo "  ${BLUE}pegasus bug${RESET}         file a bug report (gh issue with diagnostics pre-filled)"
+
+  echo
+  ok "${BOLD}Done.${RESET} Now build something."
+}
+
 cmd_check() {
   echo "${BOLD}Pegasus pre-flight check${RESET}"
   local OK=1
@@ -305,11 +366,13 @@ cmd_voice() {
       echo
       ok "${BOLD}Voice tools installed.${RESET}"
       echo "Try:"
-      echo "  ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
+      echo "  ${BOLD}pegasus tutorial${RESET}              interactive 8-step guided walkthrough
+  ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
   ${BOLD}pegasus log${RESET}                   tail the install log
   ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
   ${BOLD}pegasus voice transcribe${RESET} <audio-file>     speech to text"
-      echo "  ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
+      echo "  ${BOLD}pegasus tutorial${RESET}              interactive 8-step guided walkthrough
+  ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
   ${BOLD}pegasus log${RESET}                   tail the install log
   ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
   ${BOLD}pegasus voice speak${RESET} \"Hello world\"           text to speech"
@@ -1119,6 +1182,7 @@ case "${1:-help}" in
   check)      cmd_check ;;
   log)        cmd_log ;;
   heal)       shift; cmd_heal "$@" ;;
+  tutorial)   cmd_tutorial ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;
