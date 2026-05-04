@@ -191,8 +191,8 @@
 
   <!-- Mode pill (persistent) -->
   <div class="mode-pill fixed top-3 right-3 bg-white/80 dark:bg-stone-900/80 border border-stone-300 dark:border-stone-700 rounded-full px-3 py-1.5 text-xs flex items-center gap-2 z-50 shadow-sm">
-    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.5 — green = up to date"></span>
-    <span class="text-stone-700 dark:text-stone-300">v1.0.5</span>
+    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.6 — green = up to date"></span>
+    <span class="text-stone-700 dark:text-stone-300">v1.0.6</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> search</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
@@ -261,6 +261,7 @@
     <nav aria-label="Sections" class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-2 text-sm overflow-x-auto">
       <a href="#pulse"       data-nav="pulse"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Pulse</a>
       <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
+      <a href="#jobResults"  data-nav="jobResults"  class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Jobs</a>
       <a href="#start"       data-nav="start"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Quick start</a>
       <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500" data-count="templates"></span></a>
       <a href="#workflows"   data-nav="workflows"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Workflows <span class="text-stone-500" data-count="workflows"></span></a>
@@ -416,6 +417,34 @@
       </div>
     </section>
 
+    <!-- JOB RESULTS — local "database" of jobs Claude returned -->
+    <section id="jobResults" class="py-8" data-search>
+      <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6">
+        <div class="flex items-baseline justify-between mb-2">
+          <h2 class="font-serif text-2xl">📋 Your job results</h2>
+          <button id="jobsClear" class="text-xs text-stone-500 hover:text-red-600 underline hidden">Clear all</button>
+        </div>
+        <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">After the 'Find me jobs' prompt finishes in Claude, paste the results here or drop the saved <span class="font-mono">jobs-today-*.md</span> file. Pegasus parses the table and shows each job as a clickable card with score, fit, and apply link.</p>
+
+        <div id="jobsEmpty" class="border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-xl p-8 text-center">
+          <p class="text-4xl mb-2">📥</p>
+          <p class="font-medium">No job results yet</p>
+          <p class="text-sm text-stone-500 mt-2">After running '🎯 Find me jobs to apply to today':</p>
+          <div class="mt-4 flex gap-2 justify-center flex-wrap">
+            <button id="jobsPasteBtn" class="px-4 py-2 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg text-sm">📋 Paste from clipboard</button>
+            <label class="px-4 py-2 bg-stone-200 dark:bg-stone-800 rounded-lg text-sm cursor-pointer">
+              📁 Choose .md file
+              <input type="file" accept=".md,.markdown,.txt" id="jobsFileInput" class="hidden" />
+            </label>
+          </div>
+          <p class="text-xs text-stone-500 mt-3">Or just drag the .md file onto this page</p>
+        </div>
+
+        <div id="jobsList" class="space-y-2 hidden"></div>
+        <div id="jobsStats" class="mt-4 text-xs text-stone-500 hidden"></div>
+      </div>
+    </section>
+
     <!-- GROUP PROJECT FEATURED -->
     <section class="py-8" data-search>
       <div class="card bg-gradient-to-r from-amber-50 to-rose-50 dark:from-amber-950/30 dark:to-rose-950/30 rounded-xl border border-amber-200 dark:border-amber-900 p-6">
@@ -564,7 +593,7 @@
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.5 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.6 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -1965,6 +1994,165 @@ document.querySelectorAll('[data-copyable="1"]').forEach(card => {
 
 
 // ─────────────────────────────────────────────
+// JOB RESULTS — local database of parsed jobs, rendered as cards
+// ─────────────────────────────────────────────
+const JOBS_KEY = 'pegasus.jobs';
+function loadJobs() { try { return JSON.parse(_safeStorage.getItem(JOBS_KEY) || '[]'); } catch { return []; } }
+function saveJobs(arr) { _safeStorage.setItem(JOBS_KEY, JSON.stringify(arr)); }
+
+// Parse markdown table from Claude job-finder output. Tolerant — finds the first table with apply URLs.
+function parseJobsMarkdown(md) {
+  const lines = md.split(/\r?\n/);
+  const jobs = [];
+  let inTable = false, headers = [];
+  for (const line of lines) {
+    if (line.match(/^\s*\|.*\|.*\|/)) {
+      const cells = line.split('|').slice(1, -1).map(c => c.trim());
+      if (!inTable) {
+        headers = cells.map(h => h.toLowerCase());
+        inTable = true;
+        continue;
+      }
+      // Skip separator row
+      if (cells.every(c => /^-+$/.test(c) || c === '')) continue;
+      const job = {};
+      cells.forEach((v, i) => { if (headers[i]) job[headers[i]] = v; });
+      // Heuristic: must have title or company + an apply URL or score
+      const hasContent = (job.title || job.role || job.company || job['role · company']) && (job.apply || job.url || job.score || job.fit);
+      if (hasContent) {
+        jobs.push({
+          id: Math.random().toString(36).slice(2),
+          title: job.title || job.role || (job['role · company']?.split(' · ')[0]) || 'Untitled',
+          company: job.company || (job['role · company']?.split(' · ')[1]) || '',
+          location: job.location || '',
+          salary: job.salary || job.comp || '',
+          score: parseInt(job.score || job.fit || '0', 10) || 0,
+          why: job.why || job.notes || '',
+          url: (job.apply || job.url || '').match(/https?:\/\/\S+/)?.[0] || '',
+          applied: false,
+          imported: new Date().toISOString().slice(0, 10),
+        });
+      }
+    } else if (inTable && !line.match(/^\s*\|/)) {
+      inTable = false;
+    }
+  }
+  return jobs;
+}
+
+function renderJobs() {
+  const jobs = loadJobs();
+  const empty = document.getElementById('jobsEmpty');
+  const list = document.getElementById('jobsList');
+  const stats = document.getElementById('jobsStats');
+  const clearBtn = document.getElementById('jobsClear');
+  if (!list) return;
+  if (jobs.length === 0) {
+    empty.classList.remove('hidden');
+    list.classList.add('hidden');
+    stats.classList.add('hidden');
+    clearBtn.classList.add('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  list.classList.remove('hidden');
+  stats.classList.remove('hidden');
+  clearBtn.classList.remove('hidden');
+  // Sort: not-applied first, then by score desc
+  jobs.sort((a, b) => (a.applied - b.applied) || (b.score - a.score));
+  list.innerHTML = jobs.map(j => {
+    const scoreColor = j.score >= 80 ? 'bg-emerald-500' : j.score >= 60 ? 'bg-amber-500' : 'bg-stone-400';
+    return `
+    <div class="card bg-white dark:bg-stone-900 rounded-lg border border-stone-200 dark:border-stone-800 p-4 ${j.applied ? 'opacity-50' : ''}">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-baseline gap-2 flex-wrap">
+            <h3 class="font-medium ${j.applied ? 'line-through' : ''}">${j.title}</h3>
+            <span class="text-sm text-stone-500">· ${j.company}</span>
+          </div>
+          <div class="text-xs text-stone-500 mt-1 flex flex-wrap gap-2">
+            ${j.location ? `<span>📍 ${j.location}</span>` : ''}
+            ${j.salary ? `<span>💰 ${j.salary}</span>` : ''}
+            <span>🗓 imported ${j.imported}</span>
+          </div>
+          ${j.why ? `<p class="text-sm text-stone-600 dark:text-stone-400 mt-2">${j.why}</p>` : ''}
+        </div>
+        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+          <div class="text-center">
+            <div class="font-mono text-2xl font-semibold">${j.score}</div>
+            <div class="w-16 h-1.5 bg-stone-200 dark:bg-stone-700 rounded-full overflow-hidden mt-1">
+              <div class="${scoreColor} h-full" style="width: ${j.score}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        ${j.url ? `<a href="${j.url}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded text-xs">Apply →</a>` : ''}
+        <button onclick="toggleApplied('${j.id}')" class="px-3 py-1.5 bg-stone-200 dark:bg-stone-800 rounded text-xs">${j.applied ? '↩️ Unmark applied' : '✓ Mark applied'}</button>
+        <button onclick="deleteJob('${j.id}')" class="px-3 py-1.5 text-stone-500 hover:text-red-600 rounded text-xs ml-auto">remove</button>
+      </div>
+    </div>`;
+  }).join('');
+  const applied = jobs.filter(j => j.applied).length;
+  stats.textContent = `${jobs.length} jobs · ${applied} applied · ${jobs.length - applied} remaining`;
+}
+
+function toggleApplied(id) {
+  const jobs = loadJobs();
+  const j = jobs.find(x => x.id === id);
+  if (j) { j.applied = !j.applied; saveJobs(jobs); renderJobs(); showToast(j.applied ? '✓ Marked applied' : 'Unmarked'); }
+}
+function deleteJob(id) {
+  saveJobs(loadJobs().filter(j => j.id !== id));
+  renderJobs();
+}
+
+function importJobsFromText(text) {
+  const parsed = parseJobsMarkdown(text);
+  if (parsed.length === 0) { showToast('Couldn\\'t find a job table in that text'); return 0; }
+  // Merge with existing — dedupe by title+company
+  const existing = loadJobs();
+  const existingKeys = new Set(existing.map(j => (j.title + j.company).toLowerCase()));
+  const newOnes = parsed.filter(j => !existingKeys.has((j.title + j.company).toLowerCase()));
+  saveJobs([...existing, ...newOnes]);
+  renderJobs();
+  showToast(`✓ Imported ${newOnes.length} new job${newOnes.length === 1 ? '' : 's'} (${parsed.length - newOnes.length} already there)`);
+  return newOnes.length;
+}
+
+document.getElementById('jobsPasteBtn')?.addEventListener('click', async () => {
+  try { const text = await navigator.clipboard.readText(); importJobsFromText(text); }
+  catch { showToast('Browser blocked clipboard read — try Choose .md file'); }
+});
+
+document.getElementById('jobsFileInput')?.addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const text = await f.text();
+  importJobsFromText(text);
+});
+
+document.getElementById('jobsClear')?.addEventListener('click', () => {
+  if (!confirm('Clear all imported jobs?')) return;
+  saveJobs([]);
+  renderJobs();
+});
+
+// Existing snapshot drop also handles .md files now
+const _origDrop = window.ondrop;
+window.addEventListener('drop', async e => {
+  const file = e.dataTransfer?.files?.[0];
+  if (file && (file.name.endsWith('.md') || file.name.endsWith('.markdown') || file.name.endsWith('.txt'))) {
+    e.preventDefault();
+    document.getElementById('snapDrop')?.classList.add('hidden');
+    const text = await file.text();
+    importJobsFromText(text);
+  }
+});
+
+renderJobs();
+
+// ─────────────────────────────────────────────
 // JOB SEARCH ACTIONABLE — checklist + one-click ranked-jobs prompt
 // ─────────────────────────────────────────────
 function buildProfileContext(p) {
@@ -2027,8 +2215,15 @@ What I need today:
 2. Read my resume (at the path above) and my LinkedIn profile to score each job for fit.
 3. Apply my priorities strictly (comp floor, location, must-haves, hard-nos — drop anything that violates them).
 4. Return the TOP 5 jobs to apply to today, ranked by score.
-5. For each: title, company, location, salary if shown, fit score 0-100, why it's a fit, apply URL.
-6. Save the result as ~/Design-Projects/jobs-today-${new Date().toISOString().slice(0,10)}.md so I can revisit later.
+
+OUTPUT FORMAT (this exact markdown table — Pegasus dashboard parses it):
+
+| Title | Company | Location | Salary | Score | Why | Apply |
+|---|---|---|---|---|---|---|
+| Senior Product Designer | Acme | Remote (US) | $180k-220k | 92 | 6/8 skills match, healthcare focus aligns | https://apply-url... |
+
+5. Save the FULL table to ~/Design-Projects/jobs-today-${new Date().toISOString().slice(0,10)}.md
+6. Tell me the file path so I can drop it into the Pegasus dashboard's Job Results section.
 
 Start now.`;
   navigator.clipboard.writeText(prompt).then(() => {
