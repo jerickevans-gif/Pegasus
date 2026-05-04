@@ -257,6 +257,15 @@
 
   <main id="main" tabindex="-1" class="max-w-6xl mx-auto px-6 pb-24" data-search-root>
 
+    <!-- TODAY widget — one specific thing to do, computed from profile + pulse -->
+    <section id="today" class="py-6" data-search>
+      <div class="card bg-stone-900 text-stone-50 dark:bg-stone-100 dark:text-stone-900 rounded-xl p-6">
+        <p class="text-xs uppercase tracking-widest opacity-60 mb-2">Today</p>
+        <p id="todayMessage" class="text-xl font-serif">Open the dashboard to see what to do next.</p>
+        <button id="todayAction" class="mt-4 px-4 py-2 bg-stone-50 text-stone-900 dark:bg-stone-900 dark:text-stone-50 rounded-lg text-sm font-medium hidden">Do it</button>
+      </div>
+    </section>
+
     <!-- PEGASUS PULSE — usage stats + recently used -->
     <section id="pulse" class="py-8" data-search>
       <div class="card bg-gradient-to-br from-stone-50 to-white dark:from-stone-900 dark:to-stone-950 rounded-xl border border-stone-200 dark:border-stone-800 p-6">
@@ -1074,6 +1083,43 @@ document.querySelectorAll('.track-tab').forEach(btn => {
 
 // Apply persisted track choice on initial load (was previously called too early — TDZ bug)
 applyTrack(activeTrack);
+
+// ─────────────────────────────────────────────
+// TODAY widget — one specific thing to do, computed from profile + pulse + day-of-week
+// ─────────────────────────────────────────────
+(function() {
+  const profile = loadProfile();
+  const pulse = loadPulse();
+  const todayMsg = document.getElementById('todayMessage');
+  const todayAct = document.getElementById('todayAction');
+  if (!todayMsg) return;
+  const day = new Date().getDay();
+  const noProfile = !profile.name;
+  const sundayOrMonday = day === 0 || day === 1;
+  const totalCopies = pulse.totalCopies || 0;
+
+  let msg, action;
+  if (noProfile) {
+    msg = '👤 Fill in your profile (Step 1, just below). Skills like job-finder and interview-prep need it.';
+    action = { label: 'Jump to Profile', click: () => document.getElementById('profile').scrollIntoView({ behavior: 'smooth' }) };
+  } else if (sundayOrMonday && (pulse.recent || []).length > 0) {
+    msg = `📊 ${profile.name.split(' ')[0]}, run your weekly review. (It\'s ${['Sun','Mon'][day]}day — perfect time.)`;
+    action = { label: 'Copy weekly-review prompt', click: () => { navigator.clipboard.writeText('Use the weekly-review skill on the past 7 days of activity.'); showToast('Copied — paste into Claude'); } };
+  } else if (totalCopies < 3) {
+    msg = `👋 Try copying a Quick Start command, then paste into your VS Code terminal.`;
+    action = { label: 'Jump to Quick Start', click: () => document.getElementById('start').scrollIntoView({ behavior: 'smooth' }) };
+  } else {
+    const focuses = ['Try a workflow today.', 'Audit your latest project with ux-ui-audit.', 'Tighten your hero copy with content-writer.', 'Scan a company you admire with career-ops-research.'];
+    msg = `🎯 ${focuses[new Date().getDate() % focuses.length]}`;
+    action = { label: 'Explore Skills', click: () => document.getElementById('skills').scrollIntoView({ behavior: 'smooth' }) };
+  }
+  todayMsg.textContent = msg;
+  if (action) {
+    todayAct.classList.remove('hidden');
+    todayAct.textContent = action.label;
+    todayAct.onclick = action.click;
+  }
+})();
 
 // ─────────────────────────────────────────────
 // COUNT BADGES IN NAV
