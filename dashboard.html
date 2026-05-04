@@ -1105,17 +1105,28 @@ function renderPrompts() {
 }
 
 function renderRecommended() {
-  document.getElementById('recommended-list').innerHTML = recommended.map(r => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}" data-copyable="1" data-card-copy="${r.clone.replace(/"/g, '&quot;')}" data-recommended="${r.name.replace(/"/g, '&quot;')}">
+  document.getElementById('recommended-list').innerHTML = recommended.map(r => {
+    const urlMatch = r.clone.match(/https?:\/\/github\.com\/[^\s)]+/);
+    // Fall back to deriving the URL from the card name (e.g. "github/spec-kit" → org/repo).
+    const nameMatch = !urlMatch && r.name.match(/(?:^|\s)([a-z0-9_-]+\/[a-z0-9._-]+)$/i);
+    const repoUrl = urlMatch ? urlMatch[0].replace(/\.git\b/, '')
+                  : nameMatch ? `https://github.com/${nameMatch[1]}`
+                  : null;
+    return `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}" data-copyable="1" data-card-copy="${_esc(r.clone)}" data-recommended="${_esc(r.name)}">
       <div class="flex items-baseline justify-between">
         <h3 class="font-medium font-mono text-sm">${r.name}</h3>
         <span class="text-xs text-stone-500">★ ${r.stars}</span>
       </div>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${r.desc}</p>
-      <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${r.clone.replace(/"/g, '&quot;')}">${r.clone}</button>
-      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-recommended-details">View details →</button>
+      <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${_esc(r.clone)}">${_esc(r.clone)}</button>
+      <div class="flex items-center justify-between mt-2 gap-2">
+        ${repoUrl ? `<a href="${repoUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation();" class="text-xs text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white inline-flex items-center gap-1">↗ Open on GitHub</a>` : '<span></span>'}
+        <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 view-recommended-details">View details →</button>
+      </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function openRecommendedModal(name) {
