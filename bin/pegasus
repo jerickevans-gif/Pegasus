@@ -162,7 +162,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="1.1.5"
+PEGASUS_VERSION="1.1.6"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {
@@ -1174,6 +1174,15 @@ cmd_update() {
     done
   done
   ok "Skills updated."
+  # Refresh dashboard assets so users get the latest UI without re-running install.sh.
+  # Without this, the SW cache check in `doctor` would always show "behind" because
+  # local dashboard files would never get refreshed by `update`.
+  mkdir -p "$PEGASUS_HOME"
+  for asset in dashboard.html dashboard.css sw.js manifest.webmanifest favicon.svg welcome.html; do
+    say "Updating dashboard asset: $asset"
+    curl -fsSL "$RAW/$asset" -o "$PEGASUS_HOME/$asset" 2>/dev/null || true
+  done
+  ok "Dashboard assets updated."
   curl -fsSL "$RAW/bin/pegasus" -o "$(command -v pegasus)" 2>/dev/null && chmod +x "$(command -v pegasus)" && ok "Pegasus helper updated." || warn "Couldn't self-update."
 }
 
