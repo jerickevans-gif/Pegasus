@@ -1,10 +1,24 @@
 # Pegasus
 
-**A one-command setup that turns your laptop into an AI-powered design studio.**
+> A one-command setup that turns your laptop into an AI-powered design studio. Built for designers, not developers.
 
-Built for designers (not developers) who want to use Claude Code or OpenCode to ship portfolios, case-study decks, presentations, and prototypes — without spending a weekend configuring a machine.
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Works with Claude Code](https://img.shields.io/badge/Claude_Code-✓-orange.svg)](https://claude.com/claude-code)
+[![Works with OpenCode](https://img.shields.io/badge/OpenCode-✓-blue.svg)](https://opencode.ai)
+[![No telemetry](https://img.shields.io/badge/telemetry-none-success.svg)](#privacy)
+[![No paid services](https://img.shields.io/badge/paid_services-zero-success.svg)](#what-you-get)
 
-Run one command. Walk away. Come back to a configured laptop with a visual dashboard, working starter projects, and AI agents ready to build whatever you describe.
+Designers who want to use Claude Code or OpenCode to ship portfolios, case-study decks, interview presentations, and prototypes — without spending a weekend configuring a machine.
+
+**Run one command. Walk away.** Come back to a configured laptop with a visual dashboard, working starter projects, 16 AI skills auto-loaded, and a `pegasus` helper command that wraps every common workflow.
+
+## Two tracks, one setup
+
+🎨 **UX Design** — portfolio sites, case studies, mood boards, illustration galleries, slide decks, components labs.
+💼 **Job Search** — resume tailoring, cover letters, interview prep, salary negotiation, BuiltIn + LinkedIn job pulls.
+⊕ **Both** — cross-pollinating workflows that bridge the two.
+
+Pick a track in the visual dashboard. Pegasus filters templates, skills, MCPs, and prompts to your current focus.
 
 ## Quick start
 

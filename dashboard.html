@@ -68,11 +68,20 @@
     @media (prefers-color-scheme: dark) { .nav-pill.active { background: #fafaf9; color: #0c0a09; } }
 
     /* Track tabs */
-    .track-tab[aria-selected="true"] { background: white; color: #0c0a09; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-weight: 500; }
+    .track-tab[aria-selected="true"] { background: white; color: #0c0a09; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-weight: 600; }
     @media (prefers-color-scheme: dark) { .track-tab[aria-selected="true"] { background: #44403c; color: #fafaf9; } }
-    .track-tab:not([aria-selected="true"]) { color: #57534e; }
-    @media (prefers-color-scheme: dark) { .track-tab:not([aria-selected="true"]) { color: #a8a29e; } }
+    .track-tab:not([aria-selected="true"]) { color: #44403c; }
+    @media (prefers-color-scheme: dark) { .track-tab:not([aria-selected="true"]) { color: #d6d3d1; } }
+    .track-tab:hover { background: rgba(255,255,255,0.5); }
+    @media (prefers-color-scheme: dark) { .track-tab:hover { background: rgba(64,64,64,0.5); } }
     .hidden-by-track { display: none !important; }
+
+    /* Empty state — shown when a section has 0 visible cards after filter/search */
+    .empty-state { padding: 2rem; text-align: center; color: #78716c; border: 2px dashed #d6d3d1; border-radius: 12px; }
+    @media (prefers-color-scheme: dark) { .empty-state { border-color: #44403c; color: #a8a29e; } }
+
+    /* Print: show everything regardless of filter */
+    @media print { .hidden-by-track { display: block !important; } .hidden-by-search { display: block !important; } }
 
     /* Inline search highlight */
     mark { background-color: #fef08a; color: inherit; padding: 0 2px; border-radius: 2px; }
@@ -133,7 +142,11 @@
     <span class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true"></span>
     <span class="text-stone-700 dark:text-stone-300">offline-ready</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
-    <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> to search</span>
+    <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> search</span>
+    <span class="text-stone-400" aria-hidden="true">·</span>
+    <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">⌘K</kbd> palette</span>
+    <span class="text-stone-400" aria-hidden="true">·</span>
+    <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">?</kbd> help</span>
   </div>
 
   <!-- Header -->
@@ -172,6 +185,7 @@
       <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
       <a href="#start"       data-nav="start"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Quick start</a>
       <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500" data-count="templates"></span></a>
+      <a href="#workflows"   data-nav="workflows"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Workflows <span class="text-stone-500" data-count="workflows"></span></a>
       <a href="#commands"    data-nav="commands"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Commands <span class="text-stone-500" data-count="commands"></span></a>
       <a href="#skills"      data-nav="skills"      class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Skills <span class="text-stone-500" data-count="skills"></span></a>
       <a href="#mcps"        data-nav="mcps"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Bridges <span class="text-stone-500" data-count="mcps"></span></a>
@@ -277,6 +291,13 @@
       </div>
     </section>
 
+    <!-- WORKFLOWS — multi-step recipes that chain skills -->
+    <section id="workflows" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Workflows</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Pre-built recipes chaining skills end-to-end. Paste step 1, see the result, then step 2.</p>
+      <div id="workflows-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
     <!-- TEMPLATES -->
     <section id="templates" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2">Templates · 7</h2>
@@ -366,6 +387,18 @@
   <!-- Toast -->
   <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm opacity-0 transition-opacity pointer-events-none z-50">
     Copied
+  </div>
+
+  <!-- First-run hint -->
+  <div id="firstRunHint" class="fixed bottom-6 left-6 max-w-sm bg-stone-900 text-white p-5 rounded-xl shadow-2xl z-50 hidden" role="status">
+    <div class="flex items-start gap-3">
+      <span class="text-2xl">👋</span>
+      <div>
+        <p class="font-semibold mb-1">Welcome to Pegasus</p>
+        <p class="text-sm text-stone-300 leading-relaxed">Press <kbd class="bg-stone-700 px-1.5 rounded">⌘K</kbd> for the command palette, <kbd class="bg-stone-700 px-1.5 rounded">/</kbd> to search, or <kbd class="bg-stone-700 px-1.5 rounded">?</kbd> for shortcuts. Pick your track above to filter.</p>
+        <button onclick="dismissFirstRun()" class="mt-3 text-xs underline text-stone-300 hover:text-white">Got it</button>
+      </div>
+    </div>
   </div>
 
   <!-- Back to top -->
@@ -502,6 +535,19 @@ const recommended = [
   { name: 'calebapril/Designer-Tools-and-Assets-for-Developers', track: 'design', stars: '3', desc: 'Curated asset list — stock photos, templates, CSS frameworks, UI libraries.', clone: 'open https://github.com/calebapril/Designer-Tools-and-Assets-for-Developers' },
 ];
 
+const workflows = [
+  { id: 'W1', track: 'design', name: 'Figma → Live Portfolio',           desc: 'Read a Figma file, build it in HTML, audit, deploy. ~1 afternoon.', steps: 5 },
+  { id: 'W2', track: 'design', name: 'Procreate Art → Showcase Page',    desc: 'Convert exports to WebP, drop into a gallery template, deploy.',   steps: 5 },
+  { id: 'W3', track: 'design', name: 'Design System Spec → Components',  desc: 'Spec-driven (spec-kit) → live components-lab → audited → shipped.', steps: 5 },
+  { id: 'W4', track: 'design', name: 'Case Study Quick Drop',            desc: '30-min: intake → scroll-case-study → tighten copy → audit → deploy.', steps: 5 },
+  { id: 'W5', track: 'jobs',   name: 'Job Posting → Sent Application',  desc: 'Research → evaluate → tailor resume → cover letter → outreach.',     steps: 6 },
+  { id: 'W6', track: 'jobs',   name: 'Weekly Pipeline Triage',           desc: 'Pull jobs from BuiltIn + LinkedIn, score, pick top 3 to apply.',    steps: 4 },
+  { id: 'W7', track: 'jobs',   name: 'Interview Sprint (24h)',           desc: 'Company brief → interview-prep → STAR stories → rehearsal mode.',   steps: 5 },
+  { id: 'W8', track: 'jobs',   name: 'Offer → Counter-Offer',           desc: 'Market research → counter draft (3 versions) → back-and-forth plan.', steps: 4 },
+  { id: 'W9', track: 'both',   name: 'Portfolio → Job Application',     desc: 'Cross-track: pick relevant projects, deepen one case study, tailor resume + cover letter.', steps: 5 },
+  { id: 'W10',track: 'both',   name: 'Case Study → Interview Stories',  desc: 'Cross-track: extract STAR stories from your case study; conversational refinement.', steps: 4 },
+];
+
 const glossary = [
   { term: 'Terminal',     def: 'The text window where you type commands. macOS: Terminal/iTerm. Windows: PowerShell.' },
   { term: 'Command',      def: 'A line of text you type and press Enter.' },
@@ -596,6 +642,20 @@ function renderRecommended() {
   `).join('');
 }
 
+function renderWorkflows() {
+  document.getElementById('workflows-list').innerHTML = workflows.map(w => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${w.track}">
+      <div class="flex items-baseline justify-between mb-1">
+        <span class="font-mono text-xs text-stone-500">${w.id} · ${w.steps} steps</span>
+        <span class="text-xs uppercase tracking-wider text-stone-500">${w.track === 'design' ? '🎨' : w.track === 'jobs' ? '💼' : '⊕'}</span>
+      </div>
+      <h3 class="font-medium font-serif text-xl">${w.name}</h3>
+      <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${w.desc}</p>
+      <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/templates/auto-mode/workflows.md#${w.id.toLowerCase()}-${w.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}" class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Open recipe →</a>
+    </div>
+  `).join('');
+}
+
 function renderGlossary() {
   document.getElementById('glossary-list').innerHTML = glossary.map(g => `
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search data-track="both">
@@ -606,6 +666,7 @@ function renderGlossary() {
 }
 
 renderTemplates();
+renderWorkflows();
 renderCommands();
 renderSkills();
 renderMcps();
@@ -615,6 +676,20 @@ renderGlossary();
 
 // Apply persisted track choice on initial load
 applyTrack(activeTrack);
+
+// First-run hint
+const FIRST_RUN_KEY = 'pegasus.firstRunSeen';
+function dismissFirstRun() {
+  localStorage.setItem(FIRST_RUN_KEY, '1');
+  const hint = document.getElementById('firstRunHint');
+  if (hint) hint.classList.add('hidden');
+}
+if (!localStorage.getItem(FIRST_RUN_KEY)) {
+  setTimeout(() => {
+    const hint = document.getElementById('firstRunHint');
+    if (hint) hint.classList.remove('hidden');
+  }, 1200);
+}
 
 // ─────────────────────────────────────────────
 // COPY-TO-CLIPBOARD
@@ -730,13 +805,35 @@ function applyTrack(track) {
     const show = track === 'all' || cardTrack === 'both' || cardTrack === track;
     card.classList.toggle('hidden-by-track', !show);
   });
-  // Update count badges to reflect filtered counts
   updateCounts();
+  updateEmptyStates();
+}
+
+function updateEmptyStates() {
+  ['templates','workflows','commands','skills','mcps','prompts','recommended','glossary'].forEach(id => {
+    const sec = document.getElementById(id);
+    if (!sec) return;
+    const cards = sec.querySelectorAll('[data-track]');
+    const visible = Array.from(cards).filter(c => !c.classList.contains('hidden-by-track') && !c.classList.contains('hidden-by-search'));
+    let empty = sec.querySelector('.empty-state');
+    if (cards.length > 0 && visible.length === 0) {
+      if (!empty) {
+        empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = 'Nothing here for the current filter. <button onclick="applyTrack(\'all\')" class="underline ml-1">Show both tracks</button>';
+        const grid = sec.querySelector('div.grid, div[id$="-list"], div[id$="-grid"]');
+        (grid || sec).appendChild(empty);
+      }
+      empty.style.display = '';
+    } else if (empty) {
+      empty.style.display = 'none';
+    }
+  });
 }
 
 function updateCounts() {
   // count visible (not hidden-by-track) cards per section
-  const sections = { templates: 'templates', commands: 'commands', skills: 'skills', mcps: 'mcps', prompts: 'prompts', recommended: 'recommended', glossary: 'glossary' };
+  const sections = { templates: 'templates', workflows: 'workflows', commands: 'commands', skills: 'skills', mcps: 'mcps', prompts: 'prompts', recommended: 'recommended', glossary: 'glossary' };
   Object.entries(sections).forEach(([key, sectionId]) => {
     const sec = document.getElementById(sectionId);
     if (!sec) return;
@@ -754,7 +851,7 @@ document.querySelectorAll('.track-tab').forEach(btn => {
 // ─────────────────────────────────────────────
 // COUNT BADGES IN NAV
 // ─────────────────────────────────────────────
-const counts = { templates: templates.length, commands: commands.length, skills: skills.length, mcps: mcps.length, prompts: prompts.length, recommended: recommended.length, glossary: glossary.length };
+const counts = { templates: templates.length, workflows: workflows.length, commands: commands.length, skills: skills.length, mcps: mcps.length, prompts: prompts.length, recommended: recommended.length, glossary: glossary.length };
 document.querySelectorAll('[data-count]').forEach(el => {
   const k = el.dataset.count;
   if (counts[k]) el.textContent = `· ${counts[k]}`;
@@ -769,7 +866,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 const navLinks = document.querySelectorAll('.nav-pill');
-const sectionsForObserver = ['start','templates','commands','skills','mcps','prompts','recommended','glossary','help']
+const sectionsForObserver = ['profile','start','templates','workflows','commands','skills','mcps','prompts','recommended','glossary','help']
   .map(id => document.getElementById(id))
   .filter(Boolean);
 const setActiveNav = id => navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id));
@@ -817,6 +914,26 @@ searchInput.addEventListener('input', e => applySearchHL(e.target.value));
 // ─────────────────────────────────────────────
 // COPY HELPER (reusable for re-bound buttons)
 // ─────────────────────────────────────────────
+// Toast queue — rapid clicks no longer overwrite, they queue up
+const toastQueue = [];
+let toastBusy = false;
+function showToast(message, ms = 1500) {
+  toastQueue.push({ message, ms });
+  if (!toastBusy) drainToast();
+}
+function drainToast() {
+  if (toastQueue.length === 0) { toastBusy = false; return; }
+  toastBusy = true;
+  const { message, ms } = toastQueue.shift();
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(drainToast, 250);
+  }, ms);
+}
+
 async function copyAndFlash(btn) {
   const text = btn.dataset.copy;
   try {
@@ -824,12 +941,10 @@ async function copyAndFlash(btn) {
     btn.classList.add('copied');
     const original = btn.innerHTML;
     btn.innerHTML = '✓ Copied';
-    const toast = document.getElementById('toast');
-    toast.style.opacity = '1';
+    showToast('Copied to clipboard');
     setTimeout(() => {
       btn.classList.remove('copied');
       btn.innerHTML = original;
-      toast.style.opacity = '0';
     }, 1200);
   } catch (e) { btn.innerHTML = 'Press ⌘+C'; }
 }
@@ -852,6 +967,7 @@ const paletteResults = document.getElementById('paletteResults');
 
 const allItems = [
   ...templates.map(t => ({ kind: 'Template', label: `pegasus new ${t.name}`, sub: t.desc, copy: t.cmd })),
+  ...workflows.map(w => ({ kind: 'Workflow', label: `${w.id} · ${w.name}`, sub: w.desc, copy: w.name })),
   ...commands.map(c => ({ kind: 'Command', label: c.cmd, sub: c.note, copy: c.cmd })),
   ...skills.map(s => ({ kind: 'Skill', label: s.name, sub: s.summary, copy: s.invoke })),
   ...mcps.map(m => ({ kind: 'Bridge', label: m.name, sub: m.desc, copy: m.name })),
@@ -892,14 +1008,19 @@ function renderPaletteResults(filter) {
   paletteResults._matches = matches;
 }
 
+let paletteOpener = null; // remember focus to restore on close
 function openPalette() {
+  paletteOpener = document.activeElement;
   palette.classList.add('open');
   paletteInput.value = '';
   paletteSelection = 0;
   renderPaletteResults('');
   setTimeout(() => paletteInput.focus(), 50);
 }
-function closePalette() { palette.classList.remove('open'); }
+function closePalette() {
+  palette.classList.remove('open');
+  if (paletteOpener && paletteOpener.focus) paletteOpener.focus();
+}
 
 paletteInput.addEventListener('input', e => { paletteSelection = 0; renderPaletteResults(e.target.value); });
 palette.addEventListener('click', e => { if (e.target === palette) closePalette(); });
@@ -945,7 +1066,7 @@ document.addEventListener('keydown', e => {
   if (document.activeElement.tagName === 'INPUT') return;
   if (e.key === 'g' && !lastG) { lastG = true; setTimeout(() => lastG = false, 800); return; }
   if (lastG) {
-    const map = { t: 'templates', c: 'commands', s: 'skills', m: 'mcps', p: 'prompts', r: 'recommended', l: 'glossary', h: 'help', q: 'start' };
+    const map = { t: 'templates', w: 'workflows', c: 'commands', s: 'skills', m: 'mcps', p: 'prompts', r: 'recommended', l: 'glossary', h: 'help', q: 'start', i: 'profile' };
     if (map[e.key]) { e.preventDefault(); document.getElementById(map[e.key])?.scrollIntoView({ behavior: 'smooth' }); lastG = false; }
   }
 });
