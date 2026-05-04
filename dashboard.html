@@ -63,6 +63,9 @@
     /* Visible focus ring at WCAG AA+ */
     :focus-visible { outline: 2px solid #0c0a09; outline-offset: 3px; border-radius: 4px; }
 
+    /* Smooth bg/border/text transitions so theme switch is visible, not jarring */
+    body, .card, .nav-pill, .sticky-nav, .palette-modal, .help-modal, kbd, pre, code, button, a, input, textarea, select { transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease; }
+
     /* Skip to main link */
     .skip-link { position: absolute; left: -9999px; }
     .skip-link:focus { left: 1rem; top: 1rem; z-index: 100; padding: 0.75rem 1rem; background: #0c0a09; color: white; border-radius: 6px; }
@@ -279,7 +282,8 @@
 
   <!-- Sticky section nav -->
   <div class="sticky-nav" id="stickyNav">
-    <nav aria-label="Sections" class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-2 text-sm overflow-x-auto">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center gap-3">
+    <nav aria-label="Sections" class="flex-1 min-w-0 flex flex-wrap gap-2 text-sm overflow-x-auto">
       <a href="#pulse"       data-nav="pulse"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Pulse</a>
       <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
       <a href="#jobResults"  data-nav="jobResults"  class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Jobs</a>
@@ -295,6 +299,13 @@
       <a href="#learn"       data-nav="learn"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Learn</a>
       <a href="#help"        data-nav="help"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Help</a>
     </nav>
+    <!-- Theme toggle pinned at right of sticky nav (always visible) -->
+    <button id="themeToggleNav" type="button" aria-label="Toggle theme" title="Toggle theme: system → light → dark"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition text-sm font-medium whitespace-nowrap">
+      <span data-theme-icon-nav class="text-base leading-none">🖥️</span>
+      <span data-theme-label-nav>System</span>
+    </button>
+    </div>
   </div>
 
   <main id="main" tabindex="-1" class="max-w-6xl mx-auto px-6 pb-24" data-search-root>
@@ -1799,22 +1810,24 @@ const themeLabels = { system: 'System', light: 'Light', dark: 'Dark' };
 function applyTheme(pref) {
   const dark = pref === 'dark' || (pref === 'system' && _systemPrefersDark());
   document.documentElement.classList.toggle('dark', dark);
-  const iconEl = document.querySelector('[data-theme-icon]');
-  if (iconEl) iconEl.textContent = themeIcons[pref];
-  const labelEl = document.querySelector('[data-theme-label]');
-  if (labelEl) labelEl.textContent = themeLabels[pref];
-  const btn = document.getElementById('themeToggle');
-  if (btn) btn.title = `Theme: ${pref} — click to cycle (system → light → dark)`;
+  // Update BOTH toggles (mode-pill + sticky nav) so they stay in sync.
+  document.querySelectorAll('[data-theme-icon], [data-theme-icon-nav]').forEach(el => el.textContent = themeIcons[pref]);
+  document.querySelectorAll('[data-theme-label], [data-theme-label-nav]').forEach(el => el.textContent = themeLabels[pref]);
+  document.querySelectorAll('#themeToggle, #themeToggleNav').forEach(btn => {
+    btn.title = `Theme: ${pref} — click to cycle (system → light → dark)`;
+  });
 }
-applyTheme(getThemePref());
-document.getElementById('themeToggle')?.addEventListener('click', () => {
+function cycleTheme() {
   const order = ['system', 'light', 'dark'];
   const next = order[(order.indexOf(getThemePref()) + 1) % order.length];
   if (next === 'system') _safeStorage.removeItem('pegasus.theme');
   else _safeStorage.setItem('pegasus.theme', next);
   applyTheme(next);
   showToast(`Theme: ${next}`);
-});
+}
+applyTheme(getThemePref());
+document.getElementById('themeToggle')?.addEventListener('click', cycleTheme);
+document.getElementById('themeToggleNav')?.addEventListener('click', cycleTheme);
 try { window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
   if (getThemePref() === 'system') applyTheme('system');
 }); } catch {}
