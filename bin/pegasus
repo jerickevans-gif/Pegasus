@@ -174,9 +174,14 @@ __pegasus_check_update() {
   fi
   mkdir -p "$PEGASUS_HOME"; echo "$NOW" > "$CACHE"
   ( # background subshell — won't block the user
-    local LATEST=$(curl -fsSL --max-time 3 "https://api.github.com/repos/jerickevans-gif/Pegasus/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | cut -d'"' -f4 | tr -d 'v')
+    # Use the latest *tag* (not release) because we tag every patch but don't always cut a Release.
+    local LATEST=$(curl -fsSL --max-time 3 "https://api.github.com/repos/jerickevans-gif/Pegasus/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | cut -d'"' -f4 | tr -d 'v')
     if [[ -n "$LATEST" && "$LATEST" != "$PEGASUS_VERSION" ]]; then
-      printf "\n%s! Pegasus %s is available (you have %s). Run: pegasus self-update%s\n" "$YELLOW" "$LATEST" "$PEGASUS_VERSION" "$RESET" >&2
+      # Compare semver — only prompt if the upstream tag is actually newer than what we have.
+      local NEWER=$(printf '%s\n%s\n' "$LATEST" "$PEGASUS_VERSION" | sort -V | tail -1)
+      if [[ "$NEWER" == "$LATEST" ]]; then
+        printf "\n%s! Pegasus %s is available (you have %s). Run: pegasus self-update%s\n" "$YELLOW" "$LATEST" "$PEGASUS_VERSION" "$RESET" >&2
+      fi
     fi
   ) &
   disown 2>/dev/null || true
