@@ -266,6 +266,18 @@ else
   fi
 fi
 
+# Install Pegasus skills (also picked up by OpenCode automatically)
+say "Installing the ux-ui-audit skill (works in both Claude Code and OpenCode)..."
+SKILL_DIR="$CLAUDE_DIR/skills/ux-ui-audit"
+mkdir -p "$SKILL_DIR"
+for f in SKILL.md checklist.md report-template.md; do
+  if [[ -f "$SKILL_DIR/$f" ]]; then
+    ok "Skill file $f already present, skipped."
+  else
+    curl -fsSL "$PEGASUS_RAW/skills/ux-ui-audit/$f" -o "$SKILL_DIR/$f" 2>/dev/null && ok "Installed: skills/ux-ui-audit/$f" || warn "Couldn't install $f"
+  fi
+done
+
 echo
 say "${BOLD}Connect Pegasus to your design tools (Figma, Webflow, Playwright, etc.)?${RESET}"
 echo "This walks you through enabling each one, with prompts to skip the ones you don't use."

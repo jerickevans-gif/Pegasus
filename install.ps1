@@ -194,6 +194,19 @@ if (Test-Path $claudeSettings) {
     catch { Write-Warn "Couldn't download base settings. Skipped." }
 }
 
+# Install Pegasus skills (works in Claude Code AND OpenCode)
+Write-Host "Installing the ux-ui-audit skill..."
+$skillDir = Join-Path $claudeDir "skills/ux-ui-audit"
+if (-not (Test-Path $skillDir)) { New-Item -ItemType Directory -Path $skillDir -Force | Out-Null }
+foreach ($f in @("SKILL.md", "checklist.md", "report-template.md")) {
+    $dest = Join-Path $skillDir $f
+    if (Test-Path $dest) { Write-Ok "Skill file $f already present, skipped." }
+    else {
+        try { Invoke-WebRequest -Uri "$pegasusRaw/skills/ux-ui-audit/$f" -OutFile $dest -UseBasicParsing; Write-Ok "Installed: skills/ux-ui-audit/$f" }
+        catch { Write-Warn "Couldn't install $f" }
+    }
+}
+
 Write-Host ""
 Write-Host "Connect Pegasus to your design tools (Figma, Webflow, Playwright, etc.)?" -ForegroundColor White
 Write-Host "Walks you through enabling each one, with prompts to skip the ones you don't use."

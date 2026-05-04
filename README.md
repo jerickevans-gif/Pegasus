@@ -58,6 +58,9 @@ When it's done, open your new folder in VS Code and run `claude` in the terminal
 - A starter [`CLAUDE.md`](config/CLAUDE.md) so Claude knows you're a designer
 - A copy of the cheatsheets below
 
+**A bundled skill** (works in both Claude Code and OpenCode):
+- [`ux-ui-audit`](skills/ux-ui-audit/) — comprehensive 17-section audit covering accessibility, responsive breakpoints, performance, content design, and more. Just say "do a UX audit on this" and the agent picks it up automatically.
+
 ## The other Pegasus commands
 
 After the main install, two more one-liners give you extras:
