@@ -67,6 +67,13 @@
     .nav-pill.active { background: #0c0a09; color: white; }
     @media (prefers-color-scheme: dark) { .nav-pill.active { background: #fafaf9; color: #0c0a09; } }
 
+    /* Track tabs */
+    .track-tab[aria-selected="true"] { background: white; color: #0c0a09; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-weight: 500; }
+    @media (prefers-color-scheme: dark) { .track-tab[aria-selected="true"] { background: #44403c; color: #fafaf9; } }
+    .track-tab:not([aria-selected="true"]) { color: #57534e; }
+    @media (prefers-color-scheme: dark) { .track-tab:not([aria-selected="true"]) { color: #a8a29e; } }
+    .hidden-by-track { display: none !important; }
+
     /* Inline search highlight */
     mark { background-color: #fef08a; color: inherit; padding: 0 2px; border-radius: 2px; }
     @media (prefers-color-scheme: dark) { mark { background-color: #ca8a04; color: white; } }
@@ -148,6 +155,14 @@
       />
       <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-stone-100 dark:bg-stone-800 text-xs font-mono text-stone-500">/</kbd>
     </div>
+
+    <!-- Track switcher -->
+    <div class="mt-6 inline-flex items-center gap-1 p-1 rounded-full bg-stone-200 dark:bg-stone-800" role="tablist" aria-label="Pick your track">
+      <button class="track-tab px-4 py-2 text-sm rounded-full transition" data-track="design" role="tab" aria-selected="true">🎨 UX Design</button>
+      <button class="track-tab px-4 py-2 text-sm rounded-full transition" data-track="jobs" role="tab" aria-selected="false">💼 Job Search</button>
+      <button class="track-tab px-4 py-2 text-sm rounded-full transition" data-track="all" role="tab" aria-selected="false">⊕ Both</button>
+    </div>
+    <p class="text-xs text-stone-500 mt-2">Filters templates, skills, bridges, prompts, and recommendations. Commands + glossary always visible.</p>
 
   </header>
 
@@ -325,15 +340,15 @@
 // ─────────────────────────────────────────────
 
 const templates = [
-  { name: 'portfolio',           desc: 'Single-page portfolio with hero, project grid, about, contact.', cmd: 'pegasus new portfolio my-site' },
-  { name: 'case-study-deck',     desc: 'reveal.js slide deck for an interview presentation.',           cmd: 'pegasus new case-study-deck acme-redesign' },
-  { name: 'scroll-case-study',   desc: 'Long-form scrollable case study page with stats + figures.',    cmd: 'pegasus new scroll-case-study redesign-2026' },
-  { name: 'landing-page',        desc: 'Coming-soon page with email signup form.',                      cmd: 'pegasus new landing-page launch' },
-  { name: 'resume',              desc: 'Printable single-page CV. Ctrl-P → Save as PDF.',              cmd: 'pegasus new resume my-cv' },
-  { name: 'link-in-bio',         desc: 'Linktree replacement on your own domain.',                      cmd: 'pegasus new link-in-bio bio' },
-  { name: 'illustration-gallery',desc: 'Masonry grid for paintings, vector art, lettering.',           cmd: 'pegasus new illustration-gallery gallery' },
-  { name: 'mood-board',          desc: 'Image grid + palette + type pairings + direction notes.',       cmd: 'pegasus new mood-board direction-1' },
-  { name: 'components-lab',      desc: 'Copy-paste-ready Tailwind components: buttons, cards, inputs.', cmd: 'pegasus new components-lab my-system' },
+  { name: 'portfolio',           track: 'design', desc: 'Single-page portfolio with hero, project grid, about, contact.', cmd: 'pegasus new portfolio my-site' },
+  { name: 'case-study-deck',     track: 'both',   desc: 'reveal.js slide deck for an interview presentation.',           cmd: 'pegasus new case-study-deck acme-redesign' },
+  { name: 'scroll-case-study',   track: 'design', desc: 'Long-form scrollable case study page with stats + figures.',    cmd: 'pegasus new scroll-case-study redesign-2026' },
+  { name: 'landing-page',        track: 'design', desc: 'Coming-soon page with email signup form.',                      cmd: 'pegasus new landing-page launch' },
+  { name: 'resume',              track: 'jobs',   desc: 'Printable single-page CV. Ctrl-P → Save as PDF.',               cmd: 'pegasus new resume my-cv' },
+  { name: 'link-in-bio',         track: 'design', desc: 'Linktree replacement on your own domain.',                      cmd: 'pegasus new link-in-bio bio' },
+  { name: 'illustration-gallery',track: 'design', desc: 'Masonry grid for paintings, vector art, lettering.',            cmd: 'pegasus new illustration-gallery gallery' },
+  { name: 'mood-board',          track: 'design', desc: 'Image grid + palette + type pairings + direction notes.',       cmd: 'pegasus new mood-board direction-1' },
+  { name: 'components-lab',      track: 'design', desc: 'Copy-paste-ready Tailwind components: buttons, cards, inputs.', cmd: 'pegasus new components-lab my-system' },
 ];
 
 const commands = [
@@ -361,82 +376,68 @@ const commands = [
 ];
 
 const skills = [
-  {
-    name: 'ux-ui-audit',
-    summary: 'Comprehensive 17-section UX audit with accessibility, performance, content design, responsive checks.',
-    invoke: 'Do a UX/UI audit on this site.',
-  },
-  {
-    name: 'job-finder',
-    summary: 'Pulls openings from BuiltIn + LinkedIn, ranks against your resume + LinkedIn profile, returns a shortlist.',
-    invoke: 'Use the job-finder skill to find me design jobs.',
-  },
-  {
-    name: 'vector-workflow',
-    summary: 'Procreate / Adobe / SVG → web pipeline. Bitmap-to-vector tracing, SVG optimization, Lottie embed.',
-    invoke: 'Use the vector-workflow skill to clean up these Procreate exports and embed them.',
-  },
-  {
-    name: 'interview-prep',
-    summary: 'Company brief, 8 likely questions ranked, portfolio walk-through plan, design challenge prep, rehearsal mode.',
-    invoke: 'Use the interview-prep skill — I have an interview Tuesday with [Company] for [Role].',
-  },
-  {
-    name: 'content-writer',
-    summary: 'Hero copy, taglines, project summaries, about pages. Three-version output: Tight / Direct / Warm.',
-    invoke: 'Use the content-writer skill to refine my hero tagline.',
-  },
-  {
-    name: 'portfolio-case-study',
-    summary: 'Crafts portfolio-ready design case studies with intake + structured story format. (External skill — install separately.)',
-    invoke: 'Use the portfolio-case-study skill to draft a case study for my latest project.',
-  },
+  { name: 'ux-ui-audit',                track: 'design', summary: '17-section UX audit: accessibility, performance, content design, responsive.', invoke: 'Do a UX/UI audit on this site.' },
+  { name: 'vector-workflow',            track: 'design', summary: 'Procreate / Adobe / SVG → web pipeline. Tracing, optimization, Lottie.',     invoke: 'Use the vector-workflow skill to clean up these Procreate exports.' },
+  { name: 'content-writer',             track: 'both',   summary: 'Hero copy, taglines, summaries, about pages. Three-version: Tight/Direct/Warm.', invoke: 'Use the content-writer skill to refine my hero tagline.' },
+  { name: 'portfolio-case-study',       track: 'design', summary: 'Structured intake + story format for portfolio-ready case studies.',          invoke: 'Use the portfolio-case-study skill for my latest project.' },
+  { name: 'portfolio-case-study-writer',track: 'both',   summary: 'Transform resume bullets into detailed case studies.',                        invoke: 'Use the portfolio-case-study-writer skill on these resume bullets.' },
+  { name: 'job-finder',                 track: 'jobs',   summary: 'Pulls + ranks design jobs from BuiltIn + LinkedIn against your resume.',      invoke: 'Use the job-finder skill to find me design jobs.' },
+  { name: 'interview-prep',             track: 'jobs',   summary: 'Company brief, 8 ranked questions, portfolio walk-through, rehearsal mode.', invoke: 'Use the interview-prep skill — I have an interview Tuesday with [Company].' },
+  { name: 'interview-prep-generator',   track: 'jobs',   summary: 'Generate STAR stories, practice questions, talking points from resume.',     invoke: 'Use interview-prep-generator on my resume for this role.' },
+  { name: 'resume-tailor',              track: 'jobs',   summary: 'Customize resume for a specific job posting while staying truthful.',        invoke: 'Use resume-tailor on this JD: [paste].' },
+  { name: 'cover-letter-generator',     track: 'jobs',   summary: 'Personalized, compelling cover letter from resume + job description.',       invoke: 'Use cover-letter-generator for this role: [paste JD].' },
+  { name: 'salary-negotiation-prep',    track: 'jobs',   summary: 'Market rates, negotiation strategy, counter-offer scripts.',                 invoke: 'Use salary-negotiation-prep — I got an offer for [role/comp].' },
+  { name: 'career-ops-evaluate',        track: 'jobs',   summary: 'A-F scored fit assessment for a job posting.',                               invoke: 'Use career-ops-evaluate on this job: [paste JD or URL].' },
+  { name: 'career-ops-tailor-resume',   track: 'jobs',   summary: 'ATS-optimized resume tailored to a job posting (HTML → PDF).',              invoke: 'Use career-ops-tailor-resume for: [paste JD].' },
+  { name: 'career-ops-research',        track: 'jobs',   summary: 'Company intelligence brief — culture, financials, news, contacts.',         invoke: 'Use career-ops-research on [company].' },
+  { name: 'career-ops-outreach',        track: 'jobs',   summary: 'Personalized LinkedIn / hiring-manager outreach (under 300 chars).',        invoke: 'Use career-ops-outreach to message [person].' },
+  { name: 'career-ops-triage',          track: 'jobs',   summary: 'Quick-score your pipeline of scanned roles by fit.',                        invoke: 'Use career-ops-triage on my pipeline.' },
 ];
 
 const mcps = [
-  { name: 'Figma',      desc: 'Read Figma files; turn designs into code',         note: 'Requires Figma desktop + Dev Mode toggle' },
-  { name: 'Playwright', desc: 'Open a real browser; click, screenshot, scrape',   note: '' },
-  { name: 'Webflow',    desc: 'Read + edit Webflow sites',                        note: 'OAuth on first use' },
-  { name: 'Context7',   desc: 'Live docs for Tailwind, React, Astro, etc.',       note: 'No auth needed' },
-  { name: 'UX Knowledge', desc: '28 UX resources, 23 analysis tools — WCAG, Nielsen heuristics, design systems.', note: 'elsahafy/ux-mcp-server, no auth' },
-  { name: 'GitHub',     desc: 'Create repos, open PRs, manage issues',            note: 'Needs GITHUB_PERSONAL_ACCESS_TOKEN' },
-  { name: 'Notion',     desc: 'Pull case study content from Notion',              note: 'OAuth on first use' },
-  { name: 'Linear',     desc: 'Manage issues + projects',                         note: 'OAuth on first use' },
-  { name: 'Stripe',     desc: 'For designers selling things',                     note: 'API key required' },
-  { name: 'Cloudflare', desc: 'DNS + Pages free static hosting',                note: 'Cloudflare account required' },
-  { name: 'Google',     desc: 'Gmail, Drive, Calendar (via claude.ai connectors)', note: 'Set up at claude.ai/settings/connectors' },
-  { name: 'Adobe',      desc: 'No MCP yet — export & let Claude handle the file', note: 'Use vector-workflow skill' },
-  { name: 'Procreate',  desc: 'No API — export PNG, AirDrop in, then ask Claude', note: 'Use vector-workflow skill' },
-  { name: 'Framer',     desc: 'No MCP yet — paste public URLs or use Playwright', note: '' },
+  { name: 'Figma',      track: 'design', desc: 'Read Figma files; turn designs into code',         note: 'Requires Figma desktop + Dev Mode toggle' },
+  { name: 'Playwright', track: 'both', desc: 'Open a real browser; click, screenshot, scrape',   note: '' },
+  { name: 'Webflow',    track: 'design', desc: 'Read + edit Webflow sites',                        note: 'OAuth on first use' },
+  { name: 'Context7',   track: 'design', desc: 'Live docs for Tailwind, React, Astro, etc.',       note: 'No auth needed' },
+  { name: 'UX Knowledge ⭐', track: 'design', desc: '28 UX resources, WCAG, Nielsen heuristics, design systems. DEFAULT.', note: 'elsahafy/ux-mcp-server — auto-installed' },
+  { name: 'GitHub',     track: 'both', desc: 'Create repos, open PRs, manage issues',            note: 'Needs GITHUB_PERSONAL_ACCESS_TOKEN' },
+  { name: 'Notion',     track: 'both', desc: 'Pull case study content from Notion',              note: 'OAuth on first use' },
+  { name: 'Linear',     track: 'design', desc: 'Manage issues + projects',                         note: 'OAuth on first use' },
+  { name: 'Stripe',     track: 'design', desc: 'For designers selling things',                     note: 'API key required' },
+  { name: 'Cloudflare', track: 'design', desc: 'DNS + Pages free static hosting', note: 'Cloudflare account required' },
+  { name: 'Google',     track: 'both', desc: 'Gmail, Drive, Calendar (via claude.ai connectors)', note: 'Set up at claude.ai/settings/connectors' },
+  { name: 'Adobe',      track: 'design', desc: 'No MCP yet — export & let Claude handle the file', note: 'Use vector-workflow skill' },
+  { name: 'Procreate',  track: 'design', desc: 'No API — export PNG, AirDrop in, then ask Claude', note: 'Use vector-workflow skill' },
+  { name: 'Framer',     track: 'design', desc: 'No MCP yet — paste public URLs or use Playwright', note: '' },
 ];
 
 const prompts = [
-  { goal: 'Start a portfolio',          text: 'Build me a single-page portfolio at /. I\'m a [graphic / product / illustrator] designer. Sections: hero with name + tagline, project grid (6 placeholder cards), about, contact link. Tailwind. Editorial style — large serif headlines, generous whitespace. Responsive. Start a Live Preview when done.' },
-  { goal: 'Convert a Figma design',     text: 'Here\'s the Figma file: [URL]. Use the Figma MCP tools to read it and turn it into HTML/Tailwind that matches as closely as possible. Show me a preview when done.' },
-  { goal: 'Build a case study deck',    text: 'I have a case study about [project + 1-line desc]. Build me a slide deck as a single HTML file using reveal.js. Around 10 slides: cover, problem, research, ideation, design decisions (3 slides), final result, impact, thanks. Polished design portfolio style — minimalist, big imagery, sans-serif. Drop <!-- TODO: image --> placeholder on each slide.' },
-  { goal: 'Find me jobs',               text: 'Use the job-finder skill to pull current design jobs from BuiltIn.com and LinkedIn against my profile. My resume is at ~/Design-Projects/resume/.' },
-  { goal: 'Procreate art → website',    text: 'Use the vector-workflow skill. I have these Procreate exports in ./art/ — clean them up for the web (WebP at 1600px wide, lazy-loaded) and add them to the gallery in index.html.' },
-  { goal: 'Audit my site',              text: 'Use the ux-ui-audit skill on this project. I want the full 17-section pass with priorities and concrete fixes.' },
-  { goal: 'Deploy + custom domain',     text: 'Deploy this with pegasus deploy (Surge or GitHub Pages) and walk me through pointing my custom domain (yourname.com) at it — exact DNS records I need to add.' },
-  { goal: 'Accessibility check',        text: 'Audit this page for accessibility. Show me a list of issues ranked by severity, then fix the easy ones automatically.' },
-  { goal: 'Optimize images',            text: 'Resize all images in ./images/ to max 1600px wide, convert to WebP, and update the HTML to point at the new files.' },
-  { goal: 'Explain this code',          text: 'Explain what\'s happening in this file like I\'m new to JavaScript: [drop file in chat]' },
+  { goal: 'Start a portfolio', track: 'design', text: 'Build me a single-page portfolio at /. I\'m a [graphic / product / illustrator] designer. Sections: hero with name + tagline, project grid (6 placeholder cards), about, contact link. Tailwind. Editorial style — large serif headlines, generous whitespace. Responsive. Start a Live Preview when done.' },
+  { goal: 'Convert a Figma design', track: 'design', text: 'Here\'s the Figma file: [URL]. Use the Figma MCP tools to read it and turn it into HTML/Tailwind that matches as closely as possible. Show me a preview when done.' },
+  { goal: 'Build a case study deck', track: 'both', text: 'I have a case study about [project + 1-line desc]. Build me a slide deck as a single HTML file using reveal.js. Around 10 slides: cover, problem, research, ideation, design decisions (3 slides), final result, impact, thanks. Polished design portfolio style — minimalist, big imagery, sans-serif. Drop <!-- TODO: image --> placeholder on each slide.' },
+  { goal: 'Find me jobs', track: 'jobs', text: 'Use the job-finder skill to pull current design jobs from BuiltIn.com and LinkedIn against my profile. My resume is at ~/Design-Projects/resume/.' },
+  { goal: 'Procreate art → website', track: 'design', text: 'Use the vector-workflow skill. I have these Procreate exports in ./art/ — clean them up for the web (WebP at 1600px wide, lazy-loaded) and add them to the gallery in index.html.' },
+  { goal: 'Audit my site', track: 'design', text: 'Use the ux-ui-audit skill on this project. I want the full 17-section pass with priorities and concrete fixes.' },
+  { goal: 'Deploy + custom domain', track: 'design', text: 'Deploy this with pegasus deploy (Surge or GitHub Pages) and walk me through pointing my custom domain (yourname.com) at it — exact DNS records I need to add.' },
+  { goal: 'Accessibility check', track: 'design', text: 'Audit this page for accessibility. Show me a list of issues ranked by severity, then fix the easy ones automatically.' },
+  { goal: 'Optimize images', track: 'design', text: 'Resize all images in ./images/ to max 1600px wide, convert to WebP, and update the HTML to point at the new files.' },
+  { goal: 'Explain this code', track: 'both', text: 'Explain what\'s happening in this file like I\'m new to JavaScript: [drop file in chat]' },
 ];
 
 const recommended = [
-  { name: '⭐ SonwaneyY/Portfolio-Case-Study', stars: 'MIT', desc: 'HIGHLY SUGGESTED — a skill for crafting portfolio-ready design case studies. Structured template + tone guide.', clone: 'git clone --depth 1 https://github.com/SonwaneyY/Portfolio-Case-Study ~/.claude/skills/portfolio-case-study' },
-  { name: 'github/spec-kit',               stars: '92k', desc: 'Spec-Driven Development toolkit. Already auto-installed by Pegasus as `specify`.', clone: 'specify init my-spec-driven-project' },
-  { name: 'mattpocock/skills',             stars: '57k', desc: 'Battle-tested Claude Code skills: to-prd, git-guardrails, tdd, triage, zoom-out.', clone: 'pegasus clone https://github.com/mattpocock/skills mp-skills' },
-  { name: 'steveyegge/beads',              stars: '23k', desc: 'DAG-based issue tracker for AI agents — spec→bead→build→prove. Memory upgrade for your agent.', clone: 'pegasus clone https://github.com/steveyegge/beads beads' },
-  { name: 'santifer/career-ops',           stars: '42k', desc: 'AI-powered job search with 14 skill modes, dashboard, PDF generation.', clone: 'pegasus clone https://github.com/santifer/career-ops job-search' },
-  { name: 'rendercv/rendercv',             stars: '16k', desc: 'YAML-driven resume builder for academics + engineers.',                 clone: 'pegasus clone https://github.com/rendercv/rendercv rendercv' },
-  { name: 'Gsync/jobsync',                 stars: '548', desc: 'Self-hosted job application tracker with AI assistant.',                clone: 'pegasus clone https://github.com/Gsync/jobsync jobsync-tracker' },
-  { name: 'Paramchoudhary/ResumeSkills',   stars: '406', desc: 'Skills for resume writing, ATS optimization, interview prep.',          clone: 'pegasus clone https://github.com/Paramchoudhary/ResumeSkills resume-skills' },
-  { name: 'andrew-shwetzer/career-ops-plugin', stars: '268', desc: '9 AI skills for job seekers across any industry.',                  clone: 'pegasus clone https://github.com/andrew-shwetzer/career-ops-plugin career-ops-plugin' },
-  { name: 'erlandv/case',                  stars: '44',  desc: 'Case-study-first portfolio theme for Astro.',                           clone: 'pegasus clone https://github.com/erlandv/case my-case-portfolio' },
-  { name: 'yuhonas/awesome-job-seeking',   stars: '12',  desc: 'Curated awesome list of job-seeking resources (link only — no license).', clone: 'open https://github.com/yuhonas/awesome-job-seeking' },
-  { name: 'github/annotation-toolkit',     stars: '298', desc: 'Figma asset library for annotating accessibility, UI hierarchy, design canvas (CC-BY-4.0).', clone: 'open https://github.com/github/annotation-toolkit' },
-  { name: 'calebapril/Designer-Tools-and-Assets-for-Developers', stars: '3', desc: 'Curated asset list — stock photos, templates, CSS frameworks, UI libraries.', clone: 'open https://github.com/calebapril/Designer-Tools-and-Assets-for-Developers' },
+  { name: '⭐ SonwaneyY/Portfolio-Case-Study', track: 'design', stars: 'MIT', desc: 'HIGHLY SUGGESTED — a skill for crafting portfolio-ready design case studies. Structured template + tone guide.', clone: 'git clone --depth 1 https://github.com/SonwaneyY/Portfolio-Case-Study ~/.claude/skills/portfolio-case-study' },
+  { name: 'github/spec-kit', track: 'both',               stars: '92k', desc: 'Spec-Driven Development toolkit. Already auto-installed by Pegasus as `specify`.', clone: 'specify init my-spec-driven-project' },
+  { name: 'mattpocock/skills', track: 'both',             stars: '57k', desc: 'Battle-tested Claude Code skills: to-prd, git-guardrails, tdd, triage, zoom-out.', clone: 'pegasus clone https://github.com/mattpocock/skills mp-skills' },
+  { name: 'steveyegge/beads', track: 'both',              stars: '23k', desc: 'DAG-based issue tracker for AI agents — spec→bead→build→prove. Memory upgrade for your agent.', clone: 'pegasus clone https://github.com/steveyegge/beads beads' },
+  { name: 'santifer/career-ops', track: 'jobs',           stars: '42k', desc: 'AI-powered job search with 14 skill modes, dashboard, PDF generation.', clone: 'pegasus clone https://github.com/santifer/career-ops job-search' },
+  { name: 'rendercv/rendercv', track: 'jobs',             stars: '16k', desc: 'YAML-driven resume builder for academics + engineers.',                 clone: 'pegasus clone https://github.com/rendercv/rendercv rendercv' },
+  { name: 'Gsync/jobsync', track: 'jobs',                 stars: '548', desc: 'Self-hosted job application tracker with AI assistant.',                clone: 'pegasus clone https://github.com/Gsync/jobsync jobsync-tracker' },
+  { name: 'Paramchoudhary/ResumeSkills', track: 'jobs',   stars: '406', desc: 'Skills for resume writing, ATS optimization, interview prep.',          clone: 'pegasus clone https://github.com/Paramchoudhary/ResumeSkills resume-skills' },
+  { name: 'andrew-shwetzer/career-ops-plugin', track: 'jobs', stars: '268', desc: '9 AI skills for job seekers across any industry.',                  clone: 'pegasus clone https://github.com/andrew-shwetzer/career-ops-plugin career-ops-plugin' },
+  { name: 'erlandv/case', track: 'design',                  stars: '44',  desc: 'Case-study-first portfolio theme for Astro.',                           clone: 'pegasus clone https://github.com/erlandv/case my-case-portfolio' },
+  { name: 'yuhonas/awesome-job-seeking', track: 'jobs',   stars: '12',  desc: 'Curated awesome list of job-seeking resources (link only — no license).', clone: 'open https://github.com/yuhonas/awesome-job-seeking' },
+  { name: 'github/annotation-toolkit', track: 'design',     stars: '298', desc: 'Figma asset library for annotating accessibility, UI hierarchy, design canvas (CC-BY-4.0).', clone: 'open https://github.com/github/annotation-toolkit' },
+  { name: 'calebapril/Designer-Tools-and-Assets-for-Developers', track: 'design', stars: '3', desc: 'Curated asset list — stock photos, templates, CSS frameworks, UI libraries.', clone: 'open https://github.com/calebapril/Designer-Tools-and-Assets-for-Developers' },
 ];
 
 const glossary = [
@@ -473,7 +474,7 @@ const glossary = [
 
 function renderTemplates() {
   document.getElementById('templates-grid').innerHTML = templates.map(t => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${t.track || 'both'}">
       <h3 class="font-medium font-serif text-xl">${t.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${t.desc}</p>
       <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${t.cmd}">${t.cmd}</button>
@@ -483,7 +484,7 @@ function renderTemplates() {
 
 function renderCommands() {
   document.getElementById('commands-list').innerHTML = commands.map(c => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search data-track="both">
       <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-1.5 rounded w-full text-left mb-1.5" data-copy="${c.cmd}">${c.cmd}</button>
       <p class="text-xs text-stone-600 dark:text-stone-400 px-1">${c.note}</p>
     </div>
@@ -492,7 +493,7 @@ function renderCommands() {
 
 function renderSkills() {
   document.getElementById('skills-list').innerHTML = skills.map(s => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}">
       <h3 class="font-medium font-serif text-xl">${s.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${s.summary}</p>
       <div class="text-xs text-stone-500 mb-1">Try saying:</div>
@@ -503,7 +504,7 @@ function renderSkills() {
 
 function renderMcps() {
   document.getElementById('mcps-list').innerHTML = mcps.map(m => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search data-track="${m.track || 'both'}">
       <h3 class="font-medium">${m.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">${m.desc}</p>
       ${m.note ? `<p class="text-xs text-stone-500 mt-2">${m.note}</p>` : ''}
@@ -513,7 +514,7 @@ function renderMcps() {
 
 function renderPrompts() {
   document.getElementById('prompts-list').innerHTML = prompts.map(p => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search data-track="${p.track || 'both'}">
       <div class="text-xs uppercase tracking-wider text-stone-500 mb-1">${p.goal}</div>
       <button class="copy text-left text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full" data-copy='${p.text.replace(/'/g, "&#39;")}'>${p.text}</button>
     </div>
@@ -522,7 +523,7 @@ function renderPrompts() {
 
 function renderRecommended() {
   document.getElementById('recommended-list').innerHTML = recommended.map(r => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}">
       <div class="flex items-baseline justify-between">
         <h3 class="font-medium font-mono text-sm">${r.name}</h3>
         <span class="text-xs text-stone-500">★ ${r.stars}</span>
@@ -535,7 +536,7 @@ function renderRecommended() {
 
 function renderGlossary() {
   document.getElementById('glossary-list').innerHTML = glossary.map(g => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search data-track="both">
       <span class="font-medium font-mono text-xs">${g.term}</span>
       <p class="text-xs text-stone-600 dark:text-stone-400 mt-1">${g.def}</p>
     </div>
@@ -549,6 +550,9 @@ renderMcps();
 renderPrompts();
 renderRecommended();
 renderGlossary();
+
+// Apply persisted track choice on initial load
+applyTrack(activeTrack);
 
 // ─────────────────────────────────────────────
 // COPY-TO-CLIPBOARD
@@ -595,6 +599,42 @@ function applySearch(q) {
 }
 
 searchInput.addEventListener('input', e => applySearch(e.target.value));
+
+// ─────────────────────────────────────────────
+// TRACK SWITCHER (UX Design / Job Search / Both)
+// ─────────────────────────────────────────────
+const TRACK_KEY = 'pegasus.track';
+let activeTrack = localStorage.getItem(TRACK_KEY) || 'design';
+
+function applyTrack(track) {
+  activeTrack = track;
+  localStorage.setItem(TRACK_KEY, track);
+  document.querySelectorAll('.track-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.track === track ? 'true' : 'false'));
+  document.querySelectorAll('[data-track]').forEach(card => {
+    const cardTrack = card.dataset.track || 'both';
+    const show = track === 'all' || cardTrack === 'both' || cardTrack === track;
+    card.classList.toggle('hidden-by-track', !show);
+  });
+  // Update count badges to reflect filtered counts
+  updateCounts();
+}
+
+function updateCounts() {
+  // count visible (not hidden-by-track) cards per section
+  const sections = { templates: 'templates', commands: 'commands', skills: 'skills', mcps: 'mcps', prompts: 'prompts', recommended: 'recommended', glossary: 'glossary' };
+  Object.entries(sections).forEach(([key, sectionId]) => {
+    const sec = document.getElementById(sectionId);
+    if (!sec) return;
+    const total = sec.querySelectorAll('[data-track]').length;
+    const visible = sec.querySelectorAll('[data-track]:not(.hidden-by-track)').length;
+    const badge = document.querySelector(`[data-count="${key}"]`);
+    if (badge) badge.textContent = visible === total ? `· ${total}` : `· ${visible}/${total}`;
+  });
+}
+
+document.querySelectorAll('.track-tab').forEach(btn => {
+  btn.addEventListener('click', () => applyTrack(btn.dataset.track));
+});
 
 // ─────────────────────────────────────────────
 // COUNT BADGES IN NAV
