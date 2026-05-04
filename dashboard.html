@@ -87,6 +87,11 @@
     @media (prefers-color-scheme: dark) { .track-tab:hover { background: rgba(64,64,64,0.5); } }
     .hidden-by-track { display: none !important; }
 
+    /* Track banner — dynamic background per active track */
+    body[data-track="design"] #trackBanner { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #78350f; }
+    body[data-track="jobs"]   #trackBanner { background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #1e3a8a; }
+    body[data-track="all"]    #trackBanner { background: linear-gradient(135deg, #ede9fe, #c4b5fd); color: #4c1d95; }
+
     /* Empty state — shown when a section has 0 visible cards after filter/search */
     .empty-state { padding: 2rem; text-align: center; color: #78716c; border: 2px dashed #d6d3d1; border-radius: 12px; }
     @media (prefers-color-scheme: dark) { .empty-state { border-color: #44403c; color: #a8a29e; } }
@@ -209,13 +214,25 @@
       <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-stone-100 dark:bg-stone-800 text-xs font-mono text-stone-500">/</kbd>
     </div>
 
-    <!-- Track switcher -->
-    <div class="mt-6 inline-flex items-center gap-1 p-1 rounded-full bg-stone-200 dark:bg-stone-800" role="tablist" aria-label="Pick your track">
-      <button class="track-tab px-4 py-2 text-sm rounded-full transition" data-track="design" role="tab" aria-selected="true">🎨 UX Design</button>
-      <button class="track-tab px-4 py-2 text-sm rounded-full transition" data-track="jobs" role="tab" aria-selected="false">💼 Job Search</button>
-      <button class="track-tab px-4 py-2 text-sm rounded-full transition" data-track="all" role="tab" aria-selected="false">⊕ Both</button>
+    <!-- Track switcher (PROMINENT — primary navigation control) -->
+    <div class="mt-8">
+      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Step 1 — pick your track</p>
+      <div class="inline-flex items-center gap-1 p-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-base shadow-inner" role="tablist" aria-label="Pick your track">
+        <button class="track-tab px-5 py-3 rounded-full transition" data-track="design" role="tab" aria-selected="true">🎨 UX Design</button>
+        <button class="track-tab px-5 py-3 rounded-full transition" data-track="jobs" role="tab" aria-selected="false">💼 Job Search</button>
+        <button class="track-tab px-5 py-3 rounded-full transition" data-track="all" role="tab" aria-selected="false">⊕ Both</button>
+      </div>
+      <p class="text-sm text-stone-600 dark:text-stone-400 mt-3">
+        ↑ This filters everything below to your current focus. <strong>Job Search hides design templates and shows resume/interview/job tools.</strong>
+      </p>
     </div>
-    <p class="text-xs text-stone-500 mt-2">Filters templates, skills, bridges, prompts, and recommendations. Commands + glossary always visible.</p>
+
+    <!-- Active-track banner (changes dynamically) -->
+    <div id="trackBanner" class="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-full text-base font-medium shadow-md">
+      <span id="trackBannerIcon">🎨</span>
+      <span>Currently viewing: <span id="trackBannerLabel">UX Design</span></span>
+      <span class="text-sm opacity-70" id="trackBannerCount">(showing X of Y items)</span>
+    </div>
 
   </header>
 
@@ -950,6 +967,17 @@ let activeTrack = _urlTrack || _safeStorage.getItem(TRACK_KEY) || 'design';
 function applyTrack(track) {
   activeTrack = track;
   _safeStorage.setItem(TRACK_KEY, track);
+  // Update body data-track for CSS theming + banner
+  document.body.setAttribute('data-track', track);
+  const banner = {
+    design: { icon: '🎨', label: 'UX Design' },
+    jobs:   { icon: '💼', label: 'Job Search' },
+    all:    { icon: '⊕',  label: 'Both tracks' }
+  }[track] || { icon: '⊕', label: 'All' };
+  const iconEl = document.getElementById('trackBannerIcon');
+  const labelEl = document.getElementById('trackBannerLabel');
+  if (iconEl) iconEl.textContent = banner.icon;
+  if (labelEl) labelEl.textContent = banner.label;
   // Sync to URL without reload
   try { const u = new URL(location.href); u.searchParams.set('track', track); history.replaceState(null, '', u); } catch(e) {}
   document.querySelectorAll('.track-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.track === track ? 'true' : 'false'));
@@ -960,6 +988,11 @@ function applyTrack(track) {
   });
   updateCounts();
   updateEmptyStates();
+  // Update banner count
+  const totalCards = document.querySelectorAll('[data-track]').length;
+  const visibleCards = document.querySelectorAll('[data-track]:not(.hidden-by-track)').length;
+  const countEl = document.getElementById('trackBannerCount');
+  if (countEl) countEl.textContent = `(${visibleCards} of ${totalCards} items shown)`;
 }
 
 function updateEmptyStates() {
