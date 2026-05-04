@@ -4,6 +4,38 @@ All notable changes to Pegasus.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · [Semantic Versioning](https://semver.org/).
 
+## [1.1.6] — 2026-05-04
+
+### Fixed
+- **`pegasus update` now refreshes dashboard assets.** Existing users could run `pegasus update` and never receive UI improvements because `cmd_update` only refreshed templates, skills, and the helper itself. It now also pulls `dashboard.html`, `dashboard.css`, `sw.js`, `manifest.webmanifest`, `favicon.svg`, and `welcome.html`. The SW cache check in `pegasus doctor` will now reflect actual freshness.
+
+### Added
+- **`index.html`** redirect at repo root so the bare GitHub Pages URL (`https://jerickevans-gif.github.io/Pegasus/`) opens the dashboard directly instead of 404'ing.
+- **GitHub Pages site live** at `https://jerickevans-gif.github.io/Pegasus/`.
+
+### Changed
+- **Favicon swap** to game-icons.net Pegasus by Skoll (CC-BY 3.0, attributed inline) — clear winged-horse silhouette readable at 16px in both light and dark themes. `fill` switched to `currentColor` for theme adaptation.
+- Service worker cache `pegasus-v13-2026-05-04`.
+
+## [1.1.5] — 2026-05-04
+
+### Added
+- **Top app bar** — sticky `<header role="banner">` with brand button (scroll-to-top), kbd hints, and prominent theme toggle. Brand button is a real `<button>` with focus-visible ring and aria-label.
+- **Version-aware dot** — polls GitHub `/tags` once per 6h (cached in localStorage), flips green ↔ amber to reflect upstream version. Degrades silently to grey "unknown" on offline / rate-limit / no-fetch.
+- **First-run pulse hint** — subtle ring around the theme toggle until first interaction. Respects `prefers-reduced-motion`. One-shot via `localStorage.pegasus.themeToggleSeen`.
+- **`pegasus doctor` SW cache check** — warns when local `sw.js` `CACHE_VERSION` lags upstream.
+- **Cross-linked docs** — Learn modal points at `TROUBLESHOOTING.md` + `GLOSSARY.md` on GitHub. Embedded troubleshooting body mirrors the user-edited 9-section content.
+
+### Changed
+- **Tailwind CLI build** — switched dashboard from Tailwind CDN JIT (~170KB) to local pre-built `dashboard.css` (45KB minified). Added `tailwind.config.js`, `src/tailwind.input.css`, `package.json` with `npm run build:css`. CDN remains as `<link onerror>` fallback for resilience.
+- Theme toggle aria-label tracks current state.
+- Mobile: theme label collapses to icon-only at `<640px`; top bar verified clean at 375px width.
+- Service worker cache `pegasus-v12-2026-05-04`.
+
+### Fixed
+- Theme cycle dismisses the first-run pulse hint via `pegasus.themeToggleSeen` flag.
+- versionDot fetch guarded with `typeof fetch !== 'function'` so jsdom tests don't throw `ReferenceError`.
+
 ## [1.1.0] — 2026-05-04
 
 ### Added

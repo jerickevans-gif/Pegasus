@@ -23,6 +23,19 @@ jobs:
       - name: Install jsdom for tests
         run: npm install --no-save jsdom
 
+      - name: Verify dashboard.css matches a fresh Tailwind build
+        # Catches the bug class where someone edits dashboard.html (adds new
+        # Tailwind classes) but forgets to rerun `npm run build:css`, leaving
+        # prod with stale styles.
+        run: |
+          npx -y tailwindcss@3.4.16 -c tailwind.config.js -i src/tailwind.input.css -o /tmp/dashboard-built.css --minify
+          if ! diff -q dashboard.css /tmp/dashboard-built.css >/dev/null; then
+            echo "::error::dashboard.css is stale. Run: npm run build:css"
+            diff dashboard.css /tmp/dashboard-built.css | head -40
+            exit 1
+          fi
+          echo "✓ dashboard.css is up to date"
+
       - name: Syntax check shell scripts
         run: |
           bash -n install.sh

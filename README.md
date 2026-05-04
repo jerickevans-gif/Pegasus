@@ -10,7 +10,9 @@
 
 Designers who want to use Claude Code or OpenCode to ship portfolios, case-study decks, interview presentations, and prototypes — without spending a weekend configuring a machine.
 
-**Run one command. Walk away.** Come back to a configured laptop with a visual dashboard, working starter projects, 31 AI skills auto-loaded, 13 templates, 10 cross-pollinating workflow recipes, 16 MCP bridges, and a `pegasus` helper command that wraps every common workflow.
+**Run one command. Walk away.** Come back to a configured laptop with a visual dashboard, working starter projects, 31 AI skills auto-loaded, 15 templates, 10 cross-pollinating workflow recipes, 16 MCP bridges, and a `pegasus` helper command that wraps every common workflow.
+
+**Try the dashboard live:** **[jerickevans-gif.github.io/Pegasus](https://jerickevans-gif.github.io/Pegasus/)** — the same dashboard that ships with `install.sh`, served as a public PWA so you can preview before installing.
 
 ## Two tracks, one setup
 
@@ -59,7 +61,7 @@ That's the whole loop. Make → edit → preview → ship → repeat.
 - **ffmpeg, ImageMagick, SVGO, potrace** — image and vector toolchain
 - **Lighthouse, Pa11y, Wrangler** — performance, accessibility, Cloudflare
 
-### Templates — 13 (`pegasus new <type> <name>`)
+### Templates — 15 (`pegasus new <type> <name>`)
 - **portfolio** — single-page with hero, project grid, about, contact
 - **case-study-deck** — reveal.js slide deck for interviews
 - **scroll-case-study** — long-form scrollable case study
