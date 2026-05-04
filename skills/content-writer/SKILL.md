@@ -15,6 +15,10 @@ Designers sweat the visual — then default to "Lorem ipsum" or buzzword soup fo
 - "Make this copy stronger / tighter / more human"
 - "Headline isn't landing — try 3 alternatives"
 
+## Profile awareness
+
+**Before writing anything personal-sounding** (about page, bio, hero copy), check `~/.pegasus/profile.json`. If it exists, read `name`, `headline`, `bio`, `skills`, `location`. Use those as the source of truth for facts. Never invent a job title, location, or skill the user hasn't claimed.
+
 ## House style
 
 Apply these rules unless the user overrides:

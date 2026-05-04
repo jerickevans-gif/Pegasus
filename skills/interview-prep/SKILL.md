@@ -15,7 +15,9 @@ Take a designer from "I have an interview Tuesday" to "I know exactly what I'm g
 
 ## Inputs you need
 
-Ask once, in a single message:
+**FIRST: check `~/.pegasus/profile.json`.** If it exists, read it for `resume`, `linkedin`, `portfolio`, `headline`, `skills`, `bio`. Don't re-ask anything it already provides — just confirm in one sentence ("Using your profile: <name>, <headline>, resume at <path> — sound right?").
+
+Then ask only for what's missing, in a single message:
 
 1. **Company + role.** Or paste the job description.
 2. **Format.** Recruiter screen, hiring manager, portfolio walk-through, take-home challenge, panel?

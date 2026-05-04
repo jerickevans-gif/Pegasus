@@ -15,16 +15,22 @@ Pull current openings from **BuiltIn.com** and **LinkedIn**, score them against 
 
 ## Inputs you need from the user
 
-Ask once, in a single message, then proceed. Don't ask one-at-a-time.
+**FIRST: check `~/.pegasus/profile.json`.** If it exists, read it. It usually has:
+`name`, `headline`, `email`, `location`, `linkedin`, `portfolio`, `github`, `resume` (path), `skills`, `bio`.
+If the profile has what you need, **don't re-ask**. Just confirm in one sentence:
+"Using profile: [name], [headline], [location], resume at [path] — sound right?"
+
+If the profile is missing or incomplete, ask once in a single message:
 
 1. **Resume.** Look in this order before asking:
+   - The path in `~/.pegasus/profile.json` `resume` field
    - `~/Design-Projects/resume/index.html` (if they made one with `pegasus new resume`)
    - `~/Design-Projects/Resume.pdf` or any `*resume*.{pdf,docx,md,txt}` in `~/Design-Projects/`
    - Ask the user to paste it or drop the file path
-2. **LinkedIn profile URL.** (e.g. `linkedin.com/in/their-handle`)
+2. **LinkedIn profile URL.** (Pull from profile.json's `linkedin` field if set.)
 3. **Search constraints.** Default if they don't say:
-   - Roles: derived from the resume's titles
-   - Location: "Remote, US" plus any city mentioned in the resume
+   - Roles: derived from the resume's titles + profile.json `headline`
+   - Location: profile.json `location` field, or "Remote, US"
    - Salary floor: ask
    - Must-haves / hard nos: ask if not stated
 

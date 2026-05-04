@@ -169,6 +169,7 @@
   <!-- Sticky section nav -->
   <div class="sticky-nav" id="stickyNav">
     <nav aria-label="Sections" class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-2 text-sm overflow-x-auto">
+      <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
       <a href="#start"       data-nav="start"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Quick start</a>
       <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500" data-count="templates"></span></a>
       <a href="#commands"    data-nav="commands"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Commands <span class="text-stone-500" data-count="commands"></span></a>
@@ -182,6 +183,67 @@
   </div>
 
   <main id="main" tabindex="-1" class="max-w-6xl mx-auto px-6 pb-24" data-search-root>
+
+    <!-- PROFILE — what skills will reference about you -->
+    <section id="profile" class="py-8" data-search>
+      <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6">
+        <div class="flex items-baseline justify-between mb-1">
+          <h2 class="font-serif text-2xl">Your profile</h2>
+          <span id="profileStatus" class="text-xs text-stone-500">— not yet saved</span>
+        </div>
+        <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Skills like <span class="font-mono">job-finder</span>, <span class="font-mono">interview-prep</span>, and <span class="font-mono">content-writer</span> will use these. Saves locally to <span class="font-mono">~/.pegasus/profile.json</span> via <span class="font-mono">pegasus profile import</span>.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">Name</span>
+            <input data-profile="name" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Your full name" />
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">Headline / current role</span>
+            <input data-profile="headline" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Senior Product Designer" />
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">Email</span>
+            <input data-profile="email" type="email" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="you@example.com" />
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">Location</span>
+            <input data-profile="location" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="City, Country (or 'Remote, US')" />
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">LinkedIn URL</span>
+            <input data-profile="linkedin" type="url" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="https://linkedin.com/in/you" />
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">Portfolio URL</span>
+            <input data-profile="portfolio" type="url" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="https://yoursite.com" />
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">GitHub username</span>
+            <input data-profile="github" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="username" />
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-stone-500 mb-1">Resume file path</span>
+            <input data-profile="resume" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="~/Design-Projects/resume/index.html" />
+          </label>
+          <label class="block md:col-span-2">
+            <span class="block text-xs font-medium text-stone-500 mb-1">Top skills (comma-separated)</span>
+            <input data-profile="skills" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Figma, design systems, motion, prototyping, user research" />
+          </label>
+          <label class="block md:col-span-2">
+            <span class="block text-xs font-medium text-stone-500 mb-1">One-line bio (the elevator pitch)</span>
+            <input data-profile="bio" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Senior product designer focused on healthcare. 7 years shipping consumer apps." />
+          </label>
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-2 items-center">
+          <button id="profileExport" class="px-4 py-2 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg text-sm">Download profile.json</button>
+          <button id="profileCopyCmd" class="copy px-4 py-2 bg-stone-200 dark:bg-stone-800 rounded-lg text-sm font-mono" data-copy="pegasus profile import ~/Downloads/profile.json">Copy install command</button>
+          <button id="profileClear" class="px-3 py-2 text-stone-500 hover:text-red-600 text-sm">Clear</button>
+        </div>
+        <p class="text-xs text-stone-500 mt-3">After downloading, run <span class="font-mono">pegasus profile import ~/Downloads/profile.json</span> in your terminal — that copies it to <span class="font-mono">~/.pegasus/profile.json</span> where skills can read it.</p>
+      </div>
+    </section>
 
     <!-- GROUP PROJECT FEATURED -->
     <section class="py-8" data-search>
@@ -599,6 +661,59 @@ function applySearch(q) {
 }
 
 searchInput.addEventListener('input', e => applySearch(e.target.value));
+
+// ─────────────────────────────────────────────
+// PROFILE (autosave to localStorage; export to JSON for `pegasus profile import`)
+// ─────────────────────────────────────────────
+const PROFILE_KEY = 'pegasus.profile';
+
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}'); } catch { return {}; }
+}
+function saveProfile(p) {
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  const filled = Object.values(p).filter(v => v && String(v).trim()).length;
+  const total = document.querySelectorAll('.profile-field').length;
+  document.getElementById('profileStatus').textContent = filled
+    ? `— ${filled}/${total} fields filled (saved locally)`
+    : '— not yet saved';
+}
+
+function initProfile() {
+  const data = loadProfile();
+  document.querySelectorAll('.profile-field').forEach(input => {
+    const key = input.dataset.profile;
+    if (data[key]) input.value = data[key];
+    input.addEventListener('input', () => {
+      const current = loadProfile();
+      current[key] = input.value;
+      saveProfile(current);
+    });
+  });
+  saveProfile(data);
+}
+initProfile();
+
+document.getElementById('profileExport')?.addEventListener('click', () => {
+  const p = loadProfile();
+  const blob = new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'profile.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  const toast = document.getElementById('toast');
+  toast.textContent = 'Downloaded profile.json — now run: pegasus profile import ~/Downloads/profile.json';
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; toast.textContent = 'Copied'; }, 3500);
+});
+
+document.getElementById('profileClear')?.addEventListener('click', () => {
+  if (!confirm('Clear all profile fields?')) return;
+  localStorage.removeItem(PROFILE_KEY);
+  document.querySelectorAll('.profile-field').forEach(i => i.value = '');
+  saveProfile({});
+});
 
 // ─────────────────────────────────────────────
 // TRACK SWITCHER (UX Design / Job Search / Both)

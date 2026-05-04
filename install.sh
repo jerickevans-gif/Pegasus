@@ -319,6 +319,17 @@ else
   curl -fsSL "$PEGASUS_RAW/config/claude-settings.json" -o "$CLAUDE_SETTINGS" 2>/dev/null \
     && ok "Applied Pegasus base settings." || warn "Couldn't write base settings."
 fi
+# OpenCode parity — same MCPs Pegasus configures for Claude Code
+OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
+OPENCODE_CONFIG="$OPENCODE_CONFIG_DIR/opencode.json"
+mkdir -p "$OPENCODE_CONFIG_DIR"
+if [[ -f "$OPENCODE_CONFIG" ]]; then
+  ok "Existing OpenCode config — leaving it alone (delete to apply Pegasus defaults)."
+else
+  download_to "$PEGASUS_RAW/config/opencode.json" "$OPENCODE_CONFIG"
+  ok "Wrote OpenCode config with ux-knowledge + context7 + playwright + figma MCPs."
+fi
+
 for skill in ux-ui-audit job-finder vector-workflow interview-prep content-writer \
              portfolio-case-study \
              resume-tailor cover-letter-generator portfolio-case-study-writer interview-prep-generator salary-negotiation-prep \

@@ -57,6 +57,7 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus open${RESET} <doc>            open a cheatsheet (commands/prompts/glossary/etc)
   ${BOLD}pegasus model${RESET}                 list / switch agents (claude/opencode/cursor)
   ${BOLD}pegasus version${RESET}               print version + paths
+  ${BOLD}pegasus profile${RESET} <show|import>  manage your profile (used by job/interview/content skills)
   ${BOLD}pegasus uninstall${RESET}             remove Pegasus
   ${BOLD}pegasus help${RESET}                  this help
 
@@ -151,6 +152,40 @@ cmd_deploy() {
 PEGASUS_VERSION="0.4.0"
 
 cmd_version() { echo "Pegasus $PEGASUS_VERSION"; echo "Repo:    https://github.com/jerickevans-gif/Pegasus"; echo "Helper:  $(command -v pegasus 2>/dev/null || echo not-on-PATH)"; }
+
+cmd_profile() {
+  local sub="${1:-show}"
+  local PROFILE_FILE="$PEGASUS_HOME/profile.json"
+  case "$sub" in
+    show)
+      if [[ -f "$PROFILE_FILE" ]]; then
+        say "Profile at $PROFILE_FILE:"
+        cat "$PROFILE_FILE"
+      else
+        warn "No profile yet. Open the dashboard (pegasus dashboard) → Your profile section,"
+        warn "fill it in, click 'Download profile.json', then run:"
+        echo "  pegasus profile import ~/Downloads/profile.json"
+      fi
+      ;;
+    import)
+      local src="${2:-}"
+      if [[ -z "$src" || ! -f "$src" ]]; then err "Usage: pegasus profile import <path-to-profile.json>"; exit 1; fi
+      mkdir -p "$PEGASUS_HOME"
+      cp "$src" "$PROFILE_FILE" && ok "Imported to $PROFILE_FILE"
+      echo "Skills will now reference this for personalized output."
+      ;;
+    edit)
+      cmd_dashboard
+      echo "Edit the 'Your profile' section in the dashboard, then click Download → re-import."
+      ;;
+    path)
+      echo "$PROFILE_FILE"
+      ;;
+    *)
+      echo "Usage: pegasus profile <show|edit|import <file>|path>"
+      ;;
+  esac
+}
 
 cmd_link() {
   local proj="${1:-}"
@@ -507,6 +542,7 @@ case "${1:-help}" in
   colors)     cmd_colors ;;
   version|-v|--version) cmd_version ;;
   self-update) cmd_self_update ;;
+  profile)    shift; cmd_profile "$@" ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;
