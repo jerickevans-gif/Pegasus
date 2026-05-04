@@ -383,6 +383,7 @@ curl -fsSL "$PEGASUS_RAW/connect.sh" | bash -s -- --auto || warn "Couldn't run c
 # Download the welcome page + dashboard for offline use
 download_to "$PEGASUS_RAW/welcome.html"          "$PEGASUS_HOME/welcome.html"
 download_to "$PEGASUS_RAW/dashboard.html"        "$PEGASUS_HOME/dashboard.html"
+download_to "$PEGASUS_RAW/dashboard.css"         "$PEGASUS_HOME/dashboard.css"
 download_to "$PEGASUS_RAW/favicon.svg"           "$PEGASUS_HOME/favicon.svg"
 download_to "$PEGASUS_RAW/manifest.webmanifest"  "$PEGASUS_HOME/manifest.webmanifest"
 download_to "$PEGASUS_RAW/sw.js"                 "$PEGASUS_HOME/sw.js"
