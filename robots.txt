@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jerickevans-gif.github.io/Pegasus/sitemap.xml
