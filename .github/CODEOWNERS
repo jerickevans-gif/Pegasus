@@ -1,0 +1,16 @@
+# Code owners — auto-requests review on PRs touching matched paths.
+# Single-maintainer project; @jerickevans-gif owns everything by default.
+# Ordered most-general → most-specific (later wins for the matched files).
+
+* @jerickevans-gif
+
+# Sensitive surfaces — flagged separately so they show up under "Review required"
+# even if branch-protection rules change later.
+/install.sh                @jerickevans-gif
+/install.ps1               @jerickevans-gif
+/connect.sh                @jerickevans-gif
+/desktop-apps.sh           @jerickevans-gif
+/bin/pegasus               @jerickevans-gif
+/sw.js                     @jerickevans-gif
+/.github/workflows/        @jerickevans-gif
+/SECURITY.md               @jerickevans-gif

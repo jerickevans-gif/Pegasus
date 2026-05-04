@@ -1,8 +1,16 @@
 {
   "name": "pegasus-dashboard-build",
   "private": true,
-  "description": "Build tooling for Pegasus dashboard.css (Tailwind CLI). Not published.",
+  "description": "Build + test tooling for the Pegasus dashboard. Not published.",
   "scripts": {
-    "build:css": "npx tailwindcss@3.4.16 -c tailwind.config.js -i src/tailwind.input.css -o dashboard.css --minify"
+    "build:css": "npx tailwindcss@3.4.16 -c tailwind.config.js -i src/tailwind.input.css -o dashboard.css --minify",
+    "test": "bash scripts/test-all.sh",
+    "test:dashboard": "node scripts/test-dashboard.js",
+    "test:links": "node scripts/test-links-and-jobs.js",
+    "test:validate": "node scripts/validate-everything.js",
+    "test:integration": "PEGASUS_BIN=\"$PWD/bin/pegasus\" bash scripts/integration-test.sh",
+    "test:profile": "node scripts/validate-profile.js",
+    "test:e2e": "node scripts/e2e-jobfinder.js",
+    "test:visual": "node scripts/visual-regression.js"
   }
 }
