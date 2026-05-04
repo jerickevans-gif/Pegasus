@@ -114,7 +114,8 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   await sleep(200);
 
   // === PROFILE ===
-  check('10 profile fields',                       d.querySelectorAll('.profile-field').length === 10);
+  check('12 profile fields (10 base + targetRoles + priorities)',
+                                                   d.querySelectorAll('.profile-field').length === 12);
   check('Sample button present',                   !!d.getElementById('profileSample'));
   // Note: standalone repro confirms sample button fills correctly in real browsers.
   // JSDOM-specific timing makes regression test flaky here; skipping the value check.
