@@ -191,8 +191,8 @@
 
   <!-- Mode pill (persistent) -->
   <div class="mode-pill fixed top-3 right-3 bg-white/80 dark:bg-stone-900/80 border border-stone-300 dark:border-stone-700 rounded-full px-3 py-1.5 text-xs flex items-center gap-2 z-50 shadow-sm">
-    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.4 — green = up to date"></span>
-    <span class="text-stone-700 dark:text-stone-300">v1.0.4</span>
+    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.5 — green = up to date"></span>
+    <span class="text-stone-700 dark:text-stone-300">v1.0.5</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> search</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
@@ -326,7 +326,7 @@
           <h2 class="font-serif text-2xl">Your profile</h2>
           <span id="profileStatus" class="text-xs text-stone-500">— not yet saved</span>
         </div>
-        <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Skills like <span class="font-mono">job-finder</span>, <span class="font-mono">interview-prep</span>, and <span class="font-mono">content-writer</span> will use these. Saves locally to <span class="font-mono">~/.pegasus/profile.json</span> via <span class="font-mono">pegasus profile import</span>.</p>
+        <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Autosaves as you type. To use it in Claude/OpenCode: click <strong>Copy as Claude context</strong> below, then paste at the start of any chat.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <label class="block">
@@ -369,15 +369,50 @@
             <span class="block text-xs font-medium text-stone-500 mb-1">One-line bio (the elevator pitch)</span>
             <input data-profile="bio" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Senior product designer focused on healthcare. 7 years shipping consumer apps." />
           </label>
+          <label class="block md:col-span-2">
+            <span class="block text-xs font-medium text-stone-500 mb-1">🎯 Target roles (what jobs you're hunting)</span>
+            <input data-profile="targetRoles" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Senior Product Designer, Design Lead, Principal Designer" />
+          </label>
+          <label class="block md:col-span-2">
+            <span class="block text-xs font-medium text-stone-500 mb-1">🎯 Priorities (comp floor, location, must-haves, hard-nos)</span>
+            <textarea data-profile="priorities" rows="2" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Comp floor $180k. Remote US only. Healthcare or fintech preferred. No crypto."></textarea>
+          </label>
         </div>
 
         <div class="mt-5 flex flex-wrap gap-2 items-center">
-          <button id="profileExport" class="px-4 py-2 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg text-sm">Download profile.json</button>
-          <button id="profileCopyCmd" class="copy px-4 py-2 bg-stone-200 dark:bg-stone-800 rounded-lg text-sm font-mono" data-copy="pegasus profile import ~/Downloads/profile.json">Copy install command</button>
-          <button id="profileSample" class="px-3 py-2 text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 text-sm underline">Load sample (Jane Designer)</button>
+          <button id="profileCopyContext" class="px-5 py-2.5 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg text-sm font-medium">📋 Copy as Claude context</button>
+          <button id="profileSaveFile" class="px-4 py-2 bg-stone-200 dark:bg-stone-800 rounded-lg text-sm hidden">💾 Save to ~/.pegasus/profile.json</button>
+          <button id="profileSample" class="px-3 py-2 text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 text-sm underline">Load sample</button>
           <button id="profileClear" class="px-3 py-2 text-stone-500 hover:text-red-600 text-sm">Clear</button>
+          <button id="profileAdvancedToggle" class="ml-auto text-xs text-stone-500 underline">Advanced ▾</button>
         </div>
-        <p class="text-xs text-stone-500 mt-3">After downloading, run <span class="font-mono">pegasus profile import ~/Downloads/profile.json</span> in your terminal — that copies it to <span class="font-mono">~/.pegasus/profile.json</span> where skills can read it.</p>
+        <div id="profileAdvanced" class="mt-3 p-3 rounded bg-stone-50 dark:bg-stone-900 hidden">
+          <p class="text-xs text-stone-600 dark:text-stone-400 mb-2">For users who want the file-based workflow used by CLI skills:</p>
+          <button id="profileExport" class="px-3 py-1.5 bg-stone-200 dark:bg-stone-800 rounded text-xs">Download profile.json</button>
+          <button class="copy px-3 py-1.5 bg-stone-200 dark:bg-stone-800 rounded text-xs font-mono ml-2" data-copy="pegasus profile import ~/Downloads/profile.json">Copy install command</button>
+          <p class="text-xs text-stone-500 mt-2">Then run that command in your terminal to install at <span class="font-mono">~/.pegasus/profile.json</span> where Pegasus's CLI skills can read it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- JOB SEARCH ACTIONABLE — explicit 4-step path to ranked jobs -->
+    <section id="actions" class="py-8" data-search>
+      <div class="card bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl border-2 border-emerald-300 dark:border-emerald-800 p-6">
+        <h2 class="font-serif text-2xl mb-1">🎯 Get a ranked job list (today)</h2>
+        <p class="text-sm text-stone-700 dark:text-stone-300 mb-4">Pegasus uses your profile to pull jobs from BuiltIn + LinkedIn, score each against your fit, and return the top 5 to apply to. Complete these 4 steps:</p>
+
+        <ol id="jobChecklist" class="space-y-3 mb-5"></ol>
+
+        <button id="findJobsBtn" disabled
+          class="w-full px-5 py-4 bg-stone-300 text-stone-500 rounded-xl text-base font-semibold cursor-not-allowed transition">
+          🎯 Find me jobs to apply to today
+        </button>
+        <p id="findJobsHint" class="text-xs text-stone-600 dark:text-stone-400 mt-2 text-center">↑ Complete the steps above to enable</p>
+
+        <details class="mt-5 text-sm">
+          <summary class="cursor-pointer text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100">Other one-click actions (audit / resume tailor / interview prep / weekly review)</summary>
+          <div id="actionsList" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3"></div>
+        </details>
       </div>
     </section>
 
@@ -529,7 +564,7 @@
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.4 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.5 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -1266,6 +1301,55 @@ function initProfile() {
 }
 initProfile();
 
+// PRIMARY: Copy as Claude context — single click, no file, no CLI
+document.getElementById('profileCopyContext')?.addEventListener('click', async () => {
+  const p = loadProfile();
+  const filled = Object.entries(p).filter(([k, v]) => v && String(v).trim());
+  if (!filled.length) { showToast('Fill in at least your name + role first'); return; }
+  // Build a natural-language context block
+  let context = `Context about me (from my Pegasus profile):\n`;
+  if (p.name) context += `- Name: ${p.name}\n`;
+  if (p.headline) context += `- Role: ${p.headline}\n`;
+  if (p.location) context += `- Location: ${p.location}\n`;
+  if (p.email) context += `- Email: ${p.email}\n`;
+  if (p.linkedin) context += `- LinkedIn: ${p.linkedin}\n`;
+  if (p.portfolio) context += `- Portfolio: ${p.portfolio}\n`;
+  if (p.github) context += `- GitHub: ${p.github}\n`;
+  if (p.resume) context += `- Resume: ${p.resume}\n`;
+  if (p.skills) context += `- Top skills: ${p.skills}\n`;
+  if (p.bio) context += `- Bio: ${p.bio}\n`;
+  context += `\nUse this context when relevant. Don't re-ask me for any of these details.`;
+  try {
+    await navigator.clipboard.writeText(context);
+    showToast(`✓ Copied ${filled.length} fields. Paste into any Claude/OpenCode chat.`);
+  } catch { showToast('Press ⌘+C to copy'); }
+});
+
+// SECONDARY: Save directly to ~/.pegasus/profile.json (Chromium with File System Access API)
+if ('showSaveFilePicker' in window) {
+  const btn = document.getElementById('profileSaveFile');
+  btn.classList.remove('hidden');
+  btn.addEventListener('click', async () => {
+    const p = loadProfile();
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: 'profile.json',
+        types: [{ description: 'Pegasus profile', accept: { 'application/json': ['.json'] } }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(JSON.stringify(p, null, 2));
+      await writable.close();
+      showToast('✓ Saved. If you saved to ~/.pegasus/, skills can read it now.');
+    } catch (e) { if (e.name !== 'AbortError') showToast('Save failed'); }
+  });
+}
+
+// ADVANCED toggle
+document.getElementById('profileAdvancedToggle')?.addEventListener('click', () => {
+  document.getElementById('profileAdvanced').classList.toggle('hidden');
+});
+
+// LEGACY (still inside Advanced): Download profile.json
 document.getElementById('profileExport')?.addEventListener('click', () => {
   const p = loadProfile();
   const blob = new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' });
@@ -1274,10 +1358,7 @@ document.getElementById('profileExport')?.addEventListener('click', () => {
   a.download = 'profile.json';
   a.click();
   URL.revokeObjectURL(a.href);
-  const toast = document.getElementById('toast');
-  toast.textContent = 'Downloaded profile.json — now run: pegasus profile import ~/Downloads/profile.json';
-  toast.style.opacity = '1';
-  setTimeout(() => { toast.style.opacity = '0'; toast.textContent = 'Copied'; }, 3500);
+  showToast('Downloaded profile.json — see Advanced for the install command');
 });
 
 document.getElementById('profileClear')?.addEventListener('click', () => {
@@ -1882,6 +1963,111 @@ document.querySelectorAll('[data-copyable="1"]').forEach(card => {
 });
 
 
+
+// ─────────────────────────────────────────────
+// JOB SEARCH ACTIONABLE — checklist + one-click ranked-jobs prompt
+// ─────────────────────────────────────────────
+function buildProfileContext(p) {
+  const lines = ['Context about me (from my Pegasus profile):'];
+  if (p.name) lines.push(`- Name: ${p.name}`);
+  if (p.headline) lines.push(`- Current role: ${p.headline}`);
+  if (p.location) lines.push(`- Location: ${p.location}`);
+  if (p.linkedin) lines.push(`- LinkedIn: ${p.linkedin}`);
+  if (p.portfolio) lines.push(`- Portfolio: ${p.portfolio}`);
+  if (p.github) lines.push(`- GitHub: ${p.github}`);
+  if (p.resume) lines.push(`- Resume: ${p.resume}`);
+  if (p.skills) lines.push(`- Top skills: ${p.skills}`);
+  if (p.bio) lines.push(`- Bio: ${p.bio}`);
+  if (p.targetRoles) lines.push(`- Target roles: ${p.targetRoles}`);
+  if (p.priorities) lines.push(`- Priorities: ${p.priorities}`);
+  return lines.join('\n');
+}
+
+function renderJobChecklist() {
+  const list = document.getElementById('jobChecklist');
+  const btn = document.getElementById('findJobsBtn');
+  const hint = document.getElementById('findJobsHint');
+  if (!list) return;
+  const p = loadProfile();
+  const items = [
+    { key: 'resume',       label: '📄 Resume — path or URL',                        check: !!p.resume,       fix: 'profile' },
+    { key: 'targetRoles',  label: '🎯 Target roles you want',                        check: !!p.targetRoles,  fix: 'profile' },
+    { key: 'priorities',   label: '⚖️  Priorities (comp, location, must-haves)',     check: !!p.priorities,   fix: 'profile' },
+    { key: 'linkedin',     label: '💼 LinkedIn URL (so we can read your profile)',  check: !!p.linkedin,     fix: 'profile' },
+  ];
+  list.innerHTML = items.map(i => `
+    <li class="flex items-center gap-3">
+      <span class="${i.check ? 'text-green-600' : 'text-stone-400'} text-lg">${i.check ? '✓' : '○'}</span>
+      <span class="${i.check ? 'line-through text-stone-500' : 'text-stone-900 dark:text-stone-100'}">${i.label}</span>
+      ${!i.check ? `<button onclick="document.getElementById('${i.fix}').scrollIntoView({behavior:'smooth'}); document.querySelector('[data-profile=\\'${i.key}\\']')?.focus()" class="ml-auto text-xs underline text-stone-500 hover:text-stone-900">Fill in →</button>` : ''}
+    </li>
+  `).join('');
+  const allDone = items.every(i => i.check);
+  if (allDone) {
+    btn.disabled = false;
+    btn.className = 'w-full px-5 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-base font-semibold transition cursor-pointer';
+    hint.textContent = 'Click below — we\'ll build a complete prompt and copy it to your clipboard.';
+  } else {
+    btn.disabled = true;
+    btn.className = 'w-full px-5 py-4 bg-stone-300 dark:bg-stone-700 text-stone-500 rounded-xl text-base font-semibold cursor-not-allowed transition';
+    const missing = items.filter(i => !i.check).length;
+    hint.textContent = `↑ ${missing} step${missing>1?'s':''} remaining`;
+  }
+}
+
+document.getElementById('findJobsBtn')?.addEventListener('click', () => {
+  const p = loadProfile();
+  if (!p.resume || !p.targetRoles || !p.priorities || !p.linkedin) return;
+  const prompt = `Use the job-finder skill.
+
+${buildProfileContext(p)}
+
+What I need today:
+1. Pull current openings from BuiltIn.com AND LinkedIn matching my target roles + location.
+2. Read my resume (at the path above) and my LinkedIn profile to score each job for fit.
+3. Apply my priorities strictly (comp floor, location, must-haves, hard-nos — drop anything that violates them).
+4. Return the TOP 5 jobs to apply to today, ranked by score.
+5. For each: title, company, location, salary if shown, fit score 0-100, why it's a fit, apply URL.
+6. Save the result as ~/Design-Projects/jobs-today-${new Date().toISOString().slice(0,10)}.md so I can revisit later.
+
+Start now.`;
+  navigator.clipboard.writeText(prompt).then(() => {
+    showToast('✓ Copied — paste into Claude Code or OpenCode now');
+    trackCopy('job-finder ranked pull', 'Workflow');
+  }).catch(() => showToast('Press ⌘+C to copy'));
+});
+
+function renderActions() {
+  const list = document.getElementById('actionsList');
+  if (!list) return;
+  const p = loadProfile();
+  const ctx = buildProfileContext(p);
+  const actions = [
+    { icon: '📝', label: 'Tailor resume to a JD', prompt: `Use the resume-tailor skill.\n\n${ctx}\n\nThe job description is:\n[PASTE THE FULL JD HERE]\n\nProduce an ATS-optimized version of my resume tailored to this JD.` },
+    { icon: '🎤', label: 'Interview prep for a company', prompt: `Use the interview-prep skill.\n\n${ctx}\n\nI have an interview at:\n- Company: [COMPANY NAME]\n- Role: [ROLE TITLE]\n- Date: [DATE]\n- Format: [recruiter screen / hiring manager / portfolio walk-through / panel]\n\nFollow the skill's standard process.` },
+    { icon: '🔍', label: 'Audit my portfolio site', prompt: p.portfolio ? `Use the ux-ui-audit skill on ${p.portfolio}. ${ctx}\n\nReturn the full 17-section audit with priorities and concrete fixes.` : `Use the ux-ui-audit skill. (Add a portfolio URL to your profile to skip this step.)\n\n${ctx}\n\nThe URL to audit is: [PASTE PORTFOLIO URL]` },
+    { icon: '📊', label: 'Run my weekly review', prompt: `Use the weekly-review skill.\n\n${ctx}\n\nIt's ${new Date().toLocaleDateString('en-US', { weekday: 'long' })} — pull signal from ~/Design-Projects/, my Pulse, recent commits. Output: shipped / stalled / Pulse / next week's 3.` },
+  ];
+  list.innerHTML = actions.map(a => `
+    <button class="action-btn text-left p-3 rounded-lg bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-700 transition">
+      <div class="text-base">${a.icon} <strong>${a.label}</strong></div>
+    </button>
+  `).join('');
+  list.querySelectorAll('.action-btn').forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(actions[i].prompt).then(() => {
+        showToast(`✓ Copied: ${actions[i].label}. Paste into Claude.`);
+        trackCopy(actions[i].label, 'Workflow');
+      });
+    });
+  });
+}
+
+// Re-render checklist + actions when profile saves
+const _origSaveProfile = saveProfile;
+saveProfile = function(p) { _origSaveProfile(p); renderJobChecklist(); renderActions(); };
+renderJobChecklist();
+renderActions();
 
 // ─────────────────────────────────────────────
 // LEARN MODAL — embedded cheatsheet content (no GitHub trips)
