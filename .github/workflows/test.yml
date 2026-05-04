@@ -43,6 +43,47 @@ jobs:
           bash -n connect.sh
           bash -n desktop-apps.sh
 
+      - name: ShellCheck (Ubuntu only — preinstalled there)
+        # Linting beyond `bash -n`. Initially advisory; flip to required once the
+        # baseline is clean. Runs on Ubuntu only because shellcheck ships preinstalled.
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          shellcheck --version
+          set +e
+          shellcheck -S warning install.sh bin/pegasus connect.sh desktop-apps.sh scripts/install-hooks.sh scripts/integration-test.sh scripts/test-all.sh
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            echo "::warning::shellcheck reported issues — currently advisory, will become required after baseline clean."
+          fi
+          exit 0
+        continue-on-error: true
+
+      - name: a11y check (pa11y, advisory)
+        # WCAG2AA scan via pa11y on a localhost-served dashboard.html.
+        # Initially advisory; ratchet to required once baseline issues are addressed.
+        # Re-includes jsdom in the install list because `npm install` prunes
+        # node_modules to match the install args when package.json has no
+        # `dependencies` block.
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm install --no-save jsdom pa11y http-server
+          npx http-server -p 8765 -s &
+          SERVER_PID=$!
+          # Wait for server up
+          for i in $(seq 1 20); do
+            if curl -sf http://localhost:8765/dashboard.html >/dev/null; then break; fi
+            sleep 0.5
+          done
+          set +e
+          npx pa11y --standard WCAG2AA --reporter cli http://localhost:8765/dashboard.html
+          rc=$?
+          kill $SERVER_PID 2>/dev/null || true
+          if [ $rc -ne 0 ]; then
+            echo "::warning::pa11y reported a11y issues — currently advisory."
+          fi
+          exit 0
+        continue-on-error: true
+
       - name: Dashboard regression (33 checks)
         run: node scripts/test-dashboard.js
 
