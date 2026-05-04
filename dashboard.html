@@ -191,8 +191,8 @@
 
   <!-- Mode pill (persistent) -->
   <div class="mode-pill fixed top-3 right-3 bg-white/80 dark:bg-stone-900/80 border border-stone-300 dark:border-stone-700 rounded-full px-3 py-1.5 text-xs flex items-center gap-2 z-50 shadow-sm">
-    <span class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true"></span>
-    <span class="text-stone-700 dark:text-stone-300">offline-ready</span>
+    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.4 — green = up to date"></span>
+    <span class="text-stone-700 dark:text-stone-300">v1.0.4</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> search</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
@@ -529,12 +529,22 @@
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.3 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.4 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
   <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm opacity-0 transition-opacity pointer-events-none z-50">
     Copied
+  </div>
+
+  
+  <!-- Snapshot drop zone (overlays when user drags a .json file) -->
+  <div id="snapDrop" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-stone-900/80 pointer-events-none">
+    <div class="bg-white dark:bg-stone-900 rounded-2xl p-12 text-center shadow-2xl">
+      <div class="text-6xl mb-4">📦</div>
+      <p class="font-serif text-2xl">Drop your pegasus-snapshot.json</p>
+      <p class="text-stone-500 mt-2">to restore your profile + activity</p>
+    </div>
   </div>
 
   <!-- First-run walkthrough overlay (centered modal on first visit) -->
@@ -1006,16 +1016,57 @@ function renderPrompts() {
 
 function renderRecommended() {
   document.getElementById('recommended-list').innerHTML = recommended.map(r => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}" data-copyable="1" data-card-copy="${r.clone}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}" data-copyable="1" data-card-copy="${r.clone.replace(/"/g, '&quot;')}" data-recommended="${r.name.replace(/"/g, '&quot;')}">
       <div class="flex items-baseline justify-between">
         <h3 class="font-medium font-mono text-sm">${r.name}</h3>
         <span class="text-xs text-stone-500">★ ${r.stars}</span>
       </div>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${r.desc}</p>
-      <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${r.clone}">${r.clone}</button>
+      <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${r.clone.replace(/"/g, '&quot;')}">${r.clone}</button>
+      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-recommended-details">View details →</button>
     </div>
   `).join('');
 }
+
+function openRecommendedModal(name) {
+  const r = recommended.find(x => x.name === name);
+  if (!r) return;
+  // Extract github URL from clone command if present
+  const urlMatch = r.clone.match(/https?:\/\/github\.com\/[^\s)]+/);
+  const repoUrl = urlMatch ? urlMatch[0].replace(/\.git\b/, '') : null;
+  const modal = document.getElementById('workflowModal');
+  modal.querySelector('[data-modal-meta]').textContent = `Recommended · ${r.track === 'design' ? '🎨 UX Design' : r.track === 'jobs' ? '💼 Job Search' : '⊕ Both'} · ★ ${r.stars}`;
+  modal.querySelector('[data-modal-title]').textContent = r.name;
+  modal.querySelector('[data-modal-desc]').textContent = r.desc;
+  modal.querySelector('[data-modal-steps]').innerHTML = `
+    <div class="space-y-4">
+      <div>
+        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Install / clone — click to copy</p>
+        <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${r.clone.replace(/"/g, '&quot;')}">${r.clone}</button>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Why we recommend it</p>
+        <p class="text-sm text-stone-700 dark:text-stone-300">${r.desc}</p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">License</p>
+        <p class="text-sm text-stone-700 dark:text-stone-300">${r.stars.includes('★') || /^[0-9]/.test(r.stars) ? 'See repo for license details' : r.stars} ${r.stars === 'MIT' ? '— vendor freely with attribution' : ''}</p>
+      </div>
+      ${repoUrl ? `<div class="pt-3 border-t border-stone-200 dark:border-stone-700">
+        <p class="text-xs text-stone-500">Need to verify license, browse code, or open issues? <a href="${repoUrl}" target="_blank" class="underline">Open the repo on GitHub →</a></p>
+      </div>` : ''}
+    </div>
+  `;
+  modal.querySelector('[data-modal-steps]').querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+  modal.classList.add('open');
+}
+
+document.addEventListener('click', e => {
+  const view = e.target.closest('.view-recommended-details');
+  if (!view) return;
+  const card = view.closest('[data-recommended]');
+  if (card) openRecommendedModal(card.dataset.recommended);
+});
 
 function renderWorkflows() {
   document.getElementById('workflows-list').innerHTML = workflows.map(w => `
@@ -1190,9 +1241,14 @@ function saveProfile(p) {
   _safeStorage.setItem(PROFILE_KEY, JSON.stringify(p));
   const filled = Object.values(p).filter(v => v && String(v).trim()).length;
   const total = document.querySelectorAll('.profile-field').length;
-  document.getElementById('profileStatus').textContent = filled
-    ? `— ${filled}/${total} fields filled (saved locally)`
+  const statusEl = document.getElementById('profileStatus');
+  statusEl.textContent = filled
+    ? `✓ ${filled}/${total} fields filled (saved)`
     : '— not yet saved';
+  // Brief green flash to show autosave fired
+  statusEl.style.color = '#16a34a';
+  clearTimeout(saveProfile._t);
+  saveProfile._t = setTimeout(() => { statusEl.style.color = ''; }, 1200);
 }
 
 function initProfile() {
@@ -2080,6 +2136,44 @@ const _origSaveP = saveProfile;
 saveProfile = function(p) { _origSaveP(p); renderOnboarding(); };
 const _origRP = renderPulse;
 renderPulse = function() { _origRP(); renderOnboarding(); };
+
+
+
+// ─────────────────────────────────────────────
+// SNAPSHOT IMPORT — drag a .json onto the page
+// ─────────────────────────────────────────────
+let _dragCount = 0;
+window.addEventListener('dragenter', e => {
+  if (!e.dataTransfer?.types.includes('Files')) return;
+  e.preventDefault();
+  _dragCount++;
+  document.getElementById('snapDrop').classList.remove('hidden');
+});
+window.addEventListener('dragleave', e => {
+  _dragCount--;
+  if (_dragCount <= 0) document.getElementById('snapDrop').classList.add('hidden');
+});
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', async e => {
+  e.preventDefault();
+  _dragCount = 0;
+  document.getElementById('snapDrop').classList.add('hidden');
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.name.endsWith('.json')) return showToast('Drop a .json snapshot file');
+  try {
+    const text = await file.text();
+    const snap = JSON.parse(text);
+    if (snap.profile) {
+      saveProfile(snap.profile);
+      document.querySelectorAll('.profile-field').forEach(i => { i.value = (snap.profile[i.dataset.profile] || ''); });
+      showToast(`Restored profile (${snap.snapshot_date || 'unknown date'})`);
+    } else {
+      showToast('No profile in this snapshot');
+    }
+  } catch (e) {
+    showToast('Could not parse JSON');
+  }
+});
 
 </script>
 </body>
