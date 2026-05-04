@@ -66,6 +66,7 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus run${RESET} <W##>             walk through a workflow recipe (W1-W10)
   ${BOLD}pegasus snapshot${RESET}              export profile + pulse + state to JSON for backup
   ${BOLD}pegasus install${RESET} <skill|url>   install a skill from name or GitHub URL
+  ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
   ${BOLD}pegasus voice${RESET} <install|transcribe|speak>  Whisper STT + Kokoro TTS
   ${BOLD}pegasus uninstall${RESET}             remove Pegasus
   ${BOLD}pegasus help${RESET}                  this help
@@ -158,7 +159,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="0.8.1"
+PEGASUS_VERSION="0.9.0"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {
@@ -239,6 +240,45 @@ For activity stats (copies, weekly, streaks), open the dashboard:
 EOF
 }
 
+cmd_check() {
+  echo "${BOLD}Pegasus pre-flight check${RESET}"
+  local OK=1
+
+  # Network
+  if curl -fsSL --max-time 5 https://github.com >/dev/null 2>&1; then ok "Internet reachable"
+  else err "github.com unreachable"; OK=0; fi
+  if curl -fsSL --max-time 5 https://api.anthropic.com >/dev/null 2>&1 || true; then ok "anthropic.com reachable"
+  else warn "anthropic.com unreachable (Claude needs this)"; fi
+
+  # Disk
+  local AVAIL_GB=$(($(df -k "$HOME" | awk 'NR==2{print $4}') / 1024 / 1024))
+  if [[ $AVAIL_GB -ge 2 ]]; then ok "Disk space: ${AVAIL_GB}GB free"
+  else err "Only ${AVAIL_GB}GB free (need ~2GB for skills + templates + projects)"; OK=0; fi
+
+  # Permissions
+  if touch "$HOME/.pegasus-check-test" 2>/dev/null && rm "$HOME/.pegasus-check-test"; then ok "Write permission to \$HOME"
+  else err "Can't write to \$HOME"; OK=0; fi
+
+  # PATH
+  case ":$PATH:" in
+    *":$HOME/.local/bin:"*) ok "~/.local/bin on PATH" ;;
+    *) warn "~/.local/bin NOT on PATH (pegasus helper may not be reachable)" ;;
+  esac
+
+  # Claude / OpenCode reachable
+  have claude   && ok "Claude Code on PATH"   || warn "Claude Code missing"
+  have opencode && ok "OpenCode on PATH"      || warn "OpenCode missing"
+  have code     && ok "VS Code 'code' on PATH" || warn "VS Code 'code' missing — open VS Code → Cmd+Shift+P → 'Install code command in PATH'"
+
+  echo
+  if [[ $OK -eq 1 ]]; then
+    ok "${BOLD}Ready to ship.${RESET}"
+  else
+    err "Some critical checks failed. Re-run install.sh after fixing."
+    return 1
+  fi
+}
+
 cmd_voice() {
   local action="${1:-install}"
   case "$action" in
@@ -263,8 +303,10 @@ cmd_voice() {
       echo
       ok "${BOLD}Voice tools installed.${RESET}"
       echo "Try:"
-      echo "  ${BOLD}pegasus voice transcribe${RESET} <audio-file>     speech to text"
-      echo "  ${BOLD}pegasus voice speak${RESET} \"Hello world\"           text to speech"
+      echo "  ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
+  ${BOLD}pegasus voice transcribe${RESET} <audio-file>     speech to text"
+      echo "  ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
+  ${BOLD}pegasus voice speak${RESET} \"Hello world\"           text to speech"
       echo "  In Claude/OpenCode: 'transcribe this voice memo + extract the design brief'"
       ;;
     transcribe)
@@ -940,6 +982,7 @@ case "${1:-help}" in
   snapshot)   cmd_snapshot ;;
   install)    shift; cmd_install_skill "$@" ;;
   voice)      shift; cmd_voice "$@" ;;
+  check)      cmd_check ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;

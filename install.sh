@@ -81,6 +81,25 @@ if [[ "$CUSTOM" -eq 1 ]]; then
   ask_yes_no "Ready to begin?" || { echo "Cancelled."; exit 0; }
 fi
 
+# ---------- 0. PRE-FLIGHT (network, disk, perms) ----------
+header "0 / 9  Pre-flight check"
+PREFLIGHT_OK=1
+if curl -fsSL --max-time 5 https://github.com >/dev/null 2>&1; then ok "Internet reachable"
+else warn "Can't reach github.com — check Wi-Fi / VPN"; PREFLIGHT_OK=0; fi
+
+AVAIL_KB=$(df -k "$HOME" | awk 'NR==2{print $4}')
+AVAIL_GB=$((AVAIL_KB / 1024 / 1024))
+if [[ $AVAIL_GB -ge 2 ]]; then ok "Disk space: ${AVAIL_GB}GB free"
+else warn "Only ${AVAIL_GB}GB free — need ~2GB"; PREFLIGHT_OK=0; fi
+
+if touch "$HOME/.pegasus-write-test" 2>/dev/null && rm "$HOME/.pegasus-write-test"; then ok "Write permission to \$HOME"
+else warn "Can't write to \$HOME"; PREFLIGHT_OK=0; fi
+
+if [[ "$PREFLIGHT_OK" -eq 0 ]]; then
+  echo; warn "Pre-flight failed. Fix issues above and re-run install.sh."
+  exit 1
+fi
+
 # ---------- 1. Homebrew (macOS) ----------
 if [[ "$PLATFORM" == "mac" ]]; then
   header "1 / 9  Homebrew"
