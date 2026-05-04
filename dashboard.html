@@ -191,8 +191,8 @@
 
   <!-- Mode pill (persistent) -->
   <div class="mode-pill fixed top-3 right-3 bg-white/80 dark:bg-stone-900/80 border border-stone-300 dark:border-stone-700 rounded-full px-3 py-1.5 text-xs flex items-center gap-2 z-50 shadow-sm">
-    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.6 — green = up to date"></span>
-    <span class="text-stone-700 dark:text-stone-300">v1.0.6</span>
+    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.7 — green = up to date"></span>
+    <span class="text-stone-700 dark:text-stone-300">v1.0.7</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> search</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
@@ -593,7 +593,7 @@
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.6 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.7 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -2109,7 +2109,7 @@ function deleteJob(id) {
 
 function importJobsFromText(text) {
   const parsed = parseJobsMarkdown(text);
-  if (parsed.length === 0) { showToast('Couldn\\'t find a job table in that text'); return 0; }
+  if (parsed.length === 0) { showToast("Couldn't find a job table in that text"); return 0; }
   // Merge with existing — dedupe by title+company
   const existing = loadJobs();
   const existingKeys = new Set(existing.map(j => (j.title + j.company).toLowerCase()));
