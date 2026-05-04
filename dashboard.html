@@ -244,7 +244,14 @@
       <div class="card bg-gradient-to-br from-stone-50 to-white dark:from-stone-900 dark:to-stone-950 rounded-xl border border-stone-200 dark:border-stone-800 p-6">
         <div class="flex items-baseline justify-between mb-4">
           <h2 class="font-serif text-2xl">Your Pulse</h2>
-          <button id="pulseReset" class="text-xs text-stone-500 hover:text-red-600 underline">reset</button>
+          <div class="flex items-center gap-3 text-xs">
+            <select id="themeSwitcher" class="bg-transparent border border-stone-300 dark:border-stone-700 rounded px-2 py-1" aria-label="Theme">
+              <option value="auto">🌗 Auto</option>
+              <option value="light">☀️ Light</option>
+              <option value="dark">🌙 Dark</option>
+            </select>
+            <button id="pulseReset" class="text-stone-500 hover:text-red-600 underline">reset stats</button>
+          </div>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
           <div class="pulse-stat"><div class="num" id="pulseCopies">0</div><div class="label">Copies</div></div>
@@ -499,6 +506,12 @@
   </div>
 
 <script>
+const _safeStorage = {
+  getItem: k => { try { return localStorage.getItem(k); } catch { return null; } },
+  setItem: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+  removeItem: k => { try { localStorage.removeItem(k); } catch {} },
+};
+
 // ─────────────────────────────────────────────
 // DATA
 // ─────────────────────────────────────────────
@@ -762,12 +775,11 @@ renderPrompts();
 renderRecommended();
 renderGlossary();
 
-// Apply persisted track choice on initial load
-applyTrack(activeTrack);
+// (track choice applied later in the TRACK SWITCHER block, after `activeTrack` is declared)
 
 // Restore scroll position from last visit (within 30 minutes)
 const SCROLL_KEY = 'pegasus.scroll';
-const scrollData = JSON.parse(localStorage.getItem(SCROLL_KEY) || 'null');
+const scrollData = JSON.parse(_safeStorage.getItem(SCROLL_KEY) || 'null');
 if (scrollData && (Date.now() - scrollData.at) < 1000 * 60 * 30) {
   setTimeout(() => window.scrollTo(0, scrollData.y), 100);
 }
@@ -775,7 +787,7 @@ let scrollSaveT;
 window.addEventListener('scroll', () => {
   clearTimeout(scrollSaveT);
   scrollSaveT = setTimeout(() => {
-    localStorage.setItem(SCROLL_KEY, JSON.stringify({ y: window.scrollY, at: Date.now() }));
+    _safeStorage.setItem(SCROLL_KEY, JSON.stringify({ y: window.scrollY, at: Date.now() }));
   }, 200);
 }, { passive: true });
 
@@ -783,11 +795,11 @@ window.addEventListener('scroll', () => {
 // First-run hint
 const FIRST_RUN_KEY = 'pegasus.firstRunSeen';
 function dismissFirstRun() {
-  localStorage.setItem(FIRST_RUN_KEY, '1');
+  _safeStorage.setItem(FIRST_RUN_KEY, '1');
   const hint = document.getElementById('firstRunHint');
   if (hint) hint.classList.add('hidden');
 }
-if (!localStorage.getItem(FIRST_RUN_KEY)) {
+if (!_safeStorage.getItem(FIRST_RUN_KEY)) {
   setTimeout(() => {
     const hint = document.getElementById('firstRunHint');
     if (hint) hint.classList.remove('hidden');
@@ -863,10 +875,10 @@ searchInput.addEventListener('input', e => applySearch(e.target.value));
 const PROFILE_KEY = 'pegasus.profile';
 
 function loadProfile() {
-  try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}'); } catch { return {}; }
+  try { return JSON.parse(_safeStorage.getItem(PROFILE_KEY) || '{}'); } catch { return {}; }
 }
 function saveProfile(p) {
-  localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  _safeStorage.setItem(PROFILE_KEY, JSON.stringify(p));
   const filled = Object.values(p).filter(v => v && String(v).trim()).length;
   const total = document.querySelectorAll('.profile-field').length;
   document.getElementById('profileStatus').textContent = filled
@@ -905,7 +917,7 @@ document.getElementById('profileExport')?.addEventListener('click', () => {
 
 document.getElementById('profileClear')?.addEventListener('click', () => {
   if (!confirm('Clear all profile fields?')) return;
-  localStorage.removeItem(PROFILE_KEY);
+  _safeStorage.removeItem(PROFILE_KEY);
   document.querySelectorAll('.profile-field').forEach(i => i.value = '');
   saveProfile({});
 });
@@ -933,11 +945,11 @@ document.getElementById('profileSample')?.addEventListener('click', () => {
 // ─────────────────────────────────────────────
 const TRACK_KEY = 'pegasus.track';
 const _urlTrack = new URLSearchParams(location.search).get('track');
-let activeTrack = _urlTrack || localStorage.getItem(TRACK_KEY) || 'design';
+let activeTrack = _urlTrack || _safeStorage.getItem(TRACK_KEY) || 'design';
 
 function applyTrack(track) {
   activeTrack = track;
-  localStorage.setItem(TRACK_KEY, track);
+  _safeStorage.setItem(TRACK_KEY, track);
   // Sync to URL without reload
   try { const u = new URL(location.href); u.searchParams.set('track', track); history.replaceState(null, '', u); } catch(e) {}
   document.querySelectorAll('.track-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.track === track ? 'true' : 'false'));
@@ -996,6 +1008,9 @@ document.querySelectorAll('.track-tab').forEach(btn => {
   });
 });
 
+// Apply persisted track choice on initial load (was previously called too early — TDZ bug)
+applyTrack(activeTrack);
+
 // ─────────────────────────────────────────────
 // COUNT BADGES IN NAV
 // ─────────────────────────────────────────────
@@ -1018,11 +1033,13 @@ const sectionsForObserver = ['profile','start','templates','workflows','commands
   .map(id => document.getElementById(id))
   .filter(Boolean);
 const setActiveNav = id => navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id));
-const observer = new IntersectionObserver(entries => {
-  const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio);
-  if (visible.length) setActiveNav(visible[0].target.id);
-}, { rootMargin: '-30% 0px -60% 0px' });
-sectionsForObserver.forEach(s => observer.observe(s));
+if (typeof IntersectionObserver !== 'undefined') {
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio);
+    if (visible.length) setActiveNav(visible[0].target.id);
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sectionsForObserver.forEach(s => observer.observe(s));
+}
 
 // ─────────────────────────────────────────────
 // INLINE SEARCH HIGHLIGHT (replaces simple hide)
@@ -1062,15 +1079,16 @@ searchInput.addEventListener('input', e => applySearchHL(e.target.value));
 // ─────────────────────────────────────────────
 // COPY HELPER (reusable for re-bound buttons)
 // ─────────────────────────────────────────────
+
 // ─────────────────────────────────────────────
 // PEGASUS PULSE — usage tracking + recently used
 // ─────────────────────────────────────────────
 const PULSE_KEY = 'pegasus.pulse';
 function loadPulse() {
-  try { return JSON.parse(localStorage.getItem(PULSE_KEY) || '{}'); }
+  try { return JSON.parse(_safeStorage.getItem(PULSE_KEY) || '{}'); }
   catch { return {}; }
 }
-function savePulse(p) { localStorage.setItem(PULSE_KEY, JSON.stringify(p)); }
+function savePulse(p) { _safeStorage.setItem(PULSE_KEY, JSON.stringify(p)); }
 function trackCopy(label, kind) {
   const p = loadPulse();
   p.totalCopies = (p.totalCopies || 0) + 1;
@@ -1127,7 +1145,7 @@ function renderPulse() {
 renderPulse();
 document.getElementById('pulseReset')?.addEventListener('click', () => {
   if (!confirm('Reset Pulse stats?')) return;
-  localStorage.removeItem(PULSE_KEY);
+  _safeStorage.removeItem(PULSE_KEY);
   renderPulse();
 });
 
@@ -1261,7 +1279,7 @@ helpOverlay.addEventListener('click', e => { if (e.target === helpOverlay) helpO
 let lastG = false;
 // Search history
 const SEARCH_HIST_KEY = 'pegasus.searchHist';
-let searchHist = []; try { searchHist = JSON.parse(localStorage.getItem(SEARCH_HIST_KEY) || '[]'); } catch {}
+let searchHist = []; try { searchHist = JSON.parse(_safeStorage.getItem(SEARCH_HIST_KEY) || '[]'); } catch {}
 let searchHistIdx = -1;
 searchInput.addEventListener('keydown', e => {
   if (e.key === 'ArrowUp' && searchHist.length) {
@@ -1280,7 +1298,7 @@ searchInput.addEventListener('blur', () => {
   const q = searchInput.value.trim();
   if (q && searchHist[0] !== q) {
     searchHist = [q, ...searchHist.filter(h => h !== q)].slice(0, 10);
-    localStorage.setItem(SEARCH_HIST_KEY, JSON.stringify(searchHist));
+    _safeStorage.setItem(SEARCH_HIST_KEY, JSON.stringify(searchHist));
   }
   searchHistIdx = -1;
 });
@@ -1319,6 +1337,123 @@ document.addEventListener('keydown', e => {
     const map = { t: 'templates', w: 'workflows', c: 'commands', s: 'skills', m: 'mcps', p: 'prompts', r: 'recommended', l: 'glossary', h: 'help', q: 'start', i: 'profile' };
     if (map[e.key]) { e.preventDefault(); document.getElementById(map[e.key])?.scrollIntoView({ behavior: 'smooth' }); lastG = false; }
   }
+});
+
+
+// ─────────────────────────────────────────────
+// THEME SWITCHER
+// ─────────────────────────────────────────────
+const THEME_KEY = 'pegasus.theme';
+function applyTheme(theme) {
+  _safeStorage.setItem(THEME_KEY, theme);
+  if (theme === 'auto') {
+    document.documentElement.style.colorScheme = 'light dark';
+    document.documentElement.classList.remove('force-dark', 'force-light');
+  } else {
+    document.documentElement.style.colorScheme = theme;
+    document.documentElement.classList.toggle('force-dark', theme === 'dark');
+    document.documentElement.classList.toggle('force-light', theme === 'light');
+  }
+}
+const themeSel = document.getElementById('themeSwitcher');
+if (themeSel) {
+  const saved = _safeStorage.getItem(THEME_KEY) || 'auto';
+  themeSel.value = saved;
+  applyTheme(saved);
+  themeSel.addEventListener('change', e => applyTheme(e.target.value));
+}
+
+// ─────────────────────────────────────────────
+// WELCOME BACK BANNER (if profile filled)
+// ─────────────────────────────────────────────
+(function() {
+  const p = loadProfile();
+  if (!p.name) return;
+  const banner = document.createElement('div');
+  banner.className = 'fixed top-3 left-3 z-50 bg-stone-900 text-white px-4 py-2 rounded-full text-sm shadow-lg';
+  banner.textContent = `👋 Welcome back, ${p.name}`;
+  document.body.appendChild(banner);
+  setTimeout(() => { banner.style.transition = 'opacity 0.5s'; banner.style.opacity = '0'; }, 3000);
+  setTimeout(() => banner.remove(), 3500);
+})();
+
+// ─────────────────────────────────────────────
+// PROFILE FIELD VALIDATION
+// ─────────────────────────────────────────────
+function validateProfileField(input) {
+  const k = input.dataset.profile;
+  const v = input.value.trim();
+  let err = '';
+  if (k === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) err = 'Not a valid email';
+  if ((k === 'linkedin' || k === 'portfolio') && v && !/^https?:\/\//.test(v)) err = 'URL must start with http(s)://';
+  input.style.borderColor = err ? '#dc2626' : '';
+  input.title = err;
+  return !err;
+}
+document.querySelectorAll('.profile-field').forEach(i => {
+  i.addEventListener('blur', () => validateProfileField(i));
+});
+
+// ─────────────────────────────────────────────
+// RECENT IN PALETTE (when input empty)
+// ─────────────────────────────────────────────
+const _origRender = renderPaletteResults;
+renderPaletteResults = function(filter) {
+  if (!filter) {
+    const p = loadPulse();
+    if (p.recent && p.recent.length) {
+      paletteResults.innerHTML = '<div class="palette-item text-xs text-stone-500 italic">Recently used (start typing to search all)</div>' +
+        p.recent.slice(0, 8).map((r, i) => `
+          <div class="palette-item ${i === paletteSelection ? 'selected' : ''}" data-recent-index="${i}">
+            <div class="text-xs uppercase tracking-wider text-stone-500">${r.kind}</div>
+            <div class="font-medium">${r.label}</div>
+          </div>
+        `).join('');
+      paletteResults._matches = p.recent.slice(0, 8).map(r => ({ kind: r.kind, label: r.label, sub: '', copy: r.label }));
+      paletteResults.querySelectorAll('.palette-item[data-recent-index]').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.recentIndex, 10);
+          navigator.clipboard.writeText(p.recent[idx].label);
+          closePalette();
+          showToast('Copied · ' + p.recent[idx].label);
+        });
+      });
+      return;
+    }
+  }
+  _origRender(filter);
+};
+
+// ─────────────────────────────────────────────
+// SEARCH CLEAR BUTTON
+// ─────────────────────────────────────────────
+(function() {
+  const wrap = searchInput.parentElement;
+  const clear = document.createElement('button');
+  clear.innerHTML = '✕';
+  clear.setAttribute('aria-label', 'Clear search');
+  clear.className = 'absolute right-12 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-200 hidden';
+  wrap.appendChild(clear);
+  clear.addEventListener('click', () => {
+    searchInput.value = '';
+    applySearchHL('');
+    clear.classList.add('hidden');
+    searchInput.focus();
+  });
+  searchInput.addEventListener('input', () => {
+    clear.classList.toggle('hidden', !searchInput.value);
+  });
+})();
+
+// ─────────────────────────────────────────────
+// TAB NAVIGATION ON CARDS — Enter to copy
+// ─────────────────────────────────────────────
+document.querySelectorAll('[data-copyable="1"]').forEach(card => {
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'button');
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+  });
 });
 
 </script>
