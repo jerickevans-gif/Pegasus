@@ -81,6 +81,9 @@
     .sticky-nav { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color 0.2s; }
     .sticky-nav.scrolled { border-bottom-color: #e7e5e4; background: rgba(250, 250, 249, 0.85); }
     @media (prefers-color-scheme: dark) { .sticky-nav.scrolled { background: rgba(12, 10, 9, 0.85); border-bottom-color: #292524; } }
+    /* Right-edge fade tells mobile users there's more nav off-screen */
+    .sticky-nav nav { position: relative; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+    @media (min-width: 768px) { .sticky-nav nav { -webkit-mask-image: none; mask-image: none; } }
     .nav-pill.active { background: #0c0a09; color: white; }
     @media (prefers-color-scheme: dark) { .nav-pill.active { background: #fafaf9; color: #0c0a09; } }
 
@@ -2248,8 +2251,18 @@ OUTPUT FORMAT (this exact markdown table — Pegasus dashboard parses it):
 
 Start now.`;
   navigator.clipboard.writeText(prompt).then(() => {
-    showToast('✓ Copied — paste into Claude Code or OpenCode now');
+    showToast('✓ Copied. Paste into Claude — when it returns the table, drop it below ↓');
     trackCopy('job-finder ranked pull', 'Workflow');
+    // Smooth-scroll to the Job Results drop zone so users know exactly where to land the output.
+    setTimeout(() => {
+      document.getElementById('jobResults')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Pulse the empty-state border so the drop zone is visually obvious.
+      const empty = document.getElementById('jobsEmpty');
+      if (empty && !empty.classList.contains('hidden')) {
+        empty.classList.add('ring-4', 'ring-emerald-400');
+        setTimeout(() => empty.classList.remove('ring-4', 'ring-emerald-400'), 2400);
+      }
+    }, 400);
   }).catch(() => showToast('Press ⌘+C to copy'));
 });
 

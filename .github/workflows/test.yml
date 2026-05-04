@@ -33,8 +33,15 @@ jobs:
       - name: Dashboard regression (33 checks)
         run: node scripts/test-dashboard.js
 
+      - name: Links + onclick + parser (45 checks)
+        run: node scripts/test-links-and-jobs.js
+
       - name: Every-suggestion validator (95 checks)
         run: node scripts/validate-everything.js
+
+      - name: CLI integration (35 checks, repo-mode)
+        run: PEGASUS_BIN="$PWD/bin/pegasus" bash scripts/integration-test.sh
+        continue-on-error: true
 
       - name: Verify all template index.html files exist
         run: |
