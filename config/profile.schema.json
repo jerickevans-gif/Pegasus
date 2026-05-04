@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/config/profile.schema.json",
+  "title": "Pegasus Profile",
+  "description": "User profile referenced by job-finder, interview-prep, content-writer, weekly-review, and other Pegasus skills. Lives at ~/.pegasus/profile.json.",
+  "type": "object",
+  "properties": {
+    "name":      { "type": "string", "description": "Full name." },
+    "headline":  { "type": "string", "description": "Current role / one-line professional title." },
+    "email":     { "type": "string", "format": "email" },
+    "location":  { "type": "string", "description": "City + country, or 'Remote, US'." },
+    "linkedin":  { "type": "string", "format": "uri" },
+    "portfolio": { "type": "string", "format": "uri" },
+    "github":    { "type": "string", "description": "Username only, no URL." },
+    "resume":    { "type": "string", "description": "Filesystem path to a resume file (HTML, PDF, or markdown)." },
+    "skills":    { "type": "string", "description": "Top skills, comma-separated. Used by job-finder + content-writer." },
+    "bio":       { "type": "string", "description": "One-line elevator pitch, used as the source of truth for about-page copy." }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "name": "Jane Designer",
+      "headline": "Senior Product Designer",
+      "email": "jane@example.com",
+      "location": "Remote, US",
+      "linkedin": "https://linkedin.com/in/janedesigner",
+      "portfolio": "https://janedesigner.com",
+      "github": "janedesigner",
+      "resume": "~/Design-Projects/resume/index.html",
+      "skills": "Figma, design systems, motion, prototyping, user research, accessibility",
+      "bio": "7-year senior product designer focused on healthcare. Shipped consumer apps that 10M+ people use weekly."
+    }
+  ]
+}
