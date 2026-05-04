@@ -211,6 +211,26 @@ else
   say "Installing Bun..."
   curl -fsSL https://bun.sh/install | bash >/dev/null 2>&1 && ok "Bun installed." || warn "Couldn't install Bun (skip — non-critical)"
 fi
+# uv (Python package manager) — needed to install spec-kit
+if have uv; then
+  ok "uv already installed."
+else
+  say "Installing uv..."
+  curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1 && ok "uv installed." || warn "Couldn't install uv"
+fi
+# spec-kit (Spec-Driven Development toolkit, github/spec-kit, 92k★)
+if have specify; then
+  ok "spec-kit (specify) already installed."
+else
+  say "Installing spec-kit (specify CLI)..."
+  if have uv; then
+    "$HOME/.cargo/bin/uv" tool install --from git+https://github.com/github/spec-kit.git specify-cli >/dev/null 2>&1 \
+      || uv tool install --from git+https://github.com/github/spec-kit.git specify-cli >/dev/null 2>&1 \
+      && ok "spec-kit installed." || warn "Couldn't install spec-kit (you can run it ad-hoc with: uvx --from git+https://github.com/github/spec-kit.git specify init <name>)"
+  else
+    warn "Skipped spec-kit (needs uv). Run later: uvx --from git+https://github.com/github/spec-kit.git specify init <name>"
+  fi
+fi
 
 # ---------- 6. VS Code extensions ----------
 header "6 / 9  VS Code extensions"

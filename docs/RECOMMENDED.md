@@ -66,6 +66,37 @@ pegasus clone https://github.com/rendercv/rendercv rendercv
 
 ---
 
+## Workflow toolkits
+
+### mattpocock/skills · 57k★ · MIT
+> Skills for Real Engineers. Straight from his .claude directory.
+
+A massive bundle of battle-tested Claude Code skills: `to-prd` (turn ideas into PRDs — useful for case study briefs), `git-guardrails-claude-code` (prevent Claude from breaking git), `setup-pre-commit`, `tdd`, `triage`, `zoom-out`, and a `write-a-skill` meta-skill for building your own.
+
+```bash
+pegasus clone https://github.com/mattpocock/skills mp-skills
+# Then symlink or copy skills you want into ~/.claude/skills/
+ln -s ~/Design-Projects/mp-skills/skills/engineering/to-prd ~/.claude/skills/to-prd
+```
+
+→ <https://github.com/mattpocock/skills>
+
+### github/spec-kit · 92k★ · MIT
+> Toolkit to help you get started with Spec-Driven Development.
+
+GitHub's official toolkit for writing specs that AI agents (Claude Code, OpenCode, Cursor) follow when building. **Auto-installed by Pegasus** if `uv` is available — gives you the `specify` command system-wide.
+
+```bash
+# Pegasus already installed it. Use it like:
+specify init my-project
+# Then describe what you want and let the AI agent build to the spec.
+```
+
+→ <https://github.com/github/spec-kit>
+→ Docs: <https://github.github.com/spec-kit/>
+
+---
+
 ## Portfolio & case study templates
 
 ### erlandv/case · 44★ · MIT
