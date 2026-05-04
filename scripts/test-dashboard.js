@@ -12,15 +12,23 @@ catch { console.error('npm install --prefix /tmp jsdom'); process.exit(2); } }
 
 const repoRoot = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(repoRoot, 'dashboard.html'), 'utf8');
+// http://localhost/ (non-opaque origin) so localStorage works.
+// file:// throws SecurityError when tests touch w.localStorage directly.
 const dom = new JSDOM(html, {
   runScripts: 'dangerously', resources: 'usable', pretendToBeVisual: true,
-  url: 'file://' + path.join(repoRoot, 'dashboard.html')
+  url: 'http://localhost/'
 });
+
+// JSDOM's Window.scrollTo throws "Not implemented." Stub to a no-op so the
+// dashboard's smooth-scroll calls (brand button, back-to-top, scroll restore)
+// don't crash the test runner.
+dom.window.scrollTo = () => {};
 
 const realErrors = [];
 dom.window.addEventListener('error', e => {
   if (!e.message.includes('IntersectionObserver') &&
       !e.message.includes('scrollIntoView') &&
+      !e.message.includes('scrollTo') &&
       !e.message.includes('localStorage')) {
     realErrors.push(`${e.message} @ ${e.lineno}:${e.colno}`);
   }
@@ -126,6 +134,33 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   // === PALETTE ===
   check('Palette modal exists',                    !!d.getElementById('palette'));
   check('Palette closed initially',                !d.getElementById('palette').classList.contains('open'));
+
+  // === TOP APP BAR (v1.1.5) ===
+  const topBar = d.getElementById('topBar');
+  check('Top bar uses <header role=banner>',       topBar?.tagName === 'HEADER' && topBar?.getAttribute('role') === 'banner');
+  const brandBtn = d.getElementById('brandBtn');
+  check('Brand is a real <button>',                brandBtn?.tagName === 'BUTTON');
+  check('Brand has scroll-to-top aria-label',      /scroll to top/i.test(brandBtn?.getAttribute('aria-label') || ''));
+  const themeToggle = d.getElementById('themeToggle');
+  check('Theme toggle aria-label tracks state',    /currently/i.test(themeToggle?.getAttribute('aria-label') || ''));
+  const versionDot = d.getElementById('versionDot');
+  check('Version dot has data-version-state',      !!versionDot?.dataset.versionState);
+  // jsdom has no fetch, so versionDot stays "unknown" — confirms the typeof-fetch guard works
+  check('Version dot stays unknown without fetch', versionDot?.dataset.versionState === 'unknown');
+  // Brand click should invoke window.scrollTo (verifies handler is wired).
+  // scrollTo is stubbed at JSDOM creation; we just count that it gets called.
+  let scrollToCalled = false;
+  const prevScrollTo = w.scrollTo;
+  w.scrollTo = function () { scrollToCalled = true; };
+  brandBtn?.click();
+  w.scrollTo = prevScrollTo;
+  check('Brand click triggers window.scrollTo',    scrollToCalled);
+  // Theme cycle updates aria-label and sets the seen flag
+  const beforeAria = themeToggle.getAttribute('aria-label');
+  themeToggle.click();
+  const afterAria = themeToggle.getAttribute('aria-label');
+  check('Theme click updates aria-label',          beforeAria !== afterAria);
+  check('Theme click sets themeToggleSeen flag',   w.localStorage.getItem('pegasus.themeToggleSeen') === '1');
 
   // === FINAL REPORT ===
   const passed = results.filter(r => r.pass).length;
