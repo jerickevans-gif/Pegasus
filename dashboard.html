@@ -56,11 +56,11 @@
     .card { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; position: relative; }
     .card:hover { transform: translateY(-1px); border-color: #44403c; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
 
-    /* Cards with copyable content show a copy hint on hover + cursor pointer on whole card */
+    /* Cards with copyable content: cursor pointer + always-visible 📋 icon (more obvious it's clickable) */
     .card[data-copyable="1"] { cursor: pointer; }
-    .card[data-copyable="1"]::after { content: "📋 click to copy"; position: absolute; top: 0.5rem; right: 0.75rem; font-size: 0.65rem; color: #a8a29e; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
-    .card[data-copyable="1"]:hover::after { opacity: 1; }
-    @media (prefers-color-scheme: dark) { .card[data-copyable="1"]::after { color: #57534e; } }
+    .card[data-copyable="1"]::after { content: "📋"; position: absolute; top: 0.5rem; right: 0.75rem; font-size: 1rem; opacity: 0.35; transition: opacity 0.15s, transform 0.15s; pointer-events: none; }
+    .card[data-copyable="1"]:hover::after { opacity: 1; transform: scale(1.2); }
+    .card[data-copyable="1"]:active { transform: translateY(0); box-shadow: inset 0 2px 8px rgba(0,0,0,0.08); }
 
     /* Copy feedback */
     .copied { background-color: #16a34a !important; color: white !important; }
@@ -190,7 +190,11 @@
     <p class="text-sm uppercase tracking-widest text-stone-500">Pegasus</p>
     <h1 class="font-serif text-5xl md:text-7xl mt-3 leading-none tracking-tight">Dashboard</h1>
     <p class="mt-4 text-lg text-stone-600 dark:text-stone-400 max-w-2xl">
-      Everything in your Pegasus install, on one page. Search, browse, copy, run.
+      Everything in your Pegasus install, on one page.
+    </p>
+    <p class="mt-3 text-sm text-stone-700 dark:text-stone-300 inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900">
+      <span>💡</span>
+      <span><strong>How to use:</strong> click any card — it copies the command/prompt to your clipboard. Then paste into your VS Code terminal or the Claude/OpenCode chat box.</span>
     </p>
 
     <!-- Search bar -->
@@ -798,7 +802,7 @@ document.addEventListener('click', e => {
   if (!text) return;
   navigator.clipboard.writeText(text).then(() => {
     card.style.outline = '2px solid #16a34a';
-    showToast('Copied · ' + text.slice(0, 60));
+    showToast('✓ Copied — paste it into your VS Code terminal or Claude/OpenCode');
     const sectionId = card.closest('section')?.id || '';
     const kindMap = { templates: 'Template', workflows: 'Workflow', commands: 'Command', skills: 'Skill', mcps: 'Bridge', prompts: 'Prompt', recommended: 'Repo', glossary: 'Term' };
     trackCopy(text.slice(0, 60), kindMap[sectionId] || 'Other');
@@ -1115,7 +1119,7 @@ document.getElementById('pulseReset')?.addEventListener('click', () => {
 // Toast queue — rapid clicks no longer overwrite, they queue up
 const toastQueue = [];
 let toastBusy = false;
-function showToast(message, ms = 1500) {
+function showToast(message, ms = 2400) {
   toastQueue.push({ message, ms });
   if (!toastBusy) drainToast();
 }
