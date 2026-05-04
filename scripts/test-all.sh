@@ -24,6 +24,15 @@ run "static validation (95 checks)"      node scripts/validate-everything.js
 run "dashboard regression (33 checks)"   node scripts/test-dashboard.js
 run "links + onclick + parser (45+ checks)" node scripts/test-links-and-jobs.js
 run "CLI integration (35 checks)"        bash scripts/integration-test.sh
+run "profile schema (1 example)"         node scripts/validate-profile.js
+run "E2E job-finder pipeline (16 checks)" node scripts/e2e-jobfinder.js
+
+# Visual regression is opt-in (requires playwright + pixelmatch + pngjs).
+if node -e "require('playwright'); require('pixelmatch'); require('pngjs')" 2>/dev/null; then
+  run "visual regression (3 viewports)"  node scripts/visual-regression.js
+else
+  echo "  ↷ skipped visual regression (npm i playwright pixelmatch pngjs to enable)"
+fi
 
 elapsed=$(( $(date +%s) - start ))
 hr

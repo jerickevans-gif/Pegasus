@@ -162,7 +162,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="1.0.7"
+PEGASUS_VERSION="1.1.0"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {
@@ -394,7 +394,29 @@ cmd_voice() {
         warn "Voice TTS needs kokoro-onnx (run: pegasus voice install) or use macOS 'say'."
       fi
       ;;
-    *) err "Usage: pegasus voice <install|transcribe|speak>" ;;
+    check)
+      # Read-only: verify what's installed without touching anything.
+      echo "${BOLD}Voice tools status${RESET}"
+      local issues=0
+      if [[ "$(uname -s)" == "Darwin" ]]; then
+        have brew && ok "Homebrew present" || { warn "Homebrew missing (needed for whisper-cpp on macOS)"; issues=$((issues+1)); }
+      fi
+      have whisper-cli && ok "whisper-cli (STT) installed" || { warn "whisper-cli missing — run: pegasus voice install"; issues=$((issues+1)); }
+      [[ -f ~/.cache/whisper/ggml-base.en.bin ]] && ok "whisper base.en model cached" || warn "whisper model not yet downloaded (auto-fetched on first transcribe)"
+      have uv && ok "uv (python package mgr) present" || warn "uv missing (needed for kokoro-onnx)"
+      if have kokoro-onnx; then ok "kokoro-onnx (TTS) installed"
+      elif [[ "$(uname -s)" == "Darwin" ]] && have say; then ok "macOS built-in 'say' available as TTS fallback"
+      else warn "No TTS available — run: pegasus voice install"; issues=$((issues+1)); fi
+      have python3 && ok "python3 present" || { warn "python3 missing (needed by uv → kokoro-onnx)"; issues=$((issues+1)); }
+      echo
+      if [[ $issues -eq 0 ]]; then
+        ok "${BOLD}Voice tools ready${RESET}"
+      else
+        warn "${BOLD}$issues issue(s) — run 'pegasus voice install' to fix${RESET}"
+        return 1
+      fi
+      ;;
+    *) err "Usage: pegasus voice <install|check|transcribe|speak>" ;;
   esac
 }
 
@@ -694,8 +716,25 @@ cmd_profile() {
       local src="${2:-}"
       if [[ -z "$src" || ! -f "$src" ]]; then err "Usage: pegasus profile import <path-to-profile.json>"; exit 1; fi
       mkdir -p "$PEGASUS_HOME"
+      # Validate against schema before writing — catches typos early.
+      local schema_script="$(dirname "$(readlink "$0" 2>/dev/null || echo "$0")")/../scripts/validate-profile.js"
+      if [[ -f "$schema_script" ]] && have node; then
+        if ! node "$schema_script" "$src" >/dev/null 2>&1; then
+          warn "Profile failed schema check. Re-run with: node $schema_script $src"
+          warn "Importing anyway — fix the warnings or skills may behave unexpectedly."
+        fi
+      fi
       cp "$src" "$PROFILE_FILE" && ok "Imported to $PROFILE_FILE"
       echo "Skills will now reference this for personalized output."
+      ;;
+    validate)
+      local target="${2:-$PROFILE_FILE}"
+      local schema_script="$(dirname "$(readlink "$0" 2>/dev/null || echo "$0")")/../scripts/validate-profile.js"
+      if [[ ! -f "$schema_script" ]]; then
+        err "validate-profile.js not found. Re-install Pegasus or run from inside the repo."
+        exit 1
+      fi
+      node "$schema_script" "$target"
       ;;
     edit)
       cmd_dashboard
@@ -705,7 +744,7 @@ cmd_profile() {
       echo "$PROFILE_FILE"
       ;;
     *)
-      echo "Usage: pegasus profile <show|edit|import <file>|path>"
+      echo "Usage: pegasus profile <show|edit|import <file>|validate [file]|path>"
       ;;
   esac
 }

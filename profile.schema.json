@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Pegasus Profile",
+  "description": "Schema for the localStorage 'pegasus.profile' object and the snapshot export. Skills and the dashboard reference these fields by exact key — keep this in sync with dashboard.html .profile-field data-profile attributes.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "name":         { "type": "string", "description": "Full name" },
+    "headline":     { "type": "string", "description": "Current role / one-line bio" },
+    "location":     { "type": "string", "description": "City, region, or 'Remote (US)'" },
+    "email":        { "type": "string", "format": "email" },
+    "linkedin":     { "type": "string", "format": "uri", "description": "Public LinkedIn URL" },
+    "portfolio":    { "type": "string", "format": "uri", "description": "Portfolio or personal site URL" },
+    "github":       { "type": "string", "format": "uri" },
+    "resume":       { "type": "string", "description": "Local path or URL to resume PDF/markdown" },
+    "skills":       { "type": "string", "description": "Comma-separated top skills (free text)" },
+    "interests":    { "type": "string", "description": "What you want to work on next (free text)" },
+    "targetRoles":  { "type": "string", "description": "Comma-separated job titles you're targeting" },
+    "priorities":   { "type": "string", "description": "Comp floor, location, must-haves, hard-nos (free text)" }
+  },
+  "examples": [
+    {
+      "name": "Avery Designer",
+      "headline": "Senior Product Designer · 8yr",
+      "location": "Remote (US)",
+      "email": "avery@example.com",
+      "linkedin": "https://linkedin.com/in/avery",
+      "portfolio": "https://avery.design",
+      "github": "https://github.com/avery",
+      "resume": "~/Design-Projects/resume/index.html",
+      "skills": "Design systems, Figma, accessibility, prototyping, research",
+      "interests": "Health-tech, design tools, ambitious 0→1 work",
+      "targetRoles": "Senior Product Designer, Lead Designer, Principal Designer",
+      "priorities": "Comp floor $200k base, fully remote US, healthcare or fintech preferred, no agencies"
+    }
+  ]
+}

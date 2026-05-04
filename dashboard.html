@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <meta property="og:title" content="Pegasus — Designer's coding launchpad" />
   <meta property="og:description" content="One-command laptop setup for designers using Claude Code or OpenCode. 16 AI skills, 9 templates, 14 design-tool bridges. Zero paid services." />
-  <meta property="og:image" content="https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/og-image.svg" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/og-image.png" />
   <meta property="og:url" content="https://github.com/jerickevans-gif/Pegasus" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -22,9 +22,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    // Theme init — runs BEFORE Tailwind so first paint is correct.
+    // Stored value: 'light' | 'dark' | null (= follow system).
+    (function() {
+      try {
+        var t = localStorage.getItem('pegasus.theme');
+        var dark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) { /* private mode — ignore, fall back to system via @media */ }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com/3.4.16"></script>  <!-- pinned v3 — avoids surprise breaks -->
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -80,12 +92,12 @@
     /* Sticky nav */
     .sticky-nav { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color 0.2s; }
     .sticky-nav.scrolled { border-bottom-color: #e7e5e4; background: rgba(250, 250, 249, 0.85); }
-    @media (prefers-color-scheme: dark) { .sticky-nav.scrolled { background: rgba(12, 10, 9, 0.85); border-bottom-color: #292524; } }
+    :root.dark .sticky-nav.scrolled { background: rgba(12, 10, 9, 0.85); border-bottom-color: #292524; }
     /* Right-edge fade tells mobile users there's more nav off-screen */
     .sticky-nav nav { position: relative; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
     @media (min-width: 768px) { .sticky-nav nav { -webkit-mask-image: none; mask-image: none; } }
     .nav-pill.active { background: #0c0a09; color: white; }
-    @media (prefers-color-scheme: dark) { .nav-pill.active { background: #fafaf9; color: #0c0a09; } }
+    :root.dark .nav-pill.active { background: #fafaf9; color: #0c0a09; }
 
     /* View Transitions: cards crossfade gracefully when track changes */
     @supports (view-transition-name: none) {
@@ -94,11 +106,11 @@
 
     /* Track tabs */
     .track-tab[aria-selected="true"] { background: white; color: #0c0a09; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-weight: 600; }
-    @media (prefers-color-scheme: dark) { .track-tab[aria-selected="true"] { background: #44403c; color: #fafaf9; } }
+    :root.dark .track-tab[aria-selected="true"] { background: #44403c; color: #fafaf9; }
     .track-tab:not([aria-selected="true"]) { color: #44403c; }
-    @media (prefers-color-scheme: dark) { .track-tab:not([aria-selected="true"]) { color: #d6d3d1; } }
+    :root.dark .track-tab:not([aria-selected="true"]) { color: #d6d3d1; }
     .track-tab:hover { background: rgba(255,255,255,0.5); }
-    @media (prefers-color-scheme: dark) { .track-tab:hover { background: rgba(64,64,64,0.5); } }
+    :root.dark .track-tab:hover { background: rgba(64,64,64,0.5); }
     .hidden-by-track { display: none !important; }
 
     /* Track banner — dynamic background per active track */
@@ -108,7 +120,7 @@
 
     /* Empty state — shown when a section has 0 visible cards after filter/search */
     .empty-state { padding: 2rem; text-align: center; color: #78716c; border: 2px dashed #d6d3d1; border-radius: 12px; }
-    @media (prefers-color-scheme: dark) { .empty-state { border-color: #44403c; color: #a8a29e; } }
+    :root.dark .empty-state { border-color: #44403c; color: #a8a29e; }
 
     /* Print: show everything regardless of filter */
     @media print { .hidden-by-track { display: block !important; } .hidden-by-search { display: block !important; } }
@@ -118,9 +130,9 @@
     .pulse-stat .num { font-family: 'Crimson Pro', serif; font-size: 2.5rem; line-height: 1; }
     .pulse-stat .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; }
     .recent-pill { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; border-radius: 999px; background: #f5f5f4; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; }
-    @media (prefers-color-scheme: dark) { .recent-pill { background: #292524; } }
+    :root.dark .recent-pill { background: #292524; }
     .recent-pill:hover { background: #e7e5e4; }
-    @media (prefers-color-scheme: dark) { .recent-pill:hover { background: #44403c; } }
+    :root.dark .recent-pill:hover { background: #44403c; }
 
     /* Mobile: track tabs scroll cleanly, palette goes full-screen */
     @media (max-width: 640px) {
@@ -135,12 +147,12 @@
 
     /* Loading skeleton for first paint (removed once renders complete) */
     .skeleton { animation: skel 1.2s ease-in-out infinite; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent); background-size: 200% 100%; height: 100px; border-radius: 12px; }
-    @media (prefers-color-scheme: dark) { .skeleton { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); background-size: 200% 100%; } }
+    :root.dark .skeleton { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); background-size: 200% 100%; }
     @keyframes skel { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
     /* Inline search highlight */
     mark { background-color: #fef08a; color: inherit; padding: 0 2px; border-radius: 2px; }
-    @media (prefers-color-scheme: dark) { mark { background-color: #ca8a04; color: white; } }
+    :root.dark mark { background-color: #ca8a04; color: white; }
 
     /* Back to top */
     .back-to-top { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 45; padding: 0.75rem 1rem; background: #0c0a09; color: white; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
@@ -151,21 +163,21 @@
     .palette-overlay { position: fixed; inset: 0; background: rgba(12, 10, 9, 0.5); backdrop-filter: blur(4px); z-index: 80; display: none; align-items: flex-start; justify-content: center; padding-top: 12vh; }
     .palette-overlay.open { display: flex; }
     .palette-modal { width: 90%; max-width: 600px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
-    @media (prefers-color-scheme: dark) { .palette-modal { background: #1c1917; } }
+    :root.dark .palette-modal { background: #1c1917; }
     .palette-input { width: 100%; padding: 1rem 1.25rem; font-size: 1rem; border: none; outline: none; background: transparent; color: inherit; }
     .palette-results { max-height: 50vh; overflow-y: auto; border-top: 1px solid #e7e5e4; }
-    @media (prefers-color-scheme: dark) { .palette-results { border-top-color: #292524; } }
+    :root.dark .palette-results { border-top-color: #292524; }
     .palette-item { padding: 0.75rem 1.25rem; cursor: pointer; border-left: 3px solid transparent; }
     .palette-item:hover, .palette-item.selected { background: #f5f5f4; border-left-color: #0c0a09; }
-    @media (prefers-color-scheme: dark) { .palette-item:hover, .palette-item.selected { background: #292524; border-left-color: #fafaf9; } }
+    :root.dark .palette-item:hover, :root.dark .palette-item.selected { background: #292524; border-left-color: #fafaf9; }
 
     /* Help overlay */
     .help-overlay { position: fixed; inset: 0; background: rgba(12, 10, 9, 0.7); backdrop-filter: blur(4px); z-index: 90; display: none; align-items: center; justify-content: center; padding: 2rem; }
     .help-overlay.open { display: flex; }
     .help-modal { background: white; padding: 2rem; border-radius: 12px; max-width: 480px; }
-    @media (prefers-color-scheme: dark) { .help-modal { background: #1c1917; } }
+    :root.dark .help-modal { background: #1c1917; }
     kbd { background: #f5f5f4; border: 1px solid #d6d3d1; border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
-    @media (prefers-color-scheme: dark) { kbd { background: #292524; border-color: #44403c; } }
+    :root.dark kbd { background: #292524; border-color: #44403c; }
 
     /* Print */
     @media print {
@@ -177,14 +189,12 @@
     }
 
     /* Dark mode */
-    @media (prefers-color-scheme: dark) {
-      body { background: #0c0a09; color: #fafaf9; }
-      .card { background: #1c1917; border-color: #292524; }
-      .card:hover { border-color: #57534e; }
-      pre, code { background: #1c1917; }
-      :focus-visible { outline-color: #fafaf9; }
-      .border-stone-200 { border-color: #292524 !important; }
-    }
+    :root.dark body { background: #0c0a09; color: #fafaf9; }
+    :root.dark .card { background: #1c1917; border-color: #292524; }
+    :root.dark .card:hover { border-color: #57534e; }
+    :root.dark pre, :root.dark code { background: #1c1917; }
+    :root.dark :focus-visible { outline-color: #fafaf9; }
+    :root.dark .border-stone-200 { border-color: #292524 !important; }
   </style>
 </head>
 
@@ -194,14 +204,18 @@
 
   <!-- Mode pill (persistent) -->
   <div class="mode-pill fixed top-3 right-3 bg-white/80 dark:bg-stone-900/80 border border-stone-300 dark:border-stone-700 rounded-full px-3 py-1.5 text-xs flex items-center gap-2 z-50 shadow-sm">
-    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.0.7 — green = up to date"></span>
-    <span class="text-stone-700 dark:text-stone-300">v1.0.7</span>
+    <span id="versionDot" class="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" title="Pegasus dashboard v1.1.0 — green = up to date"></span>
+    <span class="text-stone-700 dark:text-stone-300">v1.1.0</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">/</kbd> search</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">⌘K</kbd> palette</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">?</kbd> help</span>
+    <span class="text-stone-400" aria-hidden="true">·</span>
+    <button id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme: system → light → dark" class="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
+      <span data-theme-icon>🖥️</span>
+    </button>
   </div>
 
   <!-- Header -->
@@ -599,7 +613,7 @@
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.7 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.1.0 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -1758,6 +1772,36 @@ async function copyAndFlash(btn) {
 }
 
 // ─────────────────────────────────────────────
+// THEME TOGGLE — cycle: system → light → dark → system
+// ─────────────────────────────────────────────
+const themeIcons = { system: '🖥️', light: '☀️', dark: '🌙' };
+function getThemePref() { return _safeStorage.getItem('pegasus.theme') || 'system'; }
+function _systemPrefersDark() {
+  try { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  catch { return false; }
+}
+function applyTheme(pref) {
+  const dark = pref === 'dark' || (pref === 'system' && _systemPrefersDark());
+  document.documentElement.classList.toggle('dark', dark);
+  const iconEl = document.querySelector('[data-theme-icon]');
+  if (iconEl) iconEl.textContent = themeIcons[pref];
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.title = `Theme: ${pref} (click to change)`;
+}
+applyTheme(getThemePref());
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  const order = ['system', 'light', 'dark'];
+  const next = order[(order.indexOf(getThemePref()) + 1) % order.length];
+  if (next === 'system') _safeStorage.removeItem('pegasus.theme');
+  else _safeStorage.setItem('pegasus.theme', next);
+  applyTheme(next);
+  showToast(`Theme: ${next}`);
+});
+try { window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+  if (getThemePref() === 'system') applyTheme('system');
+}); } catch {}
+
+// ─────────────────────────────────────────────
 // BACK TO TOP
 // ─────────────────────────────────────────────
 const backToTop = document.getElementById('backToTop');
@@ -1906,28 +1950,7 @@ document.addEventListener('keydown', e => {
 });
 
 
-// ─────────────────────────────────────────────
-// THEME SWITCHER
-// ─────────────────────────────────────────────
-const THEME_KEY = 'pegasus.theme';
-function applyTheme(theme) {
-  _safeStorage.setItem(THEME_KEY, theme);
-  if (theme === 'auto') {
-    document.documentElement.style.colorScheme = 'light dark';
-    document.documentElement.classList.remove('force-dark', 'force-light');
-  } else {
-    document.documentElement.style.colorScheme = theme;
-    document.documentElement.classList.toggle('force-dark', theme === 'dark');
-    document.documentElement.classList.toggle('force-light', theme === 'light');
-  }
-}
-const themeSel = document.getElementById('themeSwitcher');
-if (themeSel) {
-  const saved = _safeStorage.getItem(THEME_KEY) || 'auto';
-  themeSel.value = saved;
-  applyTheme(saved);
-  themeSel.addEventListener('change', e => applyTheme(e.target.value));
-}
+// (Theme switcher moved earlier — see THEME TOGGLE block.)
 
 // ─────────────────────────────────────────────
 // WELCOME BACK BANNER (if profile filled)
@@ -2266,7 +2289,7 @@ Start now.`;
     trackCopy('job-finder ranked pull', 'Workflow');
     // Smooth-scroll to the Job Results drop zone so users know exactly where to land the output.
     setTimeout(() => {
-      document.getElementById('jobResults')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      try { document.getElementById('jobResults')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
       // Pulse the empty-state border so the drop zone is visually obvious.
       const empty = document.getElementById('jobsEmpty');
       if (empty && !empty.classList.contains('hidden')) {
