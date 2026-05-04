@@ -1,0 +1,42 @@
+# GitHub Actions: auto-deploy a static site to GitHub Pages on every push to main.
+#
+# Drop this file at .github/workflows/deploy-to-pages.yml in any project
+# and your site updates whenever you push. No build step assumed — adjust
+# the "Build" step if your project uses a bundler (Vite, Astro, Next, etc.).
+#
+# Then in your GitHub repo: Settings → Pages → Source: GitHub Actions.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      # If your site has a build step, uncomment + adapt:
+      # - uses: actions/setup-node@v4
+      #   with: { node-version: 20 }
+      # - run: npm ci && npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .   # change to './dist' if you have a build output
+      - id: deployment
+        uses: actions/deploy-pages@v4

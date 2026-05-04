@@ -66,6 +66,22 @@ pegasus clone https://github.com/rendercv/rendercv rendercv
 
 ---
 
+## Skills (drop into ~/.claude/skills/)
+
+### SonwaneyY/Portfolio-Case-Study · MIT · ⭐ HIGHLY SUGGESTED for designers
+> A Claude Code skill for crafting portfolio-ready design case studies. Structured template, tone guide, and slide layout for UX, product, and design portfolios.
+
+Pairs perfectly with Pegasus's `case-study-deck` and `scroll-case-study` templates.
+
+```bash
+# Install directly into your skills folder so Claude / OpenCode auto-load it
+git clone --depth 1 https://github.com/SonwaneyY/Portfolio-Case-Study ~/.claude/skills/portfolio-case-study
+```
+
+→ <https://github.com/SonwaneyY/Portfolio-Case-Study>
+
+---
+
 ## Workflow toolkits
 
 ### steveyegge/beads · 23k★ · MIT

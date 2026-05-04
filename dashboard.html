@@ -6,6 +6,12 @@
   <title>Pegasus Dashboard</title>
   <meta name="description" content="Visual launcher for everything in your Pegasus install — templates, commands, skills, MCPs, prompts." />
   <meta name="theme-color" content="#fafaf9" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -323,6 +329,7 @@ const prompts = [
 ];
 
 const recommended = [
+  { name: '⭐ SonwaneyY/Portfolio-Case-Study', stars: 'MIT', desc: 'HIGHLY SUGGESTED — a skill for crafting portfolio-ready design case studies. Structured template + tone guide.', clone: 'git clone --depth 1 https://github.com/SonwaneyY/Portfolio-Case-Study ~/.claude/skills/portfolio-case-study' },
   { name: 'github/spec-kit',               stars: '92k', desc: 'Spec-Driven Development toolkit. Already auto-installed by Pegasus as `specify`.', clone: 'specify init my-spec-driven-project' },
   { name: 'mattpocock/skills',             stars: '57k', desc: 'Battle-tested Claude Code skills: to-prd, git-guardrails, tdd, triage, zoom-out.', clone: 'pegasus clone https://github.com/mattpocock/skills mp-skills' },
   { name: 'steveyegge/beads',              stars: '23k', desc: 'DAG-based issue tracker for AI agents — spec→bead→build→prove. Memory upgrade for your agent.', clone: 'pegasus clone https://github.com/steveyegge/beads beads' },

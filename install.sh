@@ -280,9 +280,9 @@ download_to "$PEGASUS_RAW/docs/TROUBLESHOOTING.md" "$PROJECTS_DIR/TROUBLESHOOTIN
 
 # Templates → ~/.pegasus/templates
 mkdir -p "$PEGASUS_HOME/templates"
-for type in portfolio case-study-deck scroll-case-study landing-page resume link-in-bio illustration-gallery; do
+for type in portfolio case-study-deck scroll-case-study landing-page resume link-in-bio illustration-gallery mood-board components-lab; do
   mkdir -p "$PEGASUS_HOME/templates/$type"
-  for f in index.html CLAUDE.md styles.css; do
+  for f in index.html CLAUDE.md styles.css .gitignore; do
     download_to "$PEGASUS_RAW/templates/$type/$f" "$PEGASUS_HOME/templates/$type/$f"
   done
 done

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Components Lab</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { serif: ['Crimson Pro','serif'], sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] } } } }
+  </script>
+  <style>
+    .demo { background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e7e5e4; }
+    pre.snippet { background: #1c1917; color: #fafaf9; padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.8rem; line-height: 1.5; margin-top: 1rem; }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-900 font-sans">
+
+  <main class="max-w-5xl mx-auto px-6 py-16">
+    <h1 class="font-serif text-5xl mb-4">Components Lab</h1>
+    <p class="text-stone-600 mb-12 text-lg">Copy-paste-ready Tailwind components for designers. Each block has a live preview + the snippet to paste into your project.</p>
+
+    <!-- Buttons -->
+    <section class="mb-12">
+      <h2 class="font-serif text-2xl mb-4">Buttons</h2>
+      <div class="demo space-y-3">
+        <button class="px-4 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-700 transition">Primary</button>
+        <button class="px-4 py-2 bg-white text-stone-900 border border-stone-300 rounded-lg hover:border-stone-900 transition ml-2">Secondary</button>
+        <button class="px-4 py-2 text-stone-900 hover:bg-stone-100 rounded-lg transition ml-2">Ghost</button>
+      </div>
+      <pre class="snippet">&lt;button class="px-4 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-700 transition"&gt;Primary&lt;/button&gt;</pre>
+    </section>
+
+    <!-- Card -->
+    <section class="mb-12">
+      <h2 class="font-serif text-2xl mb-4">Card</h2>
+      <div class="demo">
+        <div class="bg-white rounded-xl border border-stone-200 p-6 max-w-sm hover:border-stone-400 transition">
+          <div class="aspect-[4/3] bg-stone-200 rounded-lg mb-4"></div>
+          <h3 class="font-serif text-xl mb-1">Card title</h3>
+          <p class="text-sm text-stone-600">Two-line description that summarizes what's in the card.</p>
+        </div>
+      </div>
+      <pre class="snippet">&lt;div class="bg-white rounded-xl border border-stone-200 p-6 max-w-sm hover:border-stone-400 transition"&gt;
+  &lt;div class="aspect-[4/3] bg-stone-200 rounded-lg mb-4"&gt;&lt;/div&gt;
+  &lt;h3 class="font-serif text-xl mb-1"&gt;Card title&lt;/h3&gt;
+  &lt;p class="text-sm text-stone-600"&gt;Description.&lt;/p&gt;
+&lt;/div&gt;</pre>
+    </section>
+
+    <!-- Form input -->
+    <section class="mb-12">
+      <h2 class="font-serif text-2xl mb-4">Form input</h2>
+      <div class="demo max-w-md">
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" placeholder="you@example.com" class="w-full px-4 py-2 rounded-lg border border-stone-300 focus:border-stone-900 focus:outline-none" />
+        <p class="text-xs text-stone-500 mt-1">We never share your address.</p>
+      </div>
+      <pre class="snippet">&lt;label class="block text-sm font-medium mb-1"&gt;Email&lt;/label&gt;
+&lt;input type="email" class="w-full px-4 py-2 rounded-lg border border-stone-300 focus:border-stone-900 focus:outline-none" /&gt;</pre>
+    </section>
+
+    <!-- Hero section -->
+    <section class="mb-12">
+      <h2 class="font-serif text-2xl mb-4">Hero</h2>
+      <div class="demo">
+        <h1 class="font-serif text-5xl md:text-6xl tracking-tight">A headline that lands.</h1>
+        <p class="mt-4 text-xl text-stone-700 max-w-2xl">A subhead that explains who it's for and what changes after they use it.</p>
+        <button class="mt-6 px-6 py-3 bg-stone-900 text-white rounded-lg">Get started</button>
+      </div>
+    </section>
+
+    <!-- Stat row -->
+    <section class="mb-12">
+      <h2 class="font-serif text-2xl mb-4">Stat row</h2>
+      <div class="demo">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div><div class="font-serif text-5xl">3×</div><div class="text-stone-600 mt-1">faster than baseline</div></div>
+          <div><div class="font-serif text-5xl">92%</div><div class="text-stone-600 mt-1">first-week retention</div></div>
+          <div><div class="font-serif text-5xl">$2M</div><div class="text-stone-600 mt-1">attributable revenue</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quote -->
+    <section class="mb-12">
+      <h2 class="font-serif text-2xl mb-4">Pull quote</h2>
+      <div class="demo">
+        <blockquote class="border-l-4 border-stone-900 pl-6 py-2">
+          <p class="font-serif text-2xl italic text-stone-800">"Best decision we made all year."</p>
+          <footer class="text-sm text-stone-600 mt-2">— Person, Title at Company</footer>
+        </blockquote>
+      </div>
+    </section>
+
+  </main>
+
+</body>
+</html>
