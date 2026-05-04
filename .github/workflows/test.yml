@@ -45,7 +45,10 @@ jobs:
 
       - name: Verify all template index.html files exist
         run: |
+          # Skip support dirs (_workflows = GH Actions templates, auto-mode = workflow defs).
           for d in templates/*/; do
+            name=$(basename "$d")
+            case "$name" in _*|auto-mode) continue ;; esac
             test -f "$d/index.html" || (echo "Missing $d/index.html" && exit 1)
           done
 
