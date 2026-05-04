@@ -480,7 +480,7 @@
     <!-- WORKFLOWS — multi-step recipes that chain skills -->
     <section id="workflows" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2">Workflows</h2>
-      <p class="text-stone-600 dark:text-stone-400 mb-6">Pre-built recipes chaining skills end-to-end. Paste step 1, see the result, then step 2.</p>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Click any recipe → <strong>Copy all prompts</strong> for one-shot, or copy step-by-step.</p>
       <div id="workflows-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
@@ -647,9 +647,12 @@
         <button onclick="closeWorkflowModal()" class="text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-3xl leading-none flex-shrink-0" aria-label="Close">×</button>
       </div>
       <div class="p-6">
-        <p class="text-xs uppercase tracking-widest text-stone-500 mb-3">Steps — click any to copy that prompt</p>
+        <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
+          <p class="text-xs uppercase tracking-widest text-stone-500">Steps — click any to copy</p>
+          <button data-copy-all class="copy-all px-3 py-1.5 rounded text-xs font-medium bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90 transition">📋 Copy all prompts</button>
+        </div>
         <ol data-modal-steps class="list-none pl-0"></ol>
-        <p class="text-xs text-stone-500 mt-6 italic">💡 Run step 1 in Claude / OpenCode, see the result, then step 2. Don't paste them all at once.</p>
+        <p class="text-xs text-stone-500 mt-6 italic">💡 Tip: paste step-by-step to follow along, or use <strong>Copy all prompts</strong> to drop the full recipe into one chat.</p>
       </div>
     </div>
   </div>
@@ -1133,7 +1136,9 @@ document.addEventListener('click', e => {
 });
 
 function renderWorkflows() {
-  document.getElementById('workflows-list').innerHTML = workflows.map(w => `
+  document.getElementById('workflows-list').innerHTML = workflows.map(w => {
+    const allText = w.recipe.map((step, i) => `Step ${i + 1}:\n${step}`).join('\n\n---\n\n');
+    return `
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 cursor-pointer" data-search data-track="${w.track}" data-workflow="${w.id}">
       <div class="flex items-baseline justify-between mb-1">
         <span class="font-mono text-xs text-stone-500">${w.id} · ${w.steps} steps</span>
@@ -1141,9 +1146,13 @@ function renderWorkflows() {
       </div>
       <h3 class="font-medium font-serif text-xl">${w.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${w.desc}</p>
-      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">View full recipe →</button>
+      <div class="flex items-center gap-3">
+        <button class="copy text-xs px-2.5 py-1 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90" data-copy="${_esc(allText)}" onclick="event.stopPropagation();">📋 Copy all prompts</button>
+        <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Open recipe →</button>
+      </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
   // Wire each workflow card to open the modal
   document.querySelectorAll('[data-workflow]').forEach(card => {
     card.addEventListener('click', e => {
@@ -1165,12 +1174,18 @@ function openWorkflowModal(id) {
     <li class="mb-3">
       <div class="flex items-start gap-3">
         <span class="font-mono text-xs text-stone-500 mt-1 flex-shrink-0 w-6">${i + 1}.</span>
-        <button class="copy text-left flex-1 bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${step.replace(/"/g, '&quot;')}">${step}</button>
+        <button class="copy text-left flex-1 bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${_esc(step)}">${_esc(step)}</button>
       </div>
     </li>
   `).join('');
   // Re-bind copy handlers for the new buttons
   stepsEl.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+  // Wire the "Copy all prompts" button — joins every step into one paste-ready block
+  const copyAllBtn = modal.querySelector('[data-copy-all]');
+  const allText = w.recipe.map((step, i) => `Step ${i + 1}:\n${step}`).join('\n\n---\n\n');
+  copyAllBtn.dataset.copy = allText;
+  copyAllBtn.textContent = `📋 Copy all ${w.recipe.length} prompts`;
+  copyAllBtn.onclick = () => copyAndFlash(copyAllBtn);
   modal.classList.add('open');
 }
 
