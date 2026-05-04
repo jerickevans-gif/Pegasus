@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="Georgia, serif">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#fafaf9"/>
+
+  <!-- Subtle warm gradient -->
+  <defs>
+    <linearGradient id="warmth" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#fee2e2" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#warmth)"/>
+
+  <!-- Pegasus silhouette (left side, large) -->
+  <g transform="translate(60, 120) scale(7)" fill="#0c0a09">
+    <path d="M30 28 C 22 14, 14 8, 4 6 C 8 18, 14 26, 24 32 Z"/>
+    <path d="M30 32 C 18 26, 10 28, 6 34 C 14 36, 22 38, 28 38 Z" opacity="0.65"/>
+    <ellipse cx="38" cy="34" rx="13" ry="7"/>
+    <path d="M48 32 C 50 26, 52 22, 54 20 C 56 18, 59 18, 60 20 C 60 22, 58 23, 56 24 C 56 26, 55 27, 54 28 L 52 32 Z"/>
+    <path d="M50 26 L 52 22 L 50 22 L 49 26 Z" opacity="0.8"/>
+    <path d="M34 40 L 33 50 L 35 50 L 36 41 Z"/>
+    <path d="M40 40 L 41 48 L 43 48 L 42 40 Z"/>
+    <path d="M28 38 L 24 50 L 26 50 L 30 39 Z"/>
+    <path d="M30 38 L 28 47 L 30 47 L 32 38 Z"/>
+    <path d="M26 34 C 18 32, 12 36, 8 42 C 16 38, 22 38, 26 36 Z"/>
+  </g>
+
+  <!-- Wordmark + tagline (right side) -->
+  <text x="640" y="240" font-size="120" font-weight="600" fill="#0c0a09" letter-spacing="-3">Pegasus</text>
+  <text x="640" y="305" font-size="36" font-weight="400" fill="#44403c" font-family="system-ui, sans-serif">Designer's coding launchpad</text>
+
+  <!-- Three-line value props -->
+  <g font-family="system-ui, sans-serif" font-size="22" fill="#57534e">
+    <text x="640" y="380">🎨  16 AI skills · 9 templates · 14 design-tool bridges</text>
+    <text x="640" y="420">💼  Job-search workflows · BuiltIn + LinkedIn pulls · resume tailoring</text>
+    <text x="640" y="460">⊕   Works with Claude Code AND OpenCode</text>
+  </g>
+
+  <!-- Bottom badges -->
+  <g font-family="JetBrains Mono, monospace" font-size="18" fill="#78716c">
+    <text x="640" y="540">$ curl -fsSL pegasus.install | bash</text>
+    <text x="640" y="570" font-size="14" opacity="0.6">github.com/jerickevans-gif/Pegasus  ·  MIT  ·  Zero telemetry  ·  No paid services</text>
+  </g>
+</svg>

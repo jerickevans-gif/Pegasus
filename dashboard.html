@@ -7,6 +7,11 @@
   <meta name="description" content="Visual launcher for everything in your Pegasus install — templates, commands, skills, MCPs, prompts." />
   <meta name="theme-color" content="#fafaf9" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta property="og:title" content="Pegasus — Designer's coding launchpad" />
+  <meta property="og:description" content="One-command laptop setup for designers using Claude Code or OpenCode. 16 AI skills, 9 templates, 14 design-tool bridges. Zero paid services." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/og-image.svg" />
+  <meta property="og:url" content="https://github.com/jerickevans-gif/Pegasus" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="manifest" href="manifest.webmanifest" />
   <script>
     if ('serviceWorker' in navigator) {
@@ -82,6 +87,31 @@
 
     /* Print: show everything regardless of filter */
     @media print { .hidden-by-track { display: block !important; } .hidden-by-search { display: block !important; } }
+
+    /* Pulse widget */
+    .pulse-stat { display: flex; flex-direction: column; gap: 0.25rem; }
+    .pulse-stat .num { font-family: 'Crimson Pro', serif; font-size: 2.5rem; line-height: 1; }
+    .pulse-stat .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; }
+    .recent-pill { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; border-radius: 999px; background: #f5f5f4; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; }
+    @media (prefers-color-scheme: dark) { .recent-pill { background: #292524; } }
+    .recent-pill:hover { background: #e7e5e4; }
+    @media (prefers-color-scheme: dark) { .recent-pill:hover { background: #44403c; } }
+
+    /* Mobile: track tabs scroll cleanly, palette goes full-screen */
+    @media (max-width: 640px) {
+      .track-tab { padding: 0.5rem 0.75rem; font-size: 0.8rem; white-space: nowrap; }
+      .palette-overlay { padding-top: 0; align-items: stretch; }
+      .palette-modal { width: 100%; max-width: 100%; border-radius: 0; min-height: 100vh; }
+      .help-modal { max-width: 100%; }
+      .mode-pill { display: none; }  /* too crowded on phones */
+      .back-to-top { bottom: 1rem; right: 1rem; padding: 0.5rem 0.75rem; }
+      .pulse-stat .num { font-size: 1.75rem; }
+    }
+
+    /* Loading skeleton for first paint (removed once renders complete) */
+    .skeleton { animation: skel 1.2s ease-in-out infinite; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent); background-size: 200% 100%; height: 100px; border-radius: 12px; }
+    @media (prefers-color-scheme: dark) { .skeleton { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); background-size: 200% 100%; } }
+    @keyframes skel { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
     /* Inline search highlight */
     mark { background-color: #fef08a; color: inherit; padding: 0 2px; border-radius: 2px; }
@@ -182,6 +212,7 @@
   <!-- Sticky section nav -->
   <div class="sticky-nav" id="stickyNav">
     <nav aria-label="Sections" class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-2 text-sm overflow-x-auto">
+      <a href="#pulse"       data-nav="pulse"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Pulse</a>
       <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
       <a href="#start"       data-nav="start"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Quick start</a>
       <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500" data-count="templates"></span></a>
@@ -197,6 +228,28 @@
   </div>
 
   <main id="main" tabindex="-1" class="max-w-6xl mx-auto px-6 pb-24" data-search-root>
+
+    <!-- PEGASUS PULSE — usage stats + recently used -->
+    <section id="pulse" class="py-8" data-search>
+      <div class="card bg-gradient-to-br from-stone-50 to-white dark:from-stone-900 dark:to-stone-950 rounded-xl border border-stone-200 dark:border-stone-800 p-6">
+        <div class="flex items-baseline justify-between mb-4">
+          <h2 class="font-serif text-2xl">Your Pulse</h2>
+          <button id="pulseReset" class="text-xs text-stone-500 hover:text-red-600 underline">reset</button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+          <div class="pulse-stat"><div class="num" id="pulseCopies">0</div><div class="label">Copies</div></div>
+          <div class="pulse-stat"><div class="num" id="pulseWeek">0</div><div class="label">This week</div></div>
+          <div class="pulse-stat"><div class="num" id="pulseSkills">0</div><div class="label">Skills tried</div></div>
+          <div class="pulse-stat"><div class="num" id="pulseStreak">0</div><div class="label">Day streak</div></div>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-stone-500 mb-2">Recently used</p>
+          <div id="recentList" class="flex flex-wrap gap-2">
+            <span class="text-xs text-stone-400 italic">Nothing yet — click any copy button and it'll show up here.</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- PROFILE — what skills will reference about you -->
     <section id="profile" class="py-8" data-search>
@@ -253,6 +306,7 @@
         <div class="mt-5 flex flex-wrap gap-2 items-center">
           <button id="profileExport" class="px-4 py-2 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg text-sm">Download profile.json</button>
           <button id="profileCopyCmd" class="copy px-4 py-2 bg-stone-200 dark:bg-stone-800 rounded-lg text-sm font-mono" data-copy="pegasus profile import ~/Downloads/profile.json">Copy install command</button>
+          <button id="profileSample" class="px-3 py-2 text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 text-sm underline">Load sample (Jane Designer)</button>
           <button id="profileClear" class="px-3 py-2 text-stone-500 hover:text-red-600 text-sm">Clear</button>
         </div>
         <p class="text-xs text-stone-500 mt-3">After downloading, run <span class="font-mono">pegasus profile import ~/Downloads/profile.json</span> in your terminal — that copies it to <span class="font-mono">~/.pegasus/profile.json</span> where skills can read it.</p>
@@ -790,6 +844,24 @@ document.getElementById('profileClear')?.addEventListener('click', () => {
   saveProfile({});
 });
 
+document.getElementById('profileSample')?.addEventListener('click', () => {
+  const sample = {
+    name: 'Jane Designer',
+    headline: 'Senior Product Designer',
+    email: 'jane@example.com',
+    location: 'Remote, US',
+    linkedin: 'https://linkedin.com/in/janedesigner',
+    portfolio: 'https://janedesigner.com',
+    github: 'janedesigner',
+    resume: '~/Design-Projects/resume/index.html',
+    skills: 'Figma, design systems, motion, prototyping, user research, accessibility',
+    bio: '7-year senior product designer focused on healthcare. Shipped consumer apps that 10M+ people use weekly.'
+  };
+  saveProfile(sample);
+  document.querySelectorAll('.profile-field').forEach(i => { i.value = sample[i.dataset.profile] || ''; });
+  showToast('Loaded Jane Designer demo');
+});
+
 // ─────────────────────────────────────────────
 // TRACK SWITCHER (UX Design / Job Search / Both)
 // ─────────────────────────────────────────────
@@ -914,6 +986,75 @@ searchInput.addEventListener('input', e => applySearchHL(e.target.value));
 // ─────────────────────────────────────────────
 // COPY HELPER (reusable for re-bound buttons)
 // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// PEGASUS PULSE — usage tracking + recently used
+// ─────────────────────────────────────────────
+const PULSE_KEY = 'pegasus.pulse';
+function loadPulse() {
+  try { return JSON.parse(localStorage.getItem(PULSE_KEY) || '{}'); }
+  catch { return {}; }
+}
+function savePulse(p) { localStorage.setItem(PULSE_KEY, JSON.stringify(p)); }
+function trackCopy(label, kind) {
+  const p = loadPulse();
+  p.totalCopies = (p.totalCopies || 0) + 1;
+  // weekly bucket: ISO week
+  const now = new Date();
+  const wk = `${now.getFullYear()}-W${Math.floor((now - new Date(now.getFullYear(), 0, 1)) / 6048e5)}`;
+  p.weeks = p.weeks || {};
+  p.weeks[wk] = (p.weeks[wk] || 0) + 1;
+  // skills set
+  if (kind === 'Skill') { p.skillsSeen = Array.from(new Set([...(p.skillsSeen || []), label])); }
+  // streak: day visited
+  const today = now.toISOString().slice(0, 10);
+  p.days = Array.from(new Set([...(p.days || []), today])).slice(-30);
+  // recent (last 8, dedup)
+  p.recent = [{ label, kind, at: today }, ...(p.recent || []).filter(r => r.label !== label)].slice(0, 8);
+  savePulse(p);
+  renderPulse();
+}
+function computeStreak(days) {
+  if (!days || !days.length) return 0;
+  const set = new Set(days);
+  let streak = 0;
+  const d = new Date();
+  while (set.has(d.toISOString().slice(0, 10))) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+function renderPulse() {
+  const p = loadPulse();
+  const el = (id) => document.getElementById(id);
+  if (!el('pulseCopies')) return;
+  el('pulseCopies').textContent = p.totalCopies || 0;
+  const now = new Date();
+  const wk = `${now.getFullYear()}-W${Math.floor((now - new Date(now.getFullYear(), 0, 1)) / 6048e5)}`;
+  el('pulseWeek').textContent = (p.weeks && p.weeks[wk]) || 0;
+  el('pulseSkills').textContent = (p.skillsSeen || []).length;
+  el('pulseStreak').textContent = computeStreak(p.days || []);
+  // recent
+  const recentList = el('recentList');
+  if (!p.recent || !p.recent.length) {
+    recentList.innerHTML = '<span class="text-xs text-stone-400 italic">Nothing yet — click any copy button and it\'ll show up here.</span>';
+  } else {
+    recentList.innerHTML = p.recent.map(r =>
+      `<span class="recent-pill" title="${r.kind} · ${r.at}">${r.kind === 'Skill' ? '🛠' : r.kind === 'Template' ? '📁' : r.kind === 'Workflow' ? '⚡' : '⌘'} ${r.label.slice(0, 40)}${r.label.length > 40 ? '…' : ''}</span>`
+    ).join('');
+  }
+}
+// Track day visit on load
+(function() {
+  const p = loadPulse();
+  const today = new Date().toISOString().slice(0, 10);
+  p.days = Array.from(new Set([...(p.days || []), today])).slice(-30);
+  savePulse(p);
+})();
+renderPulse();
+document.getElementById('pulseReset')?.addEventListener('click', () => {
+  if (!confirm('Reset Pulse stats?')) return;
+  localStorage.removeItem(PULSE_KEY);
+  renderPulse();
+});
+
 // Toast queue — rapid clicks no longer overwrite, they queue up
 const toastQueue = [];
 let toastBusy = false;
@@ -942,6 +1083,13 @@ async function copyAndFlash(btn) {
     const original = btn.innerHTML;
     btn.innerHTML = '✓ Copied';
     showToast('Copied to clipboard');
+    // Track in Pulse — pull kind from card section context
+    const card = btn.closest('[data-track]') || btn.closest('section');
+    const sectionId = btn.closest('section')?.id || '';
+    const kindMap = { templates: 'Template', workflows: 'Workflow', commands: 'Command', skills: 'Skill', mcps: 'Bridge', prompts: 'Prompt', recommended: 'Repo', glossary: 'Term' };
+    const kind = kindMap[sectionId] || 'Other';
+    const label = (text || '').slice(0, 60);
+    trackCopy(label, kind);
     setTimeout(() => {
       btn.classList.remove('copied');
       btn.innerHTML = original;

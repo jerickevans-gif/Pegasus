@@ -25,6 +25,7 @@ say()  { printf "%s%s%s\n" "$BLUE" "$1" "$RESET"; }
 warn() { printf "%s! %s%s\n" "$YELLOW" "$1" "$RESET"; }
 err()  { printf "%s✗ %s%s\n" "$RED" "$1" "$RESET"; }
 have() { command -v "$1" >/dev/null 2>&1; }
+header() { printf "\n%s%s%s\n%s%s%s\n" "$BOLD" "$1" "$RESET" "" "──────────────────────────────────────" ""; }
 
 open_url() {
   if have open; then open "$1"
@@ -58,6 +59,9 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus model${RESET}                 list / switch agents (claude/opencode/cursor)
   ${BOLD}pegasus version${RESET}               print version + paths
   ${BOLD}pegasus profile${RESET} <show|import>  manage your profile (used by job/interview/content skills)
+  ${BOLD}pegasus init${RESET}                  guided 2-min first-run setup
+  ${BOLD}pegasus test${RESET}                  end-to-end install verification
+  ${BOLD}pegasus bug${RESET}                   file a bug report with diagnostics pre-filled
   ${BOLD}pegasus uninstall${RESET}             remove Pegasus
   ${BOLD}pegasus help${RESET}                  this help
 
@@ -152,6 +156,170 @@ cmd_deploy() {
 PEGASUS_VERSION="0.4.0"
 
 cmd_version() { echo "Pegasus $PEGASUS_VERSION"; echo "Repo:    https://github.com/jerickevans-gif/Pegasus"; echo "Helper:  $(command -v pegasus 2>/dev/null || echo not-on-PATH)"; }
+
+cmd_test() {
+  echo "${BOLD}Pegasus end-to-end test${RESET}"
+  local pass=0 fail=0
+  test_check() {
+    local name="$1"; local result="$2"
+    if [[ "$result" == "ok" ]]; then ok "$name"; pass=$((pass+1))
+    else err "$name"; fail=$((fail+1))
+    fi
+  }
+  test_check "Helper on PATH"            "$(have pegasus && echo ok || echo no)"
+  test_check "Templates folder"          "$([[ -d "$TEMPLATES_DIR" ]] && echo ok || echo no)"
+  test_check "Design-Projects folder"    "$([[ -d "$PROJECTS_DIR" ]] && echo ok || echo no)"
+  test_check "Cheatsheets installed"     "$([[ -f "$PROJECTS_DIR/COMMANDS.md" ]] && echo ok || echo no)"
+  test_check "Dashboard at ~/.pegasus"   "$([[ -f "$PEGASUS_HOME/dashboard.html" ]] && echo ok || echo no)"
+  test_check "Favicon at ~/.pegasus"     "$([[ -f "$PEGASUS_HOME/favicon.svg" ]] && echo ok || echo no)"
+  test_check "Claude Code"               "$(have claude && echo ok || echo no)"
+  test_check "OpenCode"                  "$(have opencode && echo ok || echo no)"
+  test_check "VS Code (code)"            "$(have code && echo ok || echo no)"
+  test_check "Surge (free deploy)"       "$(have surge && echo ok || echo no)"
+  test_check "Git"                       "$(have git && echo ok || echo no)"
+  test_check "Node"                      "$(have node && echo ok || echo no)"
+  test_check "ImageMagick"               "$(have magick && echo ok || echo no)"
+  test_check "potrace (vector tracing)"  "$(have potrace && echo ok || echo no)"
+  test_check "svgo (SVG optimization)"   "$(have svgo && echo ok || echo no)"
+  test_check "pegasus skills installed"  "$([[ -d "$HOME/.claude/skills/ux-ui-audit" ]] && echo ok || echo no)"
+  echo
+  echo "${BOLD}Results:${RESET} ${GREEN}$pass passing${RESET} · ${RED}$fail failing${RESET}"
+  if [[ $fail -gt 0 ]]; then
+    echo
+    warn "Run 'pegasus update' or re-run install.sh to recover anything missing."
+  fi
+}
+
+cmd_bug() {
+  local DIAG=$(mktemp)
+  {
+    echo "## Pegasus diagnostics"
+    echo ""
+    echo "**Pegasus version:** $PEGASUS_VERSION"
+    echo "**OS:** $(uname -srm)"
+    echo "**Shell:** $SHELL"
+    echo ""
+    echo "### \`pegasus doctor\` output"
+    echo '```'
+    cmd_doctor 2>&1 || true
+    echo '```'
+    echo ""
+    echo "### Versions"
+    echo '```'
+    have claude   && echo "claude:   $(claude --version 2>&1 | head -1)"
+    have opencode && echo "opencode: $(opencode --version 2>&1 | head -1)"
+    have node     && echo "node:     $(node --version)"
+    have npm      && echo "npm:      $(npm --version)"
+    have git      && echo "git:      $(git --version)"
+    echo '```'
+    echo ""
+    echo "## Describe the issue"
+    echo ""
+    echo "<!-- What were you trying to do? What happened? What did you expect? -->"
+  } > "$DIAG"
+  ok "Diagnostics written to $DIAG"
+  echo "Opening GitHub to create the issue with this content..."
+  if have gh; then
+    gh issue create --repo jerickevans-gif/Pegasus --title "[bug] " --body-file "$DIAG"
+  else
+    open_url "https://github.com/jerickevans-gif/Pegasus/issues/new"
+    echo "Paste the contents of $DIAG into the issue body."
+  fi
+}
+
+cmd_init() {
+  clear || true
+  cat <<EOF
+${BOLD}Pegasus init${RESET} — guided setup, ~2 minutes.
+
+We'll walk through:
+  1. Your profile (name, role, links — used by job/interview/content skills)
+  2. Which track you're focused on (UX Design / Job Search / both)
+  3. Which design tools to enable bridges for (Figma, Webflow, etc.)
+  4. Open the visual dashboard
+
+Press Enter to start, Ctrl-C to bail.
+EOF
+  read -r _ </dev/tty || true
+
+  # 1. Profile
+  header "1 / 4  Your profile"
+  local PROFILE_FILE="$PEGASUS_HOME/profile.json"
+  mkdir -p "$PEGASUS_HOME"
+  declare -A P
+  P[name]=""; P[headline]=""; P[email]=""; P[location]=""; P[linkedin]=""; P[portfolio]=""; P[github]=""; P[resume]=""; P[skills]=""; P[bio]=""
+  for k in name headline email location linkedin portfolio github resume skills bio; do
+    local prompt
+    case "$k" in
+      name) prompt="Your full name" ;;
+      headline) prompt="Headline / current role (e.g. 'Senior Product Designer')" ;;
+      email) prompt="Email" ;;
+      location) prompt="Location (e.g. 'Remote, US' or 'Brooklyn, NY')" ;;
+      linkedin) prompt="LinkedIn URL (optional, Enter to skip)" ;;
+      portfolio) prompt="Portfolio URL (optional)" ;;
+      github) prompt="GitHub username (optional)" ;;
+      resume) prompt="Path to resume (optional, e.g. ~/Design-Projects/resume/index.html)" ;;
+      skills) prompt="Top skills, comma-separated (optional)" ;;
+      bio) prompt="One-line bio (optional)" ;;
+    esac
+    printf "%s%s:%s " "$BOLD" "$prompt" "$RESET"
+    read -r val </dev/tty || val=""
+    P[$k]="$val"
+  done
+  # write JSON
+  cat > "$PROFILE_FILE" <<JSON
+{
+  "name": "${P[name]}",
+  "headline": "${P[headline]}",
+  "email": "${P[email]}",
+  "location": "${P[location]}",
+  "linkedin": "${P[linkedin]}",
+  "portfolio": "${P[portfolio]}",
+  "github": "${P[github]}",
+  "resume": "${P[resume]}",
+  "skills": "${P[skills]}",
+  "bio": "${P[bio]}"
+}
+JSON
+  ok "Saved $PROFILE_FILE"
+
+  # 2. Track
+  header "2 / 4  Your focus this week"
+  echo "  1) 🎨 UX Design — portfolio, case studies, mood boards"
+  echo "  2) 💼 Job Search — resume tailoring, interview prep, job pulls"
+  echo "  3) ⊕ Both"
+  printf "%sPick 1, 2, or 3 (default 1): %s" "$BOLD" "$RESET"
+  read -r tr </dev/tty || tr="1"
+  case "${tr:-1}" in
+    1) ok "Track set to UX Design (you can change in dashboard)" ;;
+    2) ok "Track set to Job Search" ;;
+    3) ok "Both tracks visible" ;;
+  esac
+
+  # 3. MCPs
+  header "3 / 4  Design tool bridges"
+  echo "Pegasus's defaults (UX Knowledge + Figma + Playwright + Context7) are auto-enabled."
+  printf "%sAlso connect Webflow, Notion, GitHub, Linear, Stripe, Cloudflare? [y/N] %s" "$BOLD" "$RESET"
+  read -r connect_more </dev/tty || connect_more="n"
+  if [[ "$connect_more" =~ ^[Yy]$ ]]; then
+    curl -fsSL "$RAW/connect.sh" | bash
+  else
+    echo "Skipped. Run later: pegasus signin  →  curl -fsSL $RAW/connect.sh | bash"
+  fi
+
+  # 4. Dashboard
+  header "4 / 4  Your visual dashboard"
+  ok "${BOLD}You're ready.${RESET}"
+  echo
+  echo "Try these next:"
+  echo "  ${BOLD}pegasus dashboard${RESET}                   open the visual launcher"
+  echo "  ${BOLD}pegasus new portfolio my-site${RESET}       scaffold your first project"
+  echo "  ${BOLD}pegasus tour${RESET}                        5-min walkthrough"
+  echo
+  if have open || have xdg-open; then
+    cmd_dashboard
+  fi
+}
 
 cmd_profile() {
   local sub="${1:-show}"
@@ -543,6 +711,9 @@ case "${1:-help}" in
   version|-v|--version) cmd_version ;;
   self-update) cmd_self_update ;;
   profile)    shift; cmd_profile "$@" ;;
+  init)       cmd_init ;;
+  test)       cmd_test ;;
+  bug)        cmd_bug ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;
