@@ -1010,7 +1010,9 @@ function applyTrack(track) {
   // Sync to URL without reload
   try { const u = new URL(location.href); u.searchParams.set('track', track); history.replaceState(null, '', u); } catch(e) {}
   document.querySelectorAll('.track-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.track === track ? 'true' : 'false'));
-  document.querySelectorAll('[data-track]').forEach(card => {
+  // Exclude the track tab buttons themselves — they have data-track for click routing,
+  // but they should always remain visible regardless of which track is active.
+  document.querySelectorAll('[data-track]:not(.track-tab)').forEach(card => {
     const cardTrack = card.dataset.track || 'both';
     const show = track === 'all' || cardTrack === 'both' || cardTrack === track;
     card.classList.toggle('hidden-by-track', !show);
