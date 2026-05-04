@@ -278,6 +278,7 @@ download_to "$PEGASUS_RAW/docs/POSSIBILITIES.md"   "$PROJECTS_DIR/POSSIBILITIES.
 download_to "$PEGASUS_RAW/docs/GLOSSARY.md"        "$PROJECTS_DIR/GLOSSARY.md"
 download_to "$PEGASUS_RAW/docs/RECOMMENDED.md"     "$PROJECTS_DIR/RECOMMENDED.md"
 download_to "$PEGASUS_RAW/docs/TROUBLESHOOTING.md" "$PROJECTS_DIR/TROUBLESHOOTING.md"
+download_to "$PEGASUS_RAW/docs/TOKENS_AUTH_101.md"  "$PROJECTS_DIR/TOKENS_AUTH_101.md"
 download_to "$PEGASUS_RAW/config/PROJECTS_README.md" "$PROJECTS_DIR/README.md"
 
 # Templates → ~/.pegasus/templates

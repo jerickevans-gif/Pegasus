@@ -250,6 +250,7 @@
       <a href="#prompts"     data-nav="prompts"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompts <span class="text-stone-500" data-count="prompts"></span></a>
       <a href="#recommended" data-nav="recommended" class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Recommended <span class="text-stone-500" data-count="recommended"></span></a>
       <a href="#glossary"    data-nav="glossary"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Glossary <span class="text-stone-500" data-count="glossary"></span></a>
+      <a href="#learn"       data-nav="learn"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Learn</a>
       <a href="#help"        data-nav="help"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Help</a>
     </nav>
   </div>
@@ -434,6 +435,31 @@
       <h2 class="font-serif text-3xl mb-2">Glossary · plain English</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Every dev word that might confuse you, decoded.</p>
       <div id="glossary-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"></div>
+    </section>
+
+    <!-- LEARN — designer-friendly explainers -->
+    <section id="learn" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Learn</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-6">Plain-language explainers for the dev concepts you'll bump into. Written for designers, not engineers.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/TOKENS_AUTH_101.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Tokens, CLIs &amp; Auth 101</h3><span class="text-xs text-stone-500">~10 min</span></div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">What's a token, what's a CLI, when do you OAuth vs paste a key, where to put your tokens safely.</p>
+        </a>
+        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/GLOSSARY.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Plain-English Glossary</h3><span class="text-xs text-stone-500">browse</span></div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">Every dev word that might confuse you, decoded in 1-2 lines.</p>
+        </a>
+        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/PROMPTS.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Prompt patterns</h3><span class="text-xs text-stone-500">copy-paste</span></div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">Real prompts that work, organized by what you're trying to ship.</p>
+        </a>
+        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/TROUBLESHOOTING.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Troubleshooting</h3><span class="text-xs text-stone-500">5 min</span></div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">The 5 most common stuck-points and how to fix each.</p>
+        </a>
+      </div>
+      <p class="text-xs text-stone-500 mt-4">External resources we trust: <a href="https://docs.claude.com/claude-code" class="underline">Claude Code docs</a> · <a href="https://opencode.ai" class="underline">OpenCode docs</a> · <a href="https://figma.com/blog/introducing-figmas-dev-mode-mcp-server/" class="underline">Figma MCP guide</a></p>
     </section>
 
     <!-- HELP -->
@@ -774,11 +800,14 @@ function renderWorkflows() {
   `).join('');
 }
 
+// Escape HTML special chars so user data with < > & doesn't break rendering
+function _esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
 function renderGlossary() {
   document.getElementById('glossary-list').innerHTML = glossary.map(g => `
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3" data-search data-track="both">
-      <span class="font-medium font-mono text-xs">${g.term}</span>
-      <p class="text-xs text-stone-600 dark:text-stone-400 mt-1">${g.def}</p>
+      <span class="font-medium font-mono text-xs">${_esc(g.term)}</span>
+      <p class="text-xs text-stone-600 dark:text-stone-400 mt-1">${_esc(g.def)}</p>
     </div>
   `).join('');
 }
@@ -1035,7 +1064,7 @@ document.querySelectorAll('.track-tab').forEach(btn => {
     applyTrack(btn.dataset.track);
     // Scroll to first relevant section so user sees the change took effect
     const target = btn.dataset.track === 'jobs' ? 'commands' : 'templates';
-    setTimeout(() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    setTimeout(() => { try { document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {} }, 100);
     // Visual confirmation
     showToast('Showing ' + (btn.dataset.track === 'design' ? '🎨 UX Design' : btn.dataset.track === 'jobs' ? '💼 Job Search' : '⊕ Both') + ' track');
   });
