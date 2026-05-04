@@ -158,7 +158,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="0.8.0"
+PEGASUS_VERSION="0.8.1"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {
@@ -933,6 +933,9 @@ case "${1:-help}" in
   test)       cmd_test ;;
   bug)        cmd_bug ;;
   pulse)      cmd_pulse ;;
+  skills)     cmd_skills ;;
+  quickstart) cmd_quickstart ;;
+  stats)      cmd_stats ;;
   run)        shift; cmd_run "$@" ;;
   snapshot)   cmd_snapshot ;;
   install)    shift; cmd_install_skill "$@" ;;
