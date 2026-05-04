@@ -162,7 +162,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="1.0.1"
+PEGASUS_VERSION="1.0.2"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {

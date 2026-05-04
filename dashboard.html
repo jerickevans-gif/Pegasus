@@ -298,6 +298,10 @@
           <div class="pulse-stat"><div class="num" id="pulseStreak">0</div><div class="label">Day streak</div></div>
         </div>
         <div>
+          <div class="flex items-end justify-between mb-3">
+            <p class="text-xs uppercase tracking-wider text-stone-500">Last 7 days</p>
+            <div id="weekSparkline" class="flex gap-1 items-end" aria-label="Weekly activity sparkline"></div>
+          </div>
           <p class="text-xs uppercase tracking-wider text-stone-500 mb-2">Recently used</p>
           <div id="recentList" class="flex flex-wrap gap-2">
             <span class="text-xs text-stone-400 italic">Nothing yet — click any copy button and it'll show up here.</span>
@@ -513,7 +517,7 @@
 
   <footer class="max-w-6xl mx-auto px-6 py-8 text-sm text-stone-500 border-t border-stone-200 dark:border-stone-800">
     <p>
-      Pegasus · made for designers · <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">github.com/jerickevans-gif/Pegasus</a>
+      Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. This page works fully offline once loaded.</p>
   </footer>
@@ -846,7 +850,7 @@ function renderCommands() {
 
 function renderSkills() {
   document.getElementById('skills-list').innerHTML = skills.map(s => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}" data-copyable="1" data-card-copy="${s.invoke}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}" data-copyable="1" data-card-copy="${s.invoke.replace(/"/g, '&quot;')}" data-skill="${s.name}">
       <h3 class="font-medium font-serif text-xl">${s.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${s.summary}</p>
       <div class="text-xs text-stone-500 mb-1">Try saying:</div>
@@ -855,14 +859,71 @@ function renderSkills() {
   `).join('');
 }
 
+const mcpDetails = {
+  'UX Knowledge ⭐': { install: 'claude mcp add ux-knowledge npx -- @elsahafy/ux-mcp-server', auth: 'No auth — auto-installed by Pegasus', use: 'Ask Claude: "audit this against Nielsen heuristics" or "what WCAG criteria apply to color contrast?"' },
+  'Figma ⭐':       { install: 'claude mcp add --transport sse figma http://127.0.0.1:3845/sse', auth: 'Figma desktop → Preferences → toggle ON "Enable Dev Mode MCP Server"', use: 'Paste a figma.com URL: "Build this design as HTML/Tailwind."' },
+  'Playwright':     { install: 'claude mcp add playwright npx -- @playwright/mcp@latest', auth: 'No auth needed', use: 'Ask Claude: "Use Playwright to take a screenshot of [URL]" or runs the job-finder skill' },
+  'Webflow':        { install: 'claude mcp add --transport sse webflow https://mcp.webflow.com/sse', auth: 'OAuth on first use — Claude prints a login link', use: '"Update my Webflow site\'s hero copy to: ..."' },
+  'Context7':       { install: 'claude mcp add --transport http context7 https://mcp.context7.com/mcp', auth: 'No auth needed', use: 'Ask Claude: "Show me the latest Tailwind utility for ..." — pulls live docs' },
+  'GitHub':         { install: 'claude mcp add github npx -- @modelcontextprotocol/server-github', auth: 'Needs GITHUB_PERSONAL_ACCESS_TOKEN env var (see Tokens 101)', use: '"Create a new repo for this portfolio and push it"' },
+  'Notion':         { install: 'claude mcp add --transport http notion https://mcp.notion.com/mcp', auth: 'OAuth on first use', use: '"Pull my case study notes from Notion and turn them into a presentation"' },
+  'Linear':         { install: 'claude mcp add --transport sse linear https://mcp.linear.app/sse', auth: 'OAuth on first use', use: '"Open issues for the design system audit findings"' },
+  'Stripe':         { install: 'claude mcp add stripe npx -- @stripe/mcp --tools=all', auth: 'Stripe API key (get from dashboard.stripe.com/apikeys)', use: '"Create a $20 product for my template pack"' },
+  'Cloudflare':     { install: 'claude mcp add --transport sse cloudflare https://observability.mcp.cloudflare.com/sse', auth: 'Cloudflare account', use: 'For DNS + Pages alternative to Surge' },
+  'Google':         { install: 'No CLI install — visit claude.ai/settings/connectors', auth: 'Google OAuth via claude.ai connectors', use: '"Read my last 5 Gmail threads about the project" / "Find the Drive doc for ..."' },
+  'Adobe':          { install: 'No MCP exists yet (as of 2026)', auth: 'Workflow only', use: 'Export from Adobe (SVG/PNG/Lottie) → drop in project → ask Claude to handle. Use vector-workflow skill.' },
+  'Procreate':      { install: 'No MCP exists', auth: 'Workflow only', use: 'Procreate → Actions → Share → PNG → AirDrop to Mac → ask Claude to convert + embed (uses vector-workflow skill)' },
+  'Framer':         { install: 'No MCP exists yet', auth: 'Workflow only', use: 'Use Playwright MCP to drive the Framer web editor, or paste public Framer URLs into Claude' },
+};
+
 function renderMcps() {
   document.getElementById('mcps-list').innerHTML = mcps.map(m => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search data-track="${m.track || 'both'}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 cursor-pointer" data-search data-track="${m.track || 'both'}" data-mcp="${m.name.replace(/"/g, '&quot;')}">
       <h3 class="font-medium">${m.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">${m.desc}</p>
       ${m.note ? `<p class="text-xs text-stone-500 mt-2">${m.note}</p>` : ''}
+      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2">View install + auth →</button>
     </div>
   `).join('');
+  document.querySelectorAll('[data-mcp]').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('a')) return;
+      openMcpModal(card.dataset.mcp);
+    });
+  });
+}
+
+function openMcpModal(name) {
+  const mcp = mcps.find(m => m.name === name);
+  const detail = mcpDetails[name];
+  if (!mcp) return;
+  const modal = document.getElementById('workflowModal');
+  modal.querySelector('[data-modal-meta]').textContent = `MCP Bridge · ${mcp.track === 'design' ? '🎨' : mcp.track === 'jobs' ? '💼' : '⊕'} ${mcp.track}`;
+  modal.querySelector('[data-modal-title]').textContent = name;
+  modal.querySelector('[data-modal-desc]').textContent = mcp.desc;
+  const stepsEl = modal.querySelector('[data-modal-steps]');
+  if (detail) {
+    stepsEl.innerHTML = `
+      <div class="space-y-4">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Install command — click to copy</p>
+          <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${detail.install.replace(/"/g, '&quot;')}">${detail.install}</button>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Auth</p>
+          <p class="text-sm text-stone-700 dark:text-stone-300">${detail.auth}</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">How to use</p>
+          <p class="text-sm text-stone-700 dark:text-stone-300">${detail.use}</p>
+        </div>
+      </div>
+    `;
+    stepsEl.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+  } else {
+    stepsEl.innerHTML = '<p class="text-sm text-stone-500">No details yet for this bridge.</p>';
+  }
+  modal.classList.add('open');
 }
 
 function renderPrompts() {
@@ -1792,6 +1853,70 @@ document.addEventListener('keydown', e => {
     closeWorkflowModal();
   }
 });
+
+
+
+function openAboutModal() {
+  const modal = document.getElementById('workflowModal');
+  modal.querySelector('[data-modal-meta]').textContent = 'About';
+  modal.querySelector('[data-modal-title]').textContent = 'Pegasus';
+  modal.querySelector('[data-modal-desc]').textContent = 'A one-command setup that turns your laptop into an AI-powered design studio.';
+  modal.querySelector('[data-modal-steps]').innerHTML = `
+    <div class="space-y-4 text-sm text-stone-700 dark:text-stone-300">
+      <p>Built for designers (not developers) who want to use Claude Code or OpenCode to ship portfolios, case-study decks, interview presentations, and prototypes.</p>
+      <div>
+        <p class="font-semibold">Two tracks, one setup</p>
+        <ul class="list-disc pl-5 mt-1">
+          <li>🎨 UX Design — portfolios, case studies, mood boards, illustration galleries</li>
+          <li>💼 Job Search — resume tailoring, cover letters, interview prep, job pulls</li>
+          <li>⊕ Both — cross-pollinating workflows that bridge the two</li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-semibold">What's installed</p>
+        <ul class="list-disc pl-5 mt-1">
+          <li>31 AI skills (auto-loaded by Claude Code AND OpenCode)</li>
+          <li>13 starter templates (portfolio, case-study deck, resume, etc.)</li>
+          <li>14 MCP bridges (Figma, Webflow, Notion, GitHub, etc.)</li>
+          <li>10 cross-pollinating workflow recipes</li>
+          <li>35+ pegasus subcommands</li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-semibold">Privacy</p>
+        <p class="mt-1">No telemetry. No analytics. No remote logging. Everything runs on your machine.</p>
+      </div>
+      <div>
+        <p class="font-semibold">License</p>
+        <p class="mt-1">MIT. Fork it, remix it, share it.</p>
+      </div>
+      <div class="pt-3 border-t border-stone-200 dark:border-stone-700">
+        <p class="text-xs text-stone-500">Repo: <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">github.com/jerickevans-gif/Pegasus</a></p>
+      </div>
+    </div>
+  `;
+  modal.classList.add('open');
+}
+
+// Mini weekly sparkline in Pulse
+function renderSparkline() {
+  const container = document.getElementById('weekSparkline');
+  if (!container) return;
+  const p = loadPulse();
+  const days = (p.days || []).slice(-7);
+  const today = new Date();
+  const buckets = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    buckets.push({ day: d.toISOString().slice(0, 10), active: days.includes(d.toISOString().slice(0, 10)) });
+  }
+  container.innerHTML = buckets.map(b => `<div class="w-3 h-6 rounded-sm ${b.active ? 'bg-green-500' : 'bg-stone-300 dark:bg-stone-700'}" title="${b.day}${b.active ? ' · active' : ' · idle'}"></div>`).join('');
+}
+renderSparkline();
+// Re-render when track/profile updates
+const _origRenderPulse = renderPulse;
+renderPulse = function() { _origRenderPulse(); renderSparkline(); };
 
 </script>
 </body>
