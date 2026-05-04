@@ -1,0 +1,15 @@
+{
+  "effortLevel": "max",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"Reminder: Use TodoWrite to plan and track any multi-step task — mark items complete as you go, not in a batch at the end. For independent research, codebase exploration, or work that can run in parallel, dispatch Agent calls (Explore for searches, general-purpose for bigger tasks) instead of doing everything sequentially in the main thread. You are effective at both when you remember to use them.\"}}'"
+          }
+        ]
+      }
+    ]
+  }
+}

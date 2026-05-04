@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "sst-dev.opencode",
+    "MermaidChart.vscode-mermaid-chart",
+    "GitHub.vscode-github-actions",
+    "ms-vscode.live-server",
+    "ms-python.python",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "naumovs.color-highlight",
+    "kisstkondoros.vscode-gutter-preview",
+    "formulahendry.auto-rename-tag",
+    "PKief.material-icon-theme",
+    "figma.figma-vscode-extension",
+    "ecmel.vscode-html-css"
+  ]
+}
