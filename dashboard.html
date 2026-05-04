@@ -213,8 +213,9 @@
     <span class="text-stone-400" aria-hidden="true">·</span>
     <span class="text-stone-700 dark:text-stone-300"><kbd class="font-mono">?</kbd> help</span>
     <span class="text-stone-400" aria-hidden="true">·</span>
-    <button id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme: system → light → dark" class="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white">
-      <span data-theme-icon>🖥️</span>
+    <button id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme: system → light → dark" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition">
+      <span data-theme-icon class="text-base leading-none">🖥️</span>
+      <span data-theme-label class="text-xs font-medium">System</span>
     </button>
   </div>
 
@@ -260,7 +261,7 @@
     <div id="onboardingBar" class="mt-6 hidden p-4 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-900">
       <div class="flex items-center justify-between mb-2">
         <p class="text-sm font-medium">Setup progress: <span id="onbCount">0/4</span></p>
-        <button onclick="document.getElementById('onboardingBar').classList.add('hidden'); document.getElementById('showOnboardingLink').classList.remove('hidden'); _safeStorage.setItem('pegasus.onboardingDismissed','1')" class="text-xs text-stone-500 hover:text-stone-900 underline">Hide</button>
+        <button onclick="document.getElementById('onboardingBar').classList.add('hidden'); document.getElementById('showOnboardingLink').classList.remove('hidden'); _safeStorage.setItem('pegasus.onboardingDismissed','1')" class="text-xs text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline">Hide</button>
       </div>
       <div id="onbList" class="space-y-1 text-sm"></div>
     </div>
@@ -283,14 +284,14 @@
       <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
       <a href="#jobResults"  data-nav="jobResults"  class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Jobs</a>
       <a href="#start"       data-nav="start"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Quick start</a>
-      <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500" data-count="templates"></span></a>
-      <a href="#workflows"   data-nav="workflows"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Workflows <span class="text-stone-500" data-count="workflows"></span></a>
-      <a href="#commands"    data-nav="commands"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Commands <span class="text-stone-500" data-count="commands"></span></a>
-      <a href="#skills"      data-nav="skills"      class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Skills <span class="text-stone-500" data-count="skills"></span></a>
-      <a href="#mcps"        data-nav="mcps"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Bridges <span class="text-stone-500" data-count="mcps"></span></a>
-      <a href="#prompts"     data-nav="prompts"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompts <span class="text-stone-500" data-count="prompts"></span></a>
-      <a href="#recommended" data-nav="recommended" class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Recommended <span class="text-stone-500" data-count="recommended"></span></a>
-      <a href="#glossary"    data-nav="glossary"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Glossary <span class="text-stone-500" data-count="glossary"></span></a>
+      <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500 dark:text-stone-400" data-count="templates"></span></a>
+      <a href="#workflows"   data-nav="workflows"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Workflows <span class="text-stone-500 dark:text-stone-400" data-count="workflows"></span></a>
+      <a href="#commands"    data-nav="commands"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Commands <span class="text-stone-500 dark:text-stone-400" data-count="commands"></span></a>
+      <a href="#skills"      data-nav="skills"      class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Skills <span class="text-stone-500 dark:text-stone-400" data-count="skills"></span></a>
+      <a href="#mcps"        data-nav="mcps"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Bridges <span class="text-stone-500 dark:text-stone-400" data-count="mcps"></span></a>
+      <a href="#prompts"     data-nav="prompts"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompts <span class="text-stone-500 dark:text-stone-400" data-count="prompts"></span></a>
+      <a href="#recommended" data-nav="recommended" class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Recommended <span class="text-stone-500 dark:text-stone-400" data-count="recommended"></span></a>
+      <a href="#glossary"    data-nav="glossary"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Glossary <span class="text-stone-500 dark:text-stone-400" data-count="glossary"></span></a>
       <a href="#learn"       data-nav="learn"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Learn</a>
       <a href="#help"        data-nav="help"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Help</a>
     </nav>
@@ -351,51 +352,51 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">Name</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">Name</span>
             <input data-profile="name" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Your full name" />
           </label>
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">Headline / current role</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">Headline / current role</span>
             <input data-profile="headline" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Senior Product Designer" />
           </label>
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">Email</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">Email</span>
             <input data-profile="email" type="email" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="you@example.com" />
           </label>
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">Location</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">Location</span>
             <input data-profile="location" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="City, Country (or 'Remote, US')" />
           </label>
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">LinkedIn URL</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">LinkedIn URL</span>
             <input data-profile="linkedin" type="url" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="https://linkedin.com/in/you" />
           </label>
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">Portfolio URL</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">Portfolio URL</span>
             <input data-profile="portfolio" type="url" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="https://yoursite.com" />
           </label>
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">GitHub username</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">GitHub username</span>
             <input data-profile="github" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="username" />
           </label>
           <label class="block">
-            <span class="block text-xs font-medium text-stone-500 mb-1">Resume file path</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">Resume file path</span>
             <input data-profile="resume" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="~/Design-Projects/resume/index.html" />
           </label>
           <label class="block md:col-span-2">
-            <span class="block text-xs font-medium text-stone-500 mb-1">Top skills (comma-separated)</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">Top skills (comma-separated)</span>
             <input data-profile="skills" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Figma, design systems, motion, prototyping, user research" />
           </label>
           <label class="block md:col-span-2">
-            <span class="block text-xs font-medium text-stone-500 mb-1">One-line bio (the elevator pitch)</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">One-line bio (the elevator pitch)</span>
             <input data-profile="bio" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Senior product designer focused on healthcare. 7 years shipping consumer apps." />
           </label>
           <label class="block md:col-span-2">
-            <span class="block text-xs font-medium text-stone-500 mb-1">🎯 Target roles (what jobs you're hunting)</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">🎯 Target roles (what jobs you're hunting)</span>
             <input data-profile="targetRoles" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Senior Product Designer, Design Lead, Principal Designer" />
           </label>
           <label class="block md:col-span-2">
-            <span class="block text-xs font-medium text-stone-500 mb-1">🎯 Priorities (comp floor, location, must-haves, hard-nos)</span>
+            <span class="block text-xs font-medium text-stone-500 dark:text-stone-400 mb-1">🎯 Priorities (comp floor, location, must-haves, hard-nos)</span>
             <textarea data-profile="priorities" rows="2" class="profile-field w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" placeholder="Comp floor $180k. Remote US only. Healthcare or fintech preferred. No crypto."></textarea>
           </label>
         </div>
@@ -611,12 +612,12 @@
 
   </main>
 
-  <footer class="max-w-6xl mx-auto px-6 py-8 text-sm text-stone-500 border-t border-stone-200 dark:border-stone-800">
+  <footer class="max-w-6xl mx-auto px-6 py-8 text-sm text-stone-500 dark:text-stone-400 border-t border-stone-200 dark:border-stone-800">
     <p>
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.1.0 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">Pegasus dashboard v1.1.0 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700 dark:hover:text-stone-200">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -1794,13 +1795,16 @@ function _systemPrefersDark() {
   try { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
   catch { return false; }
 }
+const themeLabels = { system: 'System', light: 'Light', dark: 'Dark' };
 function applyTheme(pref) {
   const dark = pref === 'dark' || (pref === 'system' && _systemPrefersDark());
   document.documentElement.classList.toggle('dark', dark);
   const iconEl = document.querySelector('[data-theme-icon]');
   if (iconEl) iconEl.textContent = themeIcons[pref];
+  const labelEl = document.querySelector('[data-theme-label]');
+  if (labelEl) labelEl.textContent = themeLabels[pref];
   const btn = document.getElementById('themeToggle');
-  if (btn) btn.title = `Theme: ${pref} (click to change)`;
+  if (btn) btn.title = `Theme: ${pref} — click to cycle (system → light → dark)`;
 }
 applyTheme(getThemePref());
 document.getElementById('themeToggle')?.addEventListener('click', () => {
@@ -2035,7 +2039,8 @@ renderPaletteResults = function(filter) {
   const clear = document.createElement('button');
   clear.innerHTML = '✕';
   clear.setAttribute('aria-label', 'Clear search');
-  clear.className = 'absolute right-12 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-200 hidden';
+  // Note: a static #searchClear button at the input also exists; this dynamic one is a legacy duplicate.
+  clear.className = 'absolute right-12 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200 dark:hover:bg-stone-700 hidden';
   wrap.appendChild(clear);
   clear.addEventListener('click', () => {
     searchInput.value = '';
@@ -2255,7 +2260,7 @@ function renderJobChecklist() {
     <li class="flex items-center gap-3">
       <span class="${i.check ? 'text-green-600' : 'text-stone-400'} text-lg">${i.check ? '✓' : '○'}</span>
       <span class="${i.check ? 'line-through text-stone-500' : 'text-stone-900 dark:text-stone-100'}">${i.label}</span>
-      ${!i.check ? `<button onclick="document.getElementById('${i.fix}').scrollIntoView({behavior:'smooth'}); document.querySelector('[data-profile=\\'${i.key}\\']')?.focus()" class="ml-auto text-xs underline text-stone-500 hover:text-stone-900">Fill in →</button>` : ''}
+      ${!i.check ? `<button onclick="document.getElementById('${i.fix}').scrollIntoView({behavior:'smooth'}); document.querySelector('[data-profile=\\'${i.key}\\']')?.focus()" class="ml-auto text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Fill in →</button>` : ''}
     </li>
   `).join('');
   const done = items.filter(i => i.check).length;
