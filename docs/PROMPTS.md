@@ -29,7 +29,7 @@ Copy, paste, and tweak. These prompts are written for Claude Code, but most work
 
 ### Publish it
 
-- "Initialize a git repo, push it to GitHub as `my-portfolio` under my account, and walk me through deploying it to Vercel."
+- "Initialize a git repo, push it to GitHub as `my-portfolio` under my account, and walk me through deploying it with `pegasus deploy`."
 - "Set up a custom domain — I bought `myname.com`. Tell me exactly what DNS records to add."
 
 ---

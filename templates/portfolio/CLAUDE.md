@@ -24,4 +24,4 @@ Or in the terminal: `npx serve .`
 
 ## Deploy
 
-`pegasus deploy` from this folder ships it to Vercel.
+`pegasus deploy` from this folder ships it to free hosting (Surge.sh by default).

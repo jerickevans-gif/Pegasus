@@ -21,7 +21,7 @@ Pegasus — designer's coding launchpad
   pegasus new <type> <name>     create a new project (opens VS Code)
         types: portfolio, case-study-deck, scroll-case-study,
                landing-page, resume, link-in-bio, illustration-gallery
-  pegasus deploy                deploy current folder to Vercel
+  pegasus deploy                deploy current folder (Surge or GitHub Pages)
   pegasus dashboard             open the visual dashboard
   pegasus tour                  5-minute walkthrough
   pegasus jobs                  run the job-finder skill
@@ -51,8 +51,25 @@ function Cmd-New($type, $name) {
 }
 
 function Cmd-Deploy {
-    if (-not (Have vercel)) { Write-Err "Vercel CLI not installed. npm install -g vercel"; return }
-    vercel --prod
+    Write-Host "Pick a deploy target — both are free, neither needs a credit card:"
+    Write-Host "  1) Surge.sh — fastest, no GitHub required"
+    Write-Host "  2) GitHub Pages — uses your GitHub account"
+    $choice = Read-Host "Choose 1 or 2 (Enter for Surge)"
+    if ([string]::IsNullOrWhiteSpace($choice)) { $choice = "1" }
+    if ($choice -eq "1") {
+        if (-not (Have surge)) { Write-Err "Surge not installed. npm install -g surge"; return }
+        surge .
+    } elseif ($choice -eq "2") {
+        if (-not (Have gh)) { Write-Err "GitHub CLI not installed. winget install GitHub.cli"; return }
+        $repo = (Get-Item -Path ".").Name
+        git init -q 2>$null | Out-Null
+        git add . 2>$null | Out-Null
+        git commit -q -m "Deploy via Pegasus" 2>$null | Out-Null
+        gh repo create $repo --public --source=. --push
+        gh repo edit --enable-pages --pages-branch main
+        $user = gh api user --jq '.login'
+        Write-Ok "Deployed. URL: https://$user.github.io/$repo"
+    } else { Write-Err "Unknown choice." }
 }
 
 function Cmd-Dashboard {
@@ -97,7 +114,7 @@ function Cmd-Jobs {
 function Cmd-Signin {
     Write-Host "Opening sign-in pages..." -ForegroundColor Cyan
     if (Have gh) { gh auth login } else { Start-Process "https://github.com/login" }
-    if (Have vercel) { vercel login } else { Start-Process "https://vercel.com/signup" }
+    if (Have surge) { Write-Host "Surge will prompt for email on first deploy." } else { Start-Process "https://surge.sh" }
     Start-Process "https://www.figma.com/downloads/"
     Start-Process "https://claude.ai/settings/connectors"
     Write-Ok "Opened sign-in tabs."
@@ -126,7 +143,7 @@ function Cmd-Doctor {
     Write-Host "Pegasus doctor — checking your setup..."
     foreach ($pair in @(
         "git|Git", "node|Node.js", "npm|npm", "code|VS Code CLI",
-        "claude|Claude Code", "opencode|OpenCode", "vercel|Vercel CLI",
+        "claude|Claude Code", "opencode|OpenCode", "surge|Surge",
         "gh|GitHub CLI", "ffmpeg|ffmpeg", "magick|ImageMagick",
         "specify|spec-kit (specify)", "uv|uv", "bun|Bun", "pegasus|Pegasus helper"
     )) {

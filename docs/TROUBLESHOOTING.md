@@ -26,7 +26,7 @@ curl -fsSL https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/instal
 
 ---
 
-## "command not found: claude" (or `opencode`, `vercel`, `code`)
+## "command not found: claude" (or `opencode`, `surge`, `code`)
 
 The agent or CLI didn't get installed. Run:
 
@@ -38,7 +38,7 @@ That tells you exactly what's missing. To fix specific things:
 
 - **Claude Code:** `curl -fsSL https://claude.ai/install.sh | bash`
 - **OpenCode:** `npm install -g opencode-ai`
-- **Vercel:** `npm install -g vercel`
+- **Surge:** `npm install -g surge`
 - **VS Code `code` command:** open VS Code → Cmd+Shift+P → "Shell Command: Install 'code' command in PATH"
 
 ---

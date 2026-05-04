@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood Board · Project Name</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { serif: ['Crimson Pro','serif'], sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] } } } }
+  </script>
+</head>
+<body class="bg-stone-50 text-stone-900 font-sans">
+
+  <main class="max-w-6xl mx-auto px-6 py-16">
+
+    <header class="mb-12">
+      <p class="text-sm uppercase tracking-widest text-stone-500">Mood Board</p>
+      <h1 class="font-serif text-5xl mt-3">Project Name</h1>
+      <p class="text-stone-600 mt-3">A one-line direction statement (e.g. "Quiet, editorial, paper-like").</p>
+    </header>
+
+    <!-- Image grid -->
+    <section class="mb-16">
+      <h2 class="font-serif text-2xl mb-4">References</h2>
+      <div class="columns-2 md:columns-3 lg:columns-4 gap-3">
+        <!-- Drop reference images into ./refs/ and add <img> tags -->
+        <div class="aspect-[4/5] bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+        <div class="aspect-square bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+        <div class="aspect-[3/4] bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+        <div class="aspect-[4/3] bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+        <div class="aspect-[3/5] bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+        <div class="aspect-square bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+        <div class="aspect-[5/4] bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+        <div class="aspect-[4/5] bg-stone-200 rounded mb-3 break-inside-avoid"></div>
+      </div>
+    </section>
+
+    <!-- Color palette -->
+    <section class="mb-16">
+      <h2 class="font-serif text-2xl mb-4">Palette</h2>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div>
+          <div class="aspect-square rounded" style="background:#fafaf9"></div>
+          <p class="text-xs font-mono text-stone-600 mt-1">#fafaf9 · paper</p>
+        </div>
+        <div>
+          <div class="aspect-square rounded" style="background:#0c0a09"></div>
+          <p class="text-xs font-mono text-stone-600 mt-1">#0c0a09 · ink</p>
+        </div>
+        <div>
+          <div class="aspect-square rounded" style="background:#a8a29e"></div>
+          <p class="text-xs font-mono text-stone-600 mt-1">#a8a29e · stone</p>
+        </div>
+        <div>
+          <div class="aspect-square rounded" style="background:#dc2626"></div>
+          <p class="text-xs font-mono text-stone-600 mt-1">#dc2626 · accent</p>
+        </div>
+        <div>
+          <div class="aspect-square rounded" style="background:#16a34a"></div>
+          <p class="text-xs font-mono text-stone-600 mt-1">#16a34a · success</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Type -->
+    <section class="mb-16">
+      <h2 class="font-serif text-2xl mb-4">Typography</h2>
+      <div class="space-y-6">
+        <div>
+          <p class="text-xs font-mono text-stone-500">Display · Crimson Pro Semibold</p>
+          <p class="font-serif text-5xl">The quick brown fox</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono text-stone-500">Body · Inter Regular</p>
+          <p class="font-sans text-base">The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono text-stone-500">Mono · JetBrains Mono</p>
+          <p class="font-mono text-sm">const focus = "intentional";</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Texture / motion notes -->
+    <section class="mb-16">
+      <h2 class="font-serif text-2xl mb-4">Notes</h2>
+      <ul class="space-y-2 text-stone-700">
+        <li>· Texture: <span class="text-stone-500">e.g. "warm grain, no gradients"</span></li>
+        <li>· Motion: <span class="text-stone-500">e.g. "subtle, ease-out, never bouncy"</span></li>
+        <li>· Voice: <span class="text-stone-500">e.g. "calm, plainspoken, no exclamation marks"</span></li>
+        <li>· Counter-references: <span class="text-stone-500">things to avoid (be specific)</span></li>
+      </ul>
+    </section>
+
+  </main>
+
+</body>
+</html>

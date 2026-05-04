@@ -48,7 +48,7 @@ Code people use a lot of jargon. Here's plain-language translations of the words
 
 **Local server** — a tiny web server running on your laptop so you can preview pages at `http://localhost:3000`. `npx serve .` starts one.
 
-**Deploy** — make your site available on the public internet. `pegasus deploy` does this with Vercel.
+**Deploy** — make your site available on the public internet. `pegasus deploy` does this with Surge.sh or GitHub Pages.
 
 ## AI agent stuff
 

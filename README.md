@@ -30,7 +30,7 @@ When it finishes, a visual dashboard auto-opens in your browser and VS Code laun
 pegasus new portfolio my-site    # working portfolio + opens VS Code
 cd ~/Design-Projects/my-site
 claude                            # talk to the agent
-pegasus deploy                    # ship to Vercel
+pegasus deploy                    # ship to free hosting
 ```
 
 That's the whole loop. Make → edit → preview → ship → repeat.
@@ -40,7 +40,7 @@ That's the whole loop. Make → edit → preview → ship → repeat.
 ### Apps and CLIs
 - **VS Code** with 15 designer-friendly extensions (Tailwind, Live Preview, Color Highlight, Image Preview, Mermaid, GitHub Actions, CodeSnap, Python, Figma, Material Icons, more)
 - **Claude Code** + **OpenCode** — both AI coding agents, your choice
-- **Vercel CLI** — one-command deploys
+- **Surge CLI** — one-command deploys
 - **Bun, Node, npm, Git, Homebrew/winget** — the foundations
 - **ffmpeg, ImageMagick, SVGO, potrace** — image and vector toolchain
 - **Lighthouse, Pa11y, Wrangler** — performance, accessibility, Cloudflare
@@ -83,11 +83,11 @@ After install, you have one helper that wraps the most common flows:
 | Command | What it does |
 |---|---|
 | `pegasus new <type> <name>` | Create a project from a template, git init, open VS Code |
-| `pegasus deploy` | Deploy current folder to Vercel |
+| `pegasus deploy` | Deploy current folder (Surge or GitHub Pages) |
 | `pegasus dashboard` | Open the visual dashboard in your browser |
 | `pegasus tour` | 5-minute guided walkthrough |
 | `pegasus jobs` | Run the job-finder skill |
-| `pegasus signin` | Open all the sign-in pages (GitHub, Vercel, Figma, Adobe, Webflow, Google) |
+| `pegasus signin` | Open all the sign-in pages (GitHub, Surge, Figma, Adobe, Webflow, Google) |
 | `pegasus clone <url> <name>` | Clone any GitHub repo as a starter project |
 | `pegasus doctor` | Diagnose what's installed / missing |
 | `pegasus update` | Refresh templates + skills from GitHub |

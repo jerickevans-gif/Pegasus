@@ -70,7 +70,7 @@ echo "Installs:"
 echo "  • Homebrew (macOS) / build essentials (Linux)"
 echo "  • Git, Node.js"
 echo "  • Visual Studio Code + 15 extensions"
-echo "  • Claude Code, OpenCode, Vercel CLI, ffmpeg, ImageMagick"
+echo "  • Claude Code, OpenCode, Surge (free hosting), ffmpeg, ImageMagick"
 echo "  • Pegasus base config + ux-ui-audit skill"
 echo "  • Project templates (portfolio, case-study deck, landing page)"
 echo "  • Bridges to Figma, Playwright, Webflow, Notion, GitHub, Context7"
@@ -182,8 +182,8 @@ else
     have "$pkg" && ok "$pkg already installed." || ($PKG_INSTALL "$pkg" >/dev/null 2>&1 && ok "$pkg installed." || warn "Couldn't install $pkg")
   done
 fi
-if have vercel; then ok "Vercel CLI already installed."
-else say "Installing Vercel CLI..."; npm install -g vercel >/dev/null 2>&1 && ok "Vercel CLI installed." || warn "Couldn't install Vercel CLI"
+if have surge; then ok "Surge CLI already installed."
+else say "Installing Surge CLI (free static hosting, no account / card needed)..."; npm install -g surge >/dev/null 2>&1 && ok "Surge installed." || warn "Couldn't install Surge"
 fi
 # Vector / SVG / image processing toolchain
 if [[ "$PLATFORM" == "mac" ]]; then

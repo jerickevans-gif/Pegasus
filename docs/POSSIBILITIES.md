@@ -65,7 +65,7 @@ A directory of things designers actually do with Claude Code and OpenCode. Use i
 2. `claude`
 3. "Here's my Figma file: [URL]. Build it as HTML/Tailwind. Show me a preview."
 4. Iterate on tweaks ("make the headline bigger", "swap the hero image for a video")
-5. "Push to GitHub and deploy on Vercel."
+5. "Push to GitHub and deploy with `pegasus deploy`."
 6. Send the URL.
 
 ### "I have an interview Friday → I need a deck"
@@ -82,7 +82,7 @@ A directory of things designers actually do with Claude Code and OpenCode. Use i
 2. `claude`
 3. "Here's a new project I want to add: [paste]. Add it to the grid and link it to a new case study page."
 4. `git commit -am "added [project]"`
-5. `git push` — Vercel/Netlify auto-deploys.
+5. `pegasus deploy` to ship the latest.
 
 ---
 

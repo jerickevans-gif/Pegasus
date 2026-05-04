@@ -68,6 +68,18 @@ pegasus clone https://github.com/rendercv/rendercv rendercv
 
 ## Workflow toolkits
 
+### steveyegge/beads · 23k★ · MIT
+> Beads — A memory upgrade for your coding agent.
+
+Steve Yegge's spec→bead→build→prove issue tracking system designed specifically for AI coding agents. Stores tasks as a DAG (directed acyclic graph) so dependencies are explicit and the agent can pick what's "ready" to work on next. Powerful for designers tackling multi-step projects.
+
+```bash
+pegasus clone https://github.com/steveyegge/beads beads
+# Then follow its README to install + initialize in any project
+```
+
+→ <https://github.com/steveyegge/beads>
+
 ### mattpocock/skills · 57k★ · MIT
 > Skills for Real Engineers. Straight from his .claude directory.
 

@@ -87,7 +87,7 @@ Or right-click an HTML file in VS Code → **"Show Preview"** (Live Preview exte
 gh repo create my-portfolio --public --source=. --push
 
 # 2) Easiest free hosting (no config):
-npx vercel        # vercel.com — links a URL in seconds
+npx surge .       # surge.sh — free static hosting, no card needed
 npx netlify-cli deploy --prod   # netlify.com alternative
 ```
 

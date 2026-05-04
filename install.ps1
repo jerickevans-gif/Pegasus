@@ -83,8 +83,8 @@ foreach ($pkg in @("Gyan.FFmpeg", "ImageMagick.ImageMagick")) {
     try { winget install --id $pkg -e --silent --accept-package-agreements --accept-source-agreements | Out-Null; Write-Ok "$pkg installed." }
     catch { Write-Warn "Couldn't install $pkg" }
 }
-if (Have vercel) { Write-Ok "Vercel CLI already installed." }
-else { try { npm install -g vercel | Out-Null; Write-Ok "Vercel CLI installed." } catch { Write-Warn "Couldn't install Vercel CLI" } }
+if (Have surge) { Write-Ok "Surge CLI already installed." }
+else { try { npm install -g surge | Out-Null; Write-Ok "Surge installed." } catch { Write-Warn "Couldn't install Surge CLI" } }
 
 # Vector / SVG / image processing toolchain
 foreach ($npmpkg in @("svgo","serve","@lhci/cli","pa11y","wrangler")) {

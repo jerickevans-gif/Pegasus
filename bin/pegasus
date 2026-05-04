@@ -3,7 +3,7 @@
 #
 # Usage:
 #   pegasus new <type> <name>   create a new project from a template
-#   pegasus deploy              deploy current folder to Vercel
+#   pegasus deploy              deploy current folder (Surge.sh or GitHub Pages)
 #   pegasus tour                show the 5-minute walkthrough
 #   pegasus jobs                run the job-finder skill (BuiltIn + LinkedIn ranked pull)
 #   pegasus signin              open browser tabs to sign into all the services
@@ -40,11 +40,12 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus new${RESET} <type> <name>     create a new project (opens VS Code)
         types: portfolio, case-study-deck, scroll-case-study,
                landing-page, resume, link-in-bio
-  ${BOLD}pegasus deploy${RESET}                deploy current folder to Vercel
+  ${BOLD}pegasus deploy${RESET}                deploy current folder (Surge.sh or GitHub Pages)
   ${BOLD}pegasus dashboard${RESET}             open the visual dashboard in your browser
   ${BOLD}pegasus tour${RESET}                  5-minute walkthrough
   ${BOLD}pegasus jobs${RESET}                  run the job-finder (BuiltIn + LinkedIn, ranked)
   ${BOLD}pegasus clone${RESET} <url> <name>    clone any GitHub repo as a starter project
+  ${BOLD}pegasus join${RESET} once-upon-a-time  join the Once Upon A Time group project
   ${BOLD}pegasus signin${RESET}                open browser tabs to log into all services
   ${BOLD}pegasus doctor${RESET}                diagnose what's installed / broken
   ${BOLD}pegasus update${RESET}                refresh templates + skills
@@ -101,17 +102,42 @@ cmd_new() {
 }
 
 cmd_deploy() {
-  if ! have vercel; then
-    err "Vercel CLI not installed. Run: npm install -g vercel"
-    exit 1
-  fi
-  if [[ ! -f "vercel.json" ]] && [[ ! -f "package.json" ]] && [[ ! -f "index.html" ]]; then
-    warn "No index.html / package.json / vercel.json here. Are you in a project folder?"
+  if [[ ! -f "index.html" ]] && [[ ! -f "package.json" ]]; then
+    warn "No index.html or package.json here. Are you in a project folder?"
     echo "  cd ~/Design-Projects/<your-project>  # then re-run"
     exit 1
   fi
-  say "Deploying to Vercel..."
-  vercel --prod
+  echo "Pick a deploy target — both are free, neither needs a credit card:"
+  echo "  ${BOLD}1)${RESET} Surge.sh — fastest, no GitHub required, gives you a *.surge.sh URL"
+  echo "  ${BOLD}2)${RESET} GitHub Pages — uses your GitHub account, gives you a username.github.io URL"
+  printf "%sChoose 1 or 2 (Enter for Surge): %s" "$BOLD" "$RESET"
+  read -r choice </dev/tty || choice="1"
+  choice=${choice:-1}
+
+  case "$choice" in
+    1)
+      if ! have surge; then err "Surge not installed. Run: npm install -g surge"; exit 1; fi
+      say "Deploying to Surge..."
+      surge .
+      ;;
+    2)
+      if ! have gh; then err "GitHub CLI not installed. Run: brew install gh  (or visit cli.github.com)"; exit 1; fi
+      local repo_name; repo_name="$(basename "$PWD")"
+      say "Pushing to GitHub..."
+      git init -q 2>/dev/null || true
+      git add . >/dev/null 2>&1 || true
+      git -c user.email="$(git config user.email 2>/dev/null || echo you@example.com)" \
+          -c user.name="$(git config user.name 2>/dev/null || echo You)" \
+          commit -q -m "Deploy via Pegasus" >/dev/null 2>&1 || true
+      gh repo create "$repo_name" --public --source=. --push 2>/dev/null || git push -q
+      gh repo edit --enable-pages --pages-branch main || true
+      ok "Deployed. URL: https://$(gh api user --jq '.login').github.io/$repo_name"
+      ;;
+    *)
+      err "Unknown choice: $choice"
+      exit 1
+      ;;
+  esac
 }
 
 cmd_dashboard() {
@@ -126,6 +152,36 @@ cmd_dashboard() {
   elif have xdg-open; then xdg-open "$dash"
   else echo "Open in your browser: $dash"
   fi
+}
+
+cmd_join() {
+  local proj="${1:-}"
+  case "$proj" in
+    once-upon-a-time|oat|"")
+      local url="https://github.com/jerickevans-gif/Once-Upon-A-Time"
+      local name="once-upon-a-time"
+      mkdir -p "$PROJECTS_DIR"
+      local dest="$PROJECTS_DIR/$name"
+      if [[ -d "$dest" ]]; then
+        warn "$dest already exists. Pulling latest..."
+        cd "$dest" && git pull --rebase 2>&1 | sed 's/^/  /' || true
+      else
+        say "Cloning the Once Upon A Time group project..."
+        git clone "$url" "$dest" || { err "Clone failed."; exit 1; }
+      fi
+      ok "Project ready at $dest"
+      echo "Static website for Once Upon A Time — a nonprofit arts education org for children."
+      echo "Push contributions back via:  git checkout -b your-branch && git push origin your-branch"
+      echo "Then open a PR via the GitHub website."
+      if have code; then code "$dest"; fi
+      ;;
+    *)
+      warn "Unknown group project: $proj"
+      echo "Available:"
+      echo "  pegasus join once-upon-a-time     # nonprofit arts ed website"
+      exit 1
+      ;;
+  esac
 }
 
 cmd_clone() {
@@ -165,7 +221,7 @@ ${BOLD}Pegasus signin${RESET} — opening sign-in pages for the services you'll 
 
 Steps:
   1. ${BOLD}GitHub${RESET}      → for hosting code, opening PRs
-  2. ${BOLD}Vercel${RESET}      → for free deploys (\`pegasus deploy\`)
+  2. ${BOLD}Surge.sh — for free deploys (\`pegasus deploy\`)
   3. ${BOLD}Figma${RESET}       → desktop app, then enable Dev Mode MCP
   4. ${BOLD}claude.ai${RESET}   → for Google connectors (Gmail/Drive/Calendar)
   5. ${BOLD}Webflow${RESET}     → only if you use Webflow
@@ -184,8 +240,8 @@ EOF
   fi
 
   echo
-  say "2/6 → Vercel CLI auth"
-  if have vercel; then vercel login </dev/tty || warn "Vercel login incomplete."; else open_url "https://vercel.com/signup"; fi
+  say "2/6 → Surge CLI auth"
+  if have surge; then echo "Surge will prompt for email on first deploy."; else open_url "https://surge.sh"; fi
 
   echo
   say "3/6 → Figma desktop"
@@ -234,7 +290,7 @@ cmd_doctor() {
     "code|VS Code CLI"
     "claude|Claude Code"
     "opencode|OpenCode"
-    "vercel|Vercel CLI"
+    "surge|Surge CLI"
     "gh|GitHub CLI"
     "ffmpeg|ffmpeg"
     "magick|ImageMagick"
@@ -340,6 +396,7 @@ case "${1:-help}" in
   tour)       cmd_tour ;;
   jobs)       cmd_jobs ;;
   clone)      shift; cmd_clone "$@" ;;
+  join)       shift; cmd_join "$@" ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;
