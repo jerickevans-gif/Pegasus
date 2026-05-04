@@ -462,19 +462,19 @@
       <h2 class="font-serif text-3xl mb-2">Learn</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Plain-language explainers for the dev concepts you'll bump into. Written for designers, not engineers.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/TOKENS_AUTH_101.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+        <a href="javascript:void(0)" onclick="openLearnModal('tokens')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
           <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Tokens, CLIs &amp; Auth 101</h3><span class="text-xs text-stone-500">~10 min</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">What's a token, what's a CLI, when do you OAuth vs paste a key, where to put your tokens safely.</p>
         </a>
-        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/GLOSSARY.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+        <a href="javascript:void(0)" onclick="openLearnModal('glossary')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
           <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Plain-English Glossary</h3><span class="text-xs text-stone-500">browse</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">Every dev word that might confuse you, decoded in 1-2 lines.</p>
         </a>
-        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/PROMPTS.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+        <a href="javascript:void(0)" onclick="document.getElementById('prompts').scrollIntoView({behavior:'smooth'}); showToast('Prompts section is in the dashboard — scroll down')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
           <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Prompt patterns</h3><span class="text-xs text-stone-500">copy-paste</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">Real prompts that work, organized by what you're trying to ship.</p>
         </a>
-        <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/TROUBLESHOOTING.md" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
+        <a href="javascript:void(0)" onclick="openLearnModal('troubleshooting')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
           <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Troubleshooting</h3><span class="text-xs text-stone-500">5 min</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">The 5 most common stuck-points and how to fix each.</p>
         </a>
@@ -493,7 +493,7 @@
         </div>
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
           <h3 class="font-medium mb-2">Common issues</h3>
-          <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/docs/TROUBLESHOOTING.md" class="text-sm underline">Open TROUBLESHOOTING.md →</a>
+          <button onclick="openLearnModal('troubleshooting')" class="text-sm underline text-stone-700 dark:text-stone-300">Open TROUBLESHOOTING →</button>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Five most common issues, fixes for each.</p>
         </div>
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
@@ -546,6 +546,25 @@
 
   <!-- Back to top -->
   <button id="backToTop" class="back-to-top text-sm" aria-label="Back to top">↑ Top</button>
+
+  <!-- Workflow / cheatsheet modal viewer -->
+  <div id="workflowModal" class="palette-overlay" role="dialog" aria-modal="true" onclick="if(event.target===this) closeWorkflowModal()">
+    <div class="palette-modal" style="max-width: 720px; max-height: 85vh; overflow-y: auto;">
+      <div class="px-6 py-5 border-b border-stone-200 dark:border-stone-700 flex justify-between items-start gap-4">
+        <div class="flex-1">
+          <p class="text-xs uppercase tracking-widest text-stone-500" data-modal-meta></p>
+          <h2 class="font-serif text-2xl mt-1" data-modal-title></h2>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mt-2" data-modal-desc></p>
+        </div>
+        <button onclick="closeWorkflowModal()" class="text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-3xl leading-none flex-shrink-0" aria-label="Close">×</button>
+      </div>
+      <div class="p-6">
+        <p class="text-xs uppercase tracking-widest text-stone-500 mb-3">Steps — click any to copy that prompt</p>
+        <ol data-modal-steps class="list-none pl-0"></ol>
+        <p class="text-xs text-stone-500 mt-6 italic">💡 Run step 1 in Claude / OpenCode, see the result, then step 2. Don't paste them all at once.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Cmd-K command palette -->
   <div id="palette" class="palette-overlay" role="dialog" aria-modal="true" aria-label="Command palette">
@@ -704,16 +723,74 @@ const recommended = [
 ];
 
 const workflows = [
-  { id: 'W1', track: 'design', name: 'Figma → Live Portfolio',           desc: 'Read a Figma file, build it in HTML, audit, deploy. ~1 afternoon.', steps: 5 },
-  { id: 'W2', track: 'design', name: 'Procreate Art → Showcase Page',    desc: 'Convert exports to WebP, drop into a gallery template, deploy.',   steps: 5 },
-  { id: 'W3', track: 'design', name: 'Design System Spec → Components',  desc: 'Spec-driven (spec-kit) → live components-lab → audited → shipped.', steps: 5 },
-  { id: 'W4', track: 'design', name: 'Case Study Quick Drop',            desc: '30-min: intake → scroll-case-study → tighten copy → audit → deploy.', steps: 5 },
-  { id: 'W5', track: 'jobs',   name: 'Job Posting → Sent Application',  desc: 'Research → evaluate → tailor resume → cover letter → outreach.',     steps: 6 },
-  { id: 'W6', track: 'jobs',   name: 'Weekly Pipeline Triage',           desc: 'Pull jobs from BuiltIn + LinkedIn, score, pick top 3 to apply.',    steps: 4 },
-  { id: 'W7', track: 'jobs',   name: 'Interview Sprint (24h)',           desc: 'Company brief → interview-prep → STAR stories → rehearsal mode.',   steps: 5 },
-  { id: 'W8', track: 'jobs',   name: 'Offer → Counter-Offer',           desc: 'Market research → counter draft (3 versions) → back-and-forth plan.', steps: 4 },
-  { id: 'W9', track: 'both',   name: 'Portfolio → Job Application',     desc: 'Cross-track: pick relevant projects, deepen one case study, tailor resume + cover letter.', steps: 5 },
-  { id: 'W10',track: 'both',   name: 'Case Study → Interview Stories',  desc: 'Cross-track: extract STAR stories from your case study; conversational refinement.', steps: 4 },
+  { id: 'W1', track: 'design', name: 'Figma → Live Portfolio', steps: 5,
+    desc: 'Read a Figma file, build it in HTML, audit, deploy. ~1 afternoon.',
+    recipe: ['Use the Figma MCP to read this file: <FIGMA_URL>. Summarize what you see.',
+             'Use the content-writer skill to write a hero tagline + about paragraph based on the Figma file. Three versions.',
+             'Build the design as HTML/Tailwind. Match colors and type from Figma.',
+             'Use the ux-ui-audit skill to audit what you built. Fix Critical + High items.',
+             'Deploy with `pegasus deploy` (Surge).'] },
+  { id: 'W2', track: 'design', name: 'Procreate Art → Showcase Page', steps: 5,
+    desc: 'Convert exports to WebP, drop into a gallery template, deploy.',
+    recipe: ['I have these Procreate exports in ./art/. Use the vector-workflow skill to convert each to WebP at 1600px wide, lazy-loaded.',
+             'Generate `pegasus new illustration-gallery <name>` and drop the converted art into it. Vary the aspect ratios per piece for a curated feel.',
+             'Use content-writer to caption each piece in 3-5 words.',
+             'Audit accessibility with ux-ui-audit (focus on alt text, keyboard nav).',
+             'Deploy.'] },
+  { id: 'W3', track: 'design', name: 'Design System Spec → Components', steps: 5,
+    desc: 'Spec-driven (spec-kit) → live components-lab → audited → shipped.',
+    recipe: ['I want a design system with these tokens: [paste]. Use the spec-kit `specify` command to write a structured spec first.',
+             'Now generate `pegasus new components-lab <name>` using the spec.',
+             'Add buttons (4 variants), cards (3 variants), forms (5 inputs), hero blocks (2 variants). Each with a live preview + snippet.',
+             'Audit with ux-ui-audit, focus on focus rings + contrast.',
+             'Deploy.'] },
+  { id: 'W4', track: 'design', name: 'Case Study Quick Drop', steps: 5,
+    desc: '30-min: intake → scroll-case-study → tighten copy → audit → deploy.',
+    recipe: ['Use the portfolio-case-study skill — I am starting a case study about [project]. Run the intake.',
+             'Use scroll-case-study template. Slot the intake answers into the appropriate sections.',
+             'Use content-writer to refine each section. Apply the Tight version.',
+             'Use ux-ui-audit on the resulting page.',
+             'Deploy. Add the URL to my main portfolio project grid.'] },
+  { id: 'W5', track: 'jobs', name: 'Job Posting → Sent Application', steps: 6,
+    desc: 'Research → evaluate → tailor resume → cover letter → outreach.',
+    recipe: ['Use career-ops-research on [Company]. Get me the brief.',
+             'Use career-ops-evaluate on this JD: [paste]. Should I apply?',
+             '(If yes) Use career-ops-tailor-resume to make an ATS-optimized version targeting this JD.',
+             'Use cover-letter-generator from my tailored resume + the JD.',
+             'Use career-ops-outreach to draft a LinkedIn message to [hiring manager] based on what we learned in step 1.',
+             'Save everything to ~/Design-Projects/applications/<Company>-<YYYYMMDD>/'] },
+  { id: 'W6', track: 'jobs', name: 'Weekly Pipeline Triage', steps: 4,
+    desc: 'Pull jobs from BuiltIn + LinkedIn, score, pick top 3 to apply.',
+    recipe: ['Use the job-finder skill to pull jobs from BuiltIn and LinkedIn matching my profile. Save the shortlist to ~/Design-Projects/this-week.md.',
+             'Use career-ops-triage to score every job on the shortlist by fit. Rank from highest to lowest.',
+             'Pick the top 5. For each, use career-ops-evaluate.',
+             'Tell me which 1-3 to actually apply to this week.'] },
+  { id: 'W7', track: 'jobs', name: 'Interview Sprint (24h)', steps: 5,
+    desc: 'Company brief → interview-prep → STAR stories → rehearsal mode.',
+    recipe: ['Use career-ops-research on [Company]. Latest news, culture, recent hires.',
+             'Use the interview-prep skill — interview is at [Company] for [Role] on [Date]. Use the brief from step 1.',
+             'Use interview-prep-generator to build STAR stories from my resume bullets relevant to the role requirements.',
+             'Switch to rehearsal mode. Ask me each likely question one at a time and critique my answers.',
+             'If they have a design challenge, use the brief from step 1 to predict what they will ask.'] },
+  { id: 'W8', track: 'jobs', name: 'Offer → Counter-Offer', steps: 4,
+    desc: 'Market research → counter draft (3 versions) → back-and-forth plan.',
+    recipe: ['Use salary-negotiation-prep — I have an offer from [Company] for [Role]. The numbers are [base/equity/bonus/perks]. My target is [X].',
+             'Generate market-rate research with sources.',
+             'Draft my counter-offer email. Three versions: gentle / firm / aggressive.',
+             'Walk me through the likely back-and-forth.'] },
+  { id: 'W9', track: 'both', name: 'Portfolio → Job Application', steps: 5,
+    desc: 'Cross-track: pick relevant projects, deepen one case study, tailor resume + cover letter.',
+    recipe: ['Use career-ops-evaluate on this JD: [paste].',
+             'Look at my portfolio at <URL>. Pick the 3 projects most relevant to this JD. For each, write the 30-second pitch.',
+             'Use cover-letter-generator. Tell it which projects to anchor on.',
+             'Use the portfolio-case-study skill to extend the most relevant project into a deeper case study (if it is still light).',
+             'Use career-ops-tailor-resume so my work history reflects the same framing as the cover letter and case study.'] },
+  { id: 'W10', track: 'both', name: 'Case Study → Interview Stories', steps: 4,
+    desc: 'Cross-track: extract STAR stories from your case study; conversational refinement.',
+    recipe: ['Read the case study at ~/Design-Projects/<project>/index.html.',
+             'Use interview-prep-generator to extract 5 STAR stories from it.',
+             'Use content-writer to make each STAR story feel conversational, not rehearsed. 90 seconds spoken each.',
+             'Save to ~/Design-Projects/interview-stories/<project>.md.'] },
 ];
 
 const glossary = [
@@ -812,16 +889,48 @@ function renderRecommended() {
 
 function renderWorkflows() {
   document.getElementById('workflows-list').innerHTML = workflows.map(w => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${w.track}">
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 cursor-pointer" data-search data-track="${w.track}" data-workflow="${w.id}">
       <div class="flex items-baseline justify-between mb-1">
         <span class="font-mono text-xs text-stone-500">${w.id} · ${w.steps} steps</span>
         <span class="text-xs uppercase tracking-wider text-stone-500">${w.track === 'design' ? '🎨' : w.track === 'jobs' ? '💼' : '⊕'}</span>
       </div>
       <h3 class="font-medium font-serif text-xl">${w.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${w.desc}</p>
-      <a href="https://github.com/jerickevans-gif/Pegasus/blob/main/templates/auto-mode/workflows.md#${w.id.toLowerCase()}-${w.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}" class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Open recipe →</a>
+      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">View full recipe →</button>
     </div>
   `).join('');
+  // Wire each workflow card to open the modal
+  document.querySelectorAll('[data-workflow]').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('a')) return;
+      openWorkflowModal(card.dataset.workflow);
+    });
+  });
+}
+
+function openWorkflowModal(id) {
+  const w = workflows.find(x => x.id === id);
+  if (!w) return;
+  const modal = document.getElementById('workflowModal');
+  modal.querySelector('[data-modal-title]').textContent = w.name;
+  modal.querySelector('[data-modal-meta]').textContent = `${w.id} · ${w.steps} steps · ${w.track === 'design' ? '🎨 UX Design' : w.track === 'jobs' ? '💼 Job Search' : '⊕ Both tracks'}`;
+  modal.querySelector('[data-modal-desc]').textContent = w.desc;
+  const stepsEl = modal.querySelector('[data-modal-steps]');
+  stepsEl.innerHTML = w.recipe.map((step, i) => `
+    <li class="mb-3">
+      <div class="flex items-start gap-3">
+        <span class="font-mono text-xs text-stone-500 mt-1 flex-shrink-0 w-6">${i + 1}.</span>
+        <button class="copy text-left flex-1 bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${step.replace(/"/g, '&quot;')}">${step}</button>
+      </div>
+    </li>
+  `).join('');
+  // Re-bind copy handlers for the new buttons
+  stepsEl.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+  modal.classList.add('open');
+}
+
+function closeWorkflowModal() {
+  document.getElementById('workflowModal').classList.remove('open');
 }
 
 // Escape HTML special chars so user data with < > & doesn't break rendering
@@ -1584,6 +1693,104 @@ document.querySelectorAll('[data-copyable="1"]').forEach(card => {
   card.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
   });
+});
+
+
+
+// ─────────────────────────────────────────────
+// LEARN MODAL — embedded cheatsheet content (no GitHub trips)
+// ─────────────────────────────────────────────
+const learnDocs = {
+  tokens: {
+    meta: '~10 min read · plain language',
+    title: 'Tokens, CLIs & Auth 101',
+    desc: 'What\'s a token, what\'s a CLI, when do you OAuth vs paste a key, where to put your tokens safely.',
+    body: `<h3>The three things that get tangled</h3>
+<p>When someone says "you need to authenticate" they usually mean one of three things:</p>
+<ul>
+  <li><strong>Password login</strong> — username + password in a browser</li>
+  <li><strong>OAuth / Connect this account</strong> — click button, get bounced to the service, click "Allow"</li>
+  <li><strong>API token / API key</strong> — a long string that proves you specifically are the one calling</li>
+</ul>
+<h3>What\'s a CLI?</h3>
+<p>A program you run by typing its name in the terminal instead of clicking an icon: <code>claude</code>, <code>opencode</code>, <code>gh</code>, <code>surge</code>, <code>pegasus</code>.</p>
+<h3>The three sign-ins you\'ll actually do</h3>
+<ol>
+  <li><strong>GitHub:</strong> <code>gh auth login</code> → browser → done. No tokens to handle.</li>
+  <li><strong>Surge:</strong> <code>surge</code> prompts for email + password the first time. Free forever.</li>
+  <li><strong>Figma:</strong> open Figma desktop → Preferences → toggle ON "Enable Dev Mode MCP Server".</li>
+</ol>
+<h3>The three tokens you might need</h3>
+<ul>
+  <li><strong>GitHub PAT</strong> (only for the GitHub MCP) — github.com/settings/tokens?type=beta → fine-grained → copy → <code>echo \'export GITHUB_PERSONAL_ACCESS_TOKEN=ghp_...\' >> ~/.zshrc</code></li>
+  <li><strong>Anthropic API key</strong> (only for custom apps outside Claude Code)</li>
+  <li><strong>Stripe key</strong> (only if you sell things)</li>
+</ul>
+<h3>Token safety</h3>
+<ul>
+  <li>Never commit tokens to a public repo (GitHub auto-revokes them)</li>
+  <li>Use <code>~/.zshrc</code> for tokens you\'ll use across projects</li>
+  <li>Use <code>.env</code> files for tokens specific to one project (Pegasus templates already gitignore .env)</li>
+  <li>If a token leaks: revoke immediately on the service, generate a new one</li>
+</ul>
+<h3>TL;DR</h3>
+<ol>
+  <li>Sign into GitHub once with <code>gh auth login</code></li>
+  <li>Sign into Surge once with <code>surge</code></li>
+  <li>Toggle Figma Dev Mode in Figma desktop</li>
+  <li>Connect Google to claude.ai if you want Gmail/Drive/Calendar access</li>
+</ol>
+<p><em>For the full version, run <code>pegasus open tokens</code> in your terminal — opens the local copy at ~/Design-Projects/TOKENS_AUTH_101.md.</em></p>`
+  },
+  glossary: {
+    meta: 'browse · plain English',
+    title: 'Glossary',
+    desc: 'Every dev word that might confuse you, decoded.',
+    body: `<p>The full glossary is right here on the dashboard — scroll to the <a href="#glossary" onclick="closeWorkflowModal()" class="underline">Glossary section</a> below. 25 terms, searchable.</p>
+<p>Examples:</p>
+<ul>
+  <li><strong>Terminal</strong> — the text window where you type commands</li>
+  <li><strong>cd</strong> — change directory; <code>cd ~/Design-Projects</code> puts you inside that folder</li>
+  <li><strong>Token</strong> — machine-generated password for one specific service</li>
+  <li><strong>MCP</strong> — Model Context Protocol; the plug system that lets agents talk to tools</li>
+  <li><strong>Skill</strong> — a structured instruction sheet that activates when relevant</li>
+</ul>`
+  },
+  troubleshooting: {
+    meta: '5 min · five most common issues',
+    title: 'Troubleshooting',
+    desc: 'The 5 most common stuck-points and how to fix each.',
+    body: `<h3>1. "command not found: pegasus"</h3>
+<p>The helper isn\'t on your PATH. Add to <code>~/.zshrc</code>: <code>export PATH="$HOME/.local/bin:$PATH"</code>, then re-source.</p>
+<h3>2. "command not found: claude / opencode / surge / code"</h3>
+<p>Run <code>pegasus doctor</code> — it tells you exactly what\'s missing. Re-run <code>install.sh</code> to recover.</p>
+<h3>3. VS Code extensions didn\'t install</h3>
+<p>The <code>code</code> CLI wasn\'t on PATH at install time. Open VS Code → Cmd+Shift+P → "Shell Command: Install \'code\' command in PATH". Then run <code>pegasus update</code>.</p>
+<h3>4. "Claude can\'t see my Figma files"</h3>
+<p>Figma desktop → Preferences → toggle ON "Enable Dev Mode MCP Server". Restart Claude.</p>
+<h3>5. The install hangs</h3>
+<p>Homebrew install can take 10+ minutes on a fresh machine. Don\'t kill it.</p>
+<h3>Self-heal</h3>
+<p><code>pegasus heal</code> — auto-repairs missing skills, templates, dashboard, cheatsheets. Use <code>--dry-run</code> first to preview.</p>`
+  }
+};
+
+function openLearnModal(key) {
+  const doc = learnDocs[key];
+  if (!doc) return;
+  const modal = document.getElementById('workflowModal');
+  modal.querySelector('[data-modal-meta]').textContent = doc.meta;
+  modal.querySelector('[data-modal-title]').textContent = doc.title;
+  modal.querySelector('[data-modal-desc]').textContent = doc.desc;
+  modal.querySelector('[data-modal-steps]').innerHTML = `<div class="prose prose-sm max-w-none [&_h3]:font-serif [&_h3]:text-lg [&_h3]:mt-5 [&_h3]:mb-2 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3 [&_li]:mb-1 [&_code]:bg-stone-100 [&_code]:dark:bg-stone-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono">${doc.body}</div>`;
+  modal.classList.add('open');
+}
+
+// Escape closes the workflow/learn modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('workflowModal')?.classList.contains('open')) {
+    closeWorkflowModal();
+  }
 });
 
 </script>
