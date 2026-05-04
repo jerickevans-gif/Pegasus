@@ -177,6 +177,64 @@ __pegasus_check_update() {
 
 cmd_version() { echo "Pegasus $PEGASUS_VERSION"; echo "Repo:    https://github.com/jerickevans-gif/Pegasus"; echo "Helper:  $(command -v pegasus 2>/dev/null || echo not-on-PATH)"; }
 
+cmd_skills() {
+  echo "${BOLD}Skills installed at ~/.claude/skills/${RESET} (also read by OpenCode)"
+  echo
+  if [[ -d "$HOME/.claude/skills" ]]; then
+    for sk in "$HOME/.claude/skills"/*/; do
+      local name=$(basename "$sk")
+      local desc=$(grep -m1 '^description:' "$sk/SKILL.md" 2>/dev/null | sed 's/description: *//')
+      printf "  %s%-32s%s %s\n" "$BOLD" "$name" "$RESET" "${desc:0:80}"
+    done
+  else
+    warn "No skills directory found. Re-run install.sh."
+  fi
+  echo
+  echo "Total: $(ls -d "$HOME/.claude/skills"/*/ 2>/dev/null | wc -l | tr -d ' ') skills"
+  echo "Browse all 31 with descriptions: pegasus dashboard → Skills section"
+}
+
+cmd_quickstart() {
+  cat <<EOF
+${BOLD}Pegasus quickstart${RESET}
+
+The 5 commands you'll use 90% of the time:
+
+  ${BOLD}pegasus new portfolio my-site${RESET}     scaffold a project + open VS Code
+  ${BOLD}claude${RESET}                            start Claude Code in any folder
+  ${BOLD}opencode${RESET}                          start OpenCode (alternative to Claude)
+  ${BOLD}pegasus deploy${RESET}                    ship the current folder live (Surge or GH Pages)
+  ${BOLD}pegasus dashboard${RESET}                 visual launcher with everything
+
+The 3 things to do this week:
+
+  1. ${BOLD}pegasus init${RESET}                     fill in your profile (used by skills)
+  2. ${BOLD}pegasus signin${RESET}                   log into GitHub, Vercel, Figma
+  3. Try a workflow:               ${BOLD}cat ~/.pegasus/templates/auto-mode/workflows.md${RESET}
+
+When stuck:
+
+  ${BOLD}pegasus doctor${RESET}                    diagnose your install
+  ${BOLD}pegasus test${RESET}                      end-to-end verification
+  ${BOLD}pegasus help${RESET}                      all commands
+  ${BOLD}pegasus open troubleshooting${RESET}      open TROUBLESHOOTING.md
+EOF
+}
+
+cmd_stats() {
+  cat <<EOF
+${BOLD}Pegasus stats${RESET}
+
+  Skills installed:    $(ls -d "$HOME/.claude/skills"/*/ 2>/dev/null | wc -l | tr -d ' ')
+  Templates installed: $(ls -d "$PEGASUS_HOME/templates"/*/ 2>/dev/null | wc -l | tr -d ' ')
+  Projects:            $(ls -d "$PROJECTS_DIR"/*/ 2>/dev/null | wc -l | tr -d ' ')
+  Cheatsheets:         $(ls "$PROJECTS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
+
+For activity stats (copies, weekly, streaks), open the dashboard:
+  ${BOLD}pegasus dashboard${RESET}  →  scroll to "Your Pulse"
+EOF
+}
+
 cmd_pulse() {
   echo "${BOLD}Pegasus Pulse${RESET} — your activity from the dashboard"
   echo

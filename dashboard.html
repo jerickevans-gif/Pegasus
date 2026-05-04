@@ -465,6 +465,11 @@
     </div>
   </div>
 
+  <!-- Floating palette button (always visible — works on mobile too) -->
+  <button id="floatingPalette" class="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-stone-900 text-white shadow-2xl flex items-center justify-center hover:bg-stone-700 transition" aria-label="Open command palette" onclick="openPalette()" title="Open command palette (⌘K)">
+    <span class="font-mono text-xs">⌘K</span>
+  </button>
+
   <!-- Back to top -->
   <button id="backToTop" class="back-to-top text-sm" aria-label="Back to top">↑ Top</button>
 
@@ -927,11 +932,14 @@ document.getElementById('profileSample')?.addEventListener('click', () => {
 // TRACK SWITCHER (UX Design / Job Search / Both)
 // ─────────────────────────────────────────────
 const TRACK_KEY = 'pegasus.track';
-let activeTrack = localStorage.getItem(TRACK_KEY) || 'design';
+const _urlTrack = new URLSearchParams(location.search).get('track');
+let activeTrack = _urlTrack || localStorage.getItem(TRACK_KEY) || 'design';
 
 function applyTrack(track) {
   activeTrack = track;
   localStorage.setItem(TRACK_KEY, track);
+  // Sync to URL without reload
+  try { const u = new URL(location.href); u.searchParams.set('track', track); history.replaceState(null, '', u); } catch(e) {}
   document.querySelectorAll('.track-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.track === track ? 'true' : 'false'));
   document.querySelectorAll('[data-track]').forEach(card => {
     const cardTrack = card.dataset.track || 'both';
@@ -978,7 +986,14 @@ function updateCounts() {
 }
 
 document.querySelectorAll('.track-tab').forEach(btn => {
-  btn.addEventListener('click', () => applyTrack(btn.dataset.track));
+  btn.addEventListener('click', () => {
+    applyTrack(btn.dataset.track);
+    // Scroll to first relevant section so user sees the change took effect
+    const target = btn.dataset.track === 'jobs' ? 'commands' : 'templates';
+    setTimeout(() => document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    // Visual confirmation
+    showToast('Showing ' + (btn.dataset.track === 'design' ? '🎨 UX Design' : btn.dataset.track === 'jobs' ? '💼 Job Search' : '⊕ Both') + ' track');
+  });
 });
 
 // ─────────────────────────────────────────────
@@ -1244,6 +1259,32 @@ helpOverlay.addEventListener('click', e => { if (e.target === helpOverlay) helpO
 // KEYBOARD SHORTCUTS
 // ─────────────────────────────────────────────
 let lastG = false;
+// Search history
+const SEARCH_HIST_KEY = 'pegasus.searchHist';
+let searchHist = []; try { searchHist = JSON.parse(localStorage.getItem(SEARCH_HIST_KEY) || '[]'); } catch {}
+let searchHistIdx = -1;
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'ArrowUp' && searchHist.length) {
+    e.preventDefault();
+    searchHistIdx = Math.min(searchHistIdx + 1, searchHist.length - 1);
+    searchInput.value = searchHist[searchHistIdx];
+    applySearchHL(searchInput.value);
+  } else if (e.key === 'ArrowDown' && searchHistIdx >= 0) {
+    e.preventDefault();
+    searchHistIdx -= 1;
+    searchInput.value = searchHistIdx >= 0 ? searchHist[searchHistIdx] : '';
+    applySearchHL(searchInput.value);
+  }
+});
+searchInput.addEventListener('blur', () => {
+  const q = searchInput.value.trim();
+  if (q && searchHist[0] !== q) {
+    searchHist = [q, ...searchHist.filter(h => h !== q)].slice(0, 10);
+    localStorage.setItem(SEARCH_HIST_KEY, JSON.stringify(searchHist));
+  }
+  searchHistIdx = -1;
+});
+
 document.addEventListener('keydown', e => {
   // Cmd-K / Ctrl-K → open palette
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openPalette(); return; }
