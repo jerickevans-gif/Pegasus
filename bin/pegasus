@@ -66,6 +66,8 @@ ${BOLD}Pegasus${RESET} — designer's coding launchpad
   ${BOLD}pegasus run${RESET} <W##>             walk through a workflow recipe (W1-W10)
   ${BOLD}pegasus snapshot${RESET}              export profile + pulse + state to JSON for backup
   ${BOLD}pegasus install${RESET} <skill|url>   install a skill from name or GitHub URL
+  ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
+  ${BOLD}pegasus log${RESET}                   tail the install log
   ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
   ${BOLD}pegasus voice${RESET} <install|transcribe|speak>  Whisper STT + Kokoro TTS
   ${BOLD}pegasus uninstall${RESET}             remove Pegasus
@@ -159,7 +161,7 @@ cmd_deploy() {
   esac
 }
 
-PEGASUS_VERSION="0.9.0"
+PEGASUS_VERSION="0.9.1"
 
 # Auto-update check (background, daily) — non-blocking, no telemetry
 __pegasus_check_update() {
@@ -303,9 +305,13 @@ cmd_voice() {
       echo
       ok "${BOLD}Voice tools installed.${RESET}"
       echo "Try:"
-      echo "  ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
+      echo "  ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
+  ${BOLD}pegasus log${RESET}                   tail the install log
+  ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
   ${BOLD}pegasus voice transcribe${RESET} <audio-file>     speech to text"
-      echo "  ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
+      echo "  ${BOLD}pegasus heal${RESET} [--dry-run]    self-repair (re-fetch missing skills/templates/dashboard)
+  ${BOLD}pegasus log${RESET}                   tail the install log
+  ${BOLD}pegasus check${RESET}                 pre-flight diagnostic (network/disk/perms/PATH)
   ${BOLD}pegasus voice speak${RESET} \"Hello world\"           text to speech"
       echo "  In Claude/OpenCode: 'transcribe this voice memo + extract the design brief'"
       ;;
@@ -348,13 +354,24 @@ cmd_run() {
   fi
   echo "${BOLD}Workflow $id${RESET}"
   # Extract steps for this workflow ID
-  awk "/^### $id /,/^---/" "$wf" | head -50
+  local steps
+  steps=$(awk "/^### $id /,/^---/" "$wf" | head -50)
+  echo "$steps"
   echo
-  echo "${BOLD}Want me to start step 1 with Claude?${RESET} [Y/n]"
+  if ! have claude; then warn "Claude Code not installed — can only show steps."; return 0; fi
+  echo "${BOLD}Want me to start Claude with step 1 already loaded?${RESET} [Y/n]"
   read -r ans </dev/tty || ans="y"
-  if [[ "${ans:-y}" =~ ^[Yy]$ ]] && have claude; then
-    echo "Starting Claude. Paste each step from above one at a time."
-    claude
+  if [[ "${ans:-y}" =~ ^[Yy]$ ]]; then
+    # Extract the first numbered step's prompt
+    local first_step
+    first_step=$(echo "$steps" | awk '/^1\. "/{flag=1; sub(/^1\. "/, ""); print; flag=0}' | head -1 | sed 's/"$//')
+    if [[ -n "$first_step" ]]; then
+      echo "Launching Claude with: $first_step"
+      claude "$first_step"
+    else
+      echo "Couldn't auto-extract step 1 — launching Claude. Paste the steps manually."
+      claude
+    fi
   fi
 }
 
@@ -641,8 +658,125 @@ cmd_colors() {
 cmd_self_update() {
   local self="$(command -v pegasus 2>/dev/null)"
   if [[ -z "$self" ]]; then err "Pegasus not on PATH."; exit 1; fi
-  say "Updating pegasus helper itself..."
-  curl -fsSL "$RAW/bin/pegasus" -o "$self" && chmod +x "$self" && ok "Updated pegasus to latest." || err "Couldn't self-update."
+  say "Backing up current helper to $self.bak..."
+  cp "$self" "$self.bak"
+  say "Updating pegasus helper..."
+  if curl -fsSL "$RAW/bin/pegasus" -o "$self.tmp" && bash -n "$self.tmp"; then
+    mv "$self.tmp" "$self" && chmod +x "$self"
+    ok "Updated pegasus helper."
+  else
+    err "Self-update failed (corrupt download). Keeping current version."
+    rm -f "$self.tmp"
+    return 1
+  fi
+  # Also refresh templates + skills (they often change in lockstep with the helper)
+  say "Also refreshing templates + skills..."
+  cmd_update >/dev/null 2>&1 && ok "Templates + skills refreshed." || warn "Template/skill refresh had issues — run 'pegasus update' manually."
+  ok "${BOLD}Update complete.${RESET} Old helper saved to $self.bak (delete when ready)."
+}
+
+cmd_heal() {
+  local DRY_RUN=0
+  local AUTO=0
+  for arg in "$@"; do
+    case "$arg" in
+      --dry-run) DRY_RUN=1 ;;
+      --auto)    AUTO=1 ;;
+    esac
+  done
+
+  [[ "$AUTO" -eq 0 ]] && echo "${BOLD}Pegasus heal${RESET} — checking for issues to self-repair..."
+  [[ "$DRY_RUN" -eq 1 ]] && echo "(dry-run mode — won't actually change anything)"
+  echo
+
+  FOUND_ISSUES=0
+  FIXED=0
+  heal_action() {
+    FOUND_ISSUES=$((FOUND_ISSUES+1))
+    local what="$1"; local how="$2"
+    warn "$what"
+    if [[ "$DRY_RUN" -eq 0 ]]; then
+      if eval "$how" >/dev/null 2>&1; then ok "  → fixed."; FIXED=$((FIXED+1))
+      else warn "  → fix failed."
+      fi
+    else
+      echo "  → would: $how"
+    fi
+  }
+
+  # Check 1: templates folder exists + populated
+  if [[ ! -d "$TEMPLATES_DIR" ]] || [[ -z "$(ls -A "$TEMPLATES_DIR" 2>/dev/null)" ]]; then
+    heal_action "Templates missing" "mkdir -p '$TEMPLATES_DIR'; for t in portfolio case-study-deck scroll-case-study landing-page resume link-in-bio illustration-gallery mood-board components-lab agency-page error-page podcast-page newsletter-archive; do mkdir -p '$TEMPLATES_DIR/'\$t; for f in index.html CLAUDE.md styles.css .gitignore; do curl -fsSL '$RAW/templates/'\$t'/'\$f -o '$TEMPLATES_DIR/'\$t'/'\$f 2>/dev/null; done; done"
+  fi
+
+  # Check 2: each expected skill present + frontmatter matches
+  for skill in ux-ui-audit job-finder vector-workflow interview-prep content-writer figma-converter weekly-review portfolio-case-study; do
+    local sk_dir="$HOME/.claude/skills/$skill"
+    if [[ ! -f "$sk_dir/SKILL.md" ]]; then
+      heal_action "Skill '$skill' missing" "mkdir -p '$sk_dir'; curl -fsSL '$RAW/skills/$skill/SKILL.md' -o '$sk_dir/SKILL.md'"
+    else
+      local fm_name=$(awk '/^name:/{print $2; exit}' "$sk_dir/SKILL.md" 2>/dev/null)
+      if [[ "$fm_name" != "$skill" ]]; then
+        heal_action "Skill '$skill' has bad frontmatter ($fm_name)" "curl -fsSL '$RAW/skills/$skill/SKILL.md' -o '$sk_dir/SKILL.md'"
+      fi
+    fi
+  done
+
+  # Check 3: dashboard + favicon + manifest in ~/.pegasus
+  for f in dashboard.html favicon.svg manifest.webmanifest sw.js welcome.html; do
+    if [[ ! -f "$PEGASUS_HOME/$f" ]]; then
+      heal_action "$f missing from \$PEGASUS_HOME" "curl -fsSL '$RAW/$f' -o '$PEGASUS_HOME/$f'"
+    fi
+  done
+
+  # Check 4: cheatsheets in ~/Design-Projects
+  for d in COMMANDS PROMPTS POSSIBILITIES GLOSSARY RECOMMENDED TROUBLESHOOTING TOKENS_AUTH_101; do
+    if [[ ! -f "$PROJECTS_DIR/$d.md" ]]; then
+      heal_action "Cheatsheet $d.md missing" "mkdir -p '$PROJECTS_DIR'; curl -fsSL '$RAW/docs/$d.md' -o '$PROJECTS_DIR/$d.md'"
+    fi
+  done
+
+  # Check 5: profile.json valid JSON if present
+  if [[ -f "$PEGASUS_HOME/profile.json" ]] && ! python3 -c "import json; json.load(open('$PEGASUS_HOME/profile.json'))" 2>/dev/null; then
+    heal_action "profile.json is malformed" "mv '$PEGASUS_HOME/profile.json' '$PEGASUS_HOME/profile.json.broken'; echo '{}' > '$PEGASUS_HOME/profile.json'"
+  fi
+
+  echo
+  if [[ $FOUND_ISSUES -eq 0 ]]; then
+    [[ "$AUTO" -eq 0 ]] && ok "${BOLD}Healthy.${RESET} Nothing to heal."
+  else
+    [[ "$DRY_RUN" -eq 0 ]] && ok "${BOLD}Healed $FIXED of $FOUND_ISSUES issue(s).${RESET}" || echo "Would heal $FOUND_ISSUES issue(s). Run without --dry-run to apply."
+  fi
+  return 0
+}
+
+# Auto-heal: silently re-fetch missing assets if pegasus helper detects them on invocation
+__pegasus_auto_heal() {
+  # Only auto-heal once per day at most
+  local stamp="$PEGASUS_HOME/.last-heal"
+  local NOW=$(date +%s)
+  if [[ -f "$stamp" ]]; then
+    local LAST=$(cat "$stamp" 2>/dev/null || echo 0)
+    (( NOW - LAST < 86400 )) && return  # checked within last 24h
+  fi
+  mkdir -p "$PEGASUS_HOME"
+  echo "$NOW" > "$stamp"
+  # Run heal silently in background — only warn the user if anything was broken
+  ( cmd_heal --auto 2>&1 | grep -E "missing|malformed" >&2 ) &
+  disown 2>/dev/null || true
+}
+[[ "${PEGASUS_NO_AUTO_HEAL:-0}" == "0" ]] && __pegasus_auto_heal
+
+cmd_log() {
+  local LOGFILE="$PEGASUS_HOME/install.log"
+  if [[ -f "$LOGFILE" ]]; then
+    echo "${BOLD}Tailing $LOGFILE${RESET}"
+    tail -50 "$LOGFILE"
+  else
+    warn "No install log at $LOGFILE."
+    echo "Pegasus install logs are written when install.sh runs. If you didn't capture one, re-run with:"
+    echo "  curl -fsSL $RAW/install.sh | bash 2>&1 | tee ~/.pegasus/install.log"
+  fi
 }
 
 cmd_search() {
@@ -983,6 +1117,8 @@ case "${1:-help}" in
   install)    shift; cmd_install_skill "$@" ;;
   voice)      shift; cmd_voice "$@" ;;
   check)      cmd_check ;;
+  log)        cmd_log ;;
+  heal)       shift; cmd_heal "$@" ;;
   signin)     cmd_signin ;;
   doctor)     cmd_doctor ;;
   update)     cmd_update ;;

@@ -1,0 +1,51 @@
+name: Test Pegasus
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Install jsdom for tests
+        run: npm install --no-save jsdom
+
+      - name: Syntax check shell scripts
+        run: |
+          bash -n install.sh
+          bash -n bin/pegasus
+          bash -n connect.sh
+          bash -n desktop-apps.sh
+
+      - name: Dashboard regression (33 checks)
+        run: node scripts/test-dashboard.js
+
+      - name: Every-suggestion validator (95 checks)
+        run: node scripts/validate-everything.js
+
+      - name: Verify all template index.html files exist
+        run: |
+          for d in templates/*/; do
+            test -f "$d/index.html" || (echo "Missing $d/index.html" && exit 1)
+          done
+
+      - name: Verify all skills have valid frontmatter
+        run: |
+          for d in skills/*/; do
+            name=$(basename "$d")
+            fm_name=$(awk '/^name:/{print $2; exit}' "$d/SKILL.md")
+            if [ "$fm_name" != "$name" ]; then
+              echo "FAIL: $name has frontmatter '$fm_name'"
+              exit 1
+            fi
+          done
+          echo "✓ All skills have correct frontmatter"
