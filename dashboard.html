@@ -242,10 +242,12 @@
     <div id="onboardingBar" class="mt-6 hidden p-4 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-900">
       <div class="flex items-center justify-between mb-2">
         <p class="text-sm font-medium">Setup progress: <span id="onbCount">0/4</span></p>
-        <button onclick="document.getElementById('onboardingBar').classList.add('hidden'); localStorage.setItem('pegasus.onboardingDismissed','1')" class="text-xs text-stone-500 hover:text-stone-900 underline">Hide</button>
+        <button onclick="document.getElementById('onboardingBar').classList.add('hidden'); document.getElementById('showOnboardingLink').classList.remove('hidden'); _safeStorage.setItem('pegasus.onboardingDismissed','1')" class="text-xs text-stone-500 hover:text-stone-900 underline">Hide</button>
       </div>
       <div id="onbList" class="space-y-1 text-sm"></div>
     </div>
+    <!-- Re-show onboarding link (visible only after dismissal) -->
+    <button id="showOnboardingLink" class="hidden mt-3 text-xs text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline" onclick="_safeStorage.removeItem('pegasus.onboardingDismissed'); renderOnboarding(); this.classList.add('hidden');">↺ Show setup checklist</button>
 
     <!-- Active-track banner (changes dynamically) -->
     <div id="trackBanner" class="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-full text-base font-medium shadow-md">
@@ -2205,16 +2207,20 @@ function renderJobChecklist() {
       ${!i.check ? `<button onclick="document.getElementById('${i.fix}').scrollIntoView({behavior:'smooth'}); document.querySelector('[data-profile=\\'${i.key}\\']')?.focus()" class="ml-auto text-xs underline text-stone-500 hover:text-stone-900">Fill in →</button>` : ''}
     </li>
   `).join('');
-  const allDone = items.every(i => i.check);
+  const done = items.filter(i => i.check).length;
+  const total = items.length;
+  const allDone = done === total;
   if (allDone) {
     btn.disabled = false;
     btn.className = 'w-full px-5 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-base font-semibold transition cursor-pointer';
-    hint.textContent = 'Click below — we\'ll build a complete prompt and copy it to your clipboard.';
+    btn.innerHTML = '🎯 Find me jobs to apply to today &nbsp;·&nbsp; Ready ✓';
+    hint.textContent = "Click below — we'll build a complete prompt and copy it to your clipboard.";
   } else {
     btn.disabled = true;
     btn.className = 'w-full px-5 py-4 bg-stone-300 dark:bg-stone-700 text-stone-500 rounded-xl text-base font-semibold cursor-not-allowed transition';
-    const missing = items.filter(i => !i.check).length;
-    hint.textContent = `↑ ${missing} step${missing>1?'s':''} remaining`;
+    btn.innerHTML = `🎯 Find me jobs to apply to today &nbsp;·&nbsp; <span class="font-mono text-sm">${done}/${total} ready</span>`;
+    const missing = total - done;
+    hint.textContent = `↑ ${missing} more step${missing > 1 ? 's' : ''} to fill in above`;
   }
 }
 
@@ -2506,7 +2512,11 @@ document.addEventListener('click', e => {
 function renderOnboarding() {
   const bar = document.getElementById('onboardingBar');
   if (!bar) return;
-  if (_safeStorage.getItem('pegasus.onboardingDismissed')) return;
+  // If dismissed, expose the re-entry link so users can find their way back.
+  if (_safeStorage.getItem('pegasus.onboardingDismissed')) {
+    document.getElementById('showOnboardingLink')?.classList.remove('hidden');
+    return;
+  }
   const profile = loadProfile();
   const pulse = loadPulse();
   const items = [
