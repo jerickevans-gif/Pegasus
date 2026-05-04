@@ -129,6 +129,29 @@ Look for these as you grow:
 
 ---
 
+## Figma asset libraries
+
+### github/annotation-toolkit · 298★ · CC-BY-4.0
+> Figma asset library packed with components to organize your design canvas, diagram UI anatomy, and annotate accessibility details.
+
+GitHub's official annotation toolkit. Use it inside Figma to mark up screens with accessibility notes, hierarchy diagrams, and component structure — much easier to communicate to a code agent.
+
+→ <https://github.com/github/annotation-toolkit>
+→ Open in Figma directly via the README's link, then duplicate to your team.
+
+---
+
+## Curated asset / inspiration lists
+
+### calebapril/Designer-Tools-and-Assets-for-Developers · MIT
+> A curated compilation of design and UI assets — stock photos, web templates, CSS frameworks, UI libraries, tools, and other resources.
+
+Browse this on GitHub when you need an asset and don't know where to look.
+
+→ <https://github.com/calebapril/Designer-Tools-and-Assets-for-Developers>
+
+---
+
 ## How to add a new external repo
 
 1. Find the repo. Check that the license is MIT, Apache 2.0, BSD, or CC0.

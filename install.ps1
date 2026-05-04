@@ -1,235 +1,203 @@
-# Designer Dev Setup — Windows installer
+# Pegasus — Windows installer (one-shot mode)
 # Run in PowerShell (as Administrator):
 #   irm https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main/install.ps1 | iex
+# Pass --custom for the question-by-question flow.
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
-function Write-Header($text) {
+$Custom = ($args -contains "--custom")
+
+function Write-Header($t) {
     Write-Host ""
-    Write-Host $text -ForegroundColor Cyan
+    Write-Host $t -ForegroundColor Cyan
     Write-Host ("─" * 42) -ForegroundColor DarkGray
 }
-function Write-Ok($text)   { Write-Host "✓ $text" -ForegroundColor Green }
-function Write-Warn($text) { Write-Host "! $text" -ForegroundColor Yellow }
-function Have($cmd)        { return [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
-
+function Write-Ok($t)   { Write-Host "✓ $t" -ForegroundColor Green }
+function Write-Warn($t) { Write-Host "! $t" -ForegroundColor Yellow }
+function Have($cmd)     { return [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
 function Ask($prompt) {
+    if (-not $Custom) { return $true }
     $r = Read-Host "$prompt [Y/n]"
     if ([string]::IsNullOrWhiteSpace($r)) { return $true }
     return $r -match '^[Yy]'
 }
 
-# ---------- welcome ----------
-Clear-Host
-Write-Host @"
-  ____            _                          ____
- |  _ \  ___  ___(_) __ _ _ __   ___ _ __   |  _ \  _____   __
- | | | |/ _ \/ __| |/ _` | '_ \ / _ \ '__|  | | | |/ _ \ \ / /
- | |_| |  __/\__ \ | (_| | | | |  __/ |     | |_| |  __/\ V /
- |____/ \___||___/_|\__, |_| |_|\___|_|     |____/ \___| \_/
-                    |___/
-       Setup — turn your laptop into a design+code studio
-"@ -ForegroundColor Cyan
-
-Write-Host ""
-Write-Host "This script will set up your machine for designing with code."
-Write-Host "It will install or skip:"
-Write-Host "  • winget (Windows package manager — usually preinstalled)"
-Write-Host "  • Git, Node.js"
-Write-Host "  • Visual Studio Code"
-Write-Host "  • Claude Code (Anthropic CLI)"
-Write-Host "  • OpenCode (open-source alternative)"
-Write-Host "  • A curated set of VS Code extensions for designers"
-Write-Host "  • A Design-Projects folder with a starter CLAUDE.md"
-Write-Host ""
-
-if (-not (Ask "Ready to begin?")) { Write-Host "Skipped. Re-run any time."; exit 0 }
-
-# ---------- 1. winget ----------
-Write-Header "1 / 8  winget"
-if (Have winget) {
-    Write-Ok "winget is available."
-} else {
-    Write-Warn "winget not found. Install 'App Installer' from the Microsoft Store, then re-run this script."
-    exit 1
-}
-
-# ---------- 2. Git ----------
-Write-Header "2 / 8  Git"
-if (Have git) {
-    Write-Ok "Git already installed: $(git --version)"
-} else {
-    winget install --id Git.Git -e --silent --accept-package-agreements --accept-source-agreements
-    Write-Ok "Git installed."
-}
-
-# ---------- 3. Node.js ----------
-Write-Header "3 / 8  Node.js"
-if (Have node) {
-    Write-Ok "Node already installed: $(node --version)"
-} else {
-    winget install --id OpenJS.NodeJS.LTS -e --silent --accept-package-agreements --accept-source-agreements
-    Write-Ok "Node installed. (Restart PowerShell if 'node' is not on PATH.)"
-}
-
-# ---------- 4. VS Code ----------
-Write-Header "4 / 8  Visual Studio Code"
-if (Have code) {
-    Write-Ok "VS Code already installed."
-} else {
-    winget install --id Microsoft.VisualStudioCode -e --silent --accept-package-agreements --accept-source-agreements
-    Write-Ok "VS Code installed."
-}
-
-# ---------- 5. Claude Code ----------
-Write-Header "5 / 8  Claude Code"
-if (Have claude) {
-    Write-Ok "Claude Code already installed."
-} else {
-    try {
-        irm https://claude.ai/install.ps1 | iex
-        Write-Ok "Claude Code installed."
-    } catch {
-        Write-Warn "Claude installer failed; trying npm fallback..."
-        npm install -g @anthropic-ai/claude-code
-        Write-Ok "Claude Code installed via npm."
-    }
-}
-
-# ---------- 6a. Designer extras ----------
-Write-Header "6a / 8  Designer extras (Vercel, ffmpeg, ImageMagick)"
-foreach ($pkg in @("Gyan.FFmpeg", "ImageMagick.ImageMagick")) {
-    try { winget install --id $pkg -e --silent --accept-package-agreements --accept-source-agreements; Write-Ok "$pkg installed." }
-    catch { Write-Warn "Couldn't install $pkg" }
-}
-if (Have vercel) { Write-Ok "Vercel CLI already installed." }
-else {
-    try { npm install -g vercel | Out-Null; Write-Ok "Vercel CLI installed." }
-    catch { Write-Warn "Couldn't install Vercel CLI" }
-}
-
-# ---------- 6. OpenCode ----------
-Write-Header "6 / 8  OpenCode"
-if (Have opencode) {
-    Write-Ok "OpenCode already installed."
-} elseif (Ask "Install OpenCode (open-source AI coding agent) too?") {
-    try {
-        npm install -g opencode-ai
-        Write-Ok "OpenCode installed."
-    } catch {
-        Write-Warn "OpenCode install failed; see https://opencode.ai for manual install."
-    }
-} else {
-    Write-Warn "Skipped OpenCode."
-}
-
-# ---------- 7. VS Code extensions + Design-Projects folder ----------
-Write-Header "7 / 8  Extensions and your design folder"
-
-$extensions = @(
-    # Requested core
-    "anthropic.claude-code",                # Claude Code for VS Code
-    "sst-dev.opencode",                     # OpenCode for VS Code
-    "MermaidChart.vscode-mermaid-chart",    # Mermaid Chart
-    "GitHub.vscode-github-actions",         # GitHub Actions
-    "ms-vscode.live-server",                # Live Preview (Microsoft)
-    "ms-python.python",                     # Python
-    # Designer-friendly extras
-    "esbenp.prettier-vscode",
-    "bradlc.vscode-tailwindcss",
-    "naumovs.color-highlight",
-    "kisstkondoros.vscode-gutter-preview",
-    "formulahendry.auto-rename-tag",
-    "PKief.material-icon-theme",
-    "figma.figma-vscode-extension",
-    "ecmel.vscode-html-css",
-    "adpyke.codesnap"                       # Beautiful code screenshots
-)
-
-if (Have code) {
-    foreach ($ext in $extensions) {
-        Write-Host "Installing extension: $ext"
-        try {
-            code --install-extension $ext --force | Out-Null
-            Write-Ok $ext
-        } catch {
-            Write-Warn "Could not install $ext"
-        }
-    }
-} else {
-    Write-Warn "VS Code 'code' command not on PATH yet. Restart PowerShell, then re-run."
-}
-
-$projectsDir = Join-Path $HOME "Design-Projects"
-if (Test-Path $projectsDir) {
-    Write-Ok "Design-Projects folder already exists at $projectsDir"
-} else {
-    New-Item -ItemType Directory -Path $projectsDir | Out-Null
-    Write-Ok "Created $projectsDir"
-}
-
 $pegasusRaw = "https://raw.githubusercontent.com/jerickevans-gif/Pegasus/main"
+$pegasusHome = Join-Path $HOME ".pegasus"
+$projectsDir = Join-Path $HOME "Design-Projects"
+
 function Download-To($url, $dest) {
     if (-not (Test-Path $dest)) {
         try { Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing; Write-Ok "Wrote $(Split-Path $dest -Leaf)" }
         catch { Write-Warn "Couldn't download $(Split-Path $dest -Leaf)" }
-    } else { Write-Ok "$(Split-Path $dest -Leaf) already exists, skipped." }
-}
-Download-To "$pegasusRaw/config/CLAUDE.md"      (Join-Path $projectsDir "CLAUDE.md")
-Download-To "$pegasusRaw/docs/COMMANDS.md"      (Join-Path $projectsDir "COMMANDS.md")
-Download-To "$pegasusRaw/docs/PROMPTS.md"       (Join-Path $projectsDir "PROMPTS.md")
-Download-To "$pegasusRaw/docs/POSSIBILITIES.md" (Join-Path $projectsDir "POSSIBILITIES.md")
-
-# ---------- 8. Apply Claude config + offer connect ----------
-Write-Header "8 / 8  Claude config & design tool bridges"
-
-$claudeDir = Join-Path $HOME ".claude"
-$claudeSettings = Join-Path $claudeDir "settings.json"
-if (-not (Test-Path $claudeDir)) { New-Item -ItemType Directory -Path $claudeDir | Out-Null }
-if (Test-Path $claudeSettings) {
-    Write-Warn "You already have ~/.claude/settings.json — skipping (won't overwrite)."
-    Write-Host "  See: $pegasusRaw/config/claude-settings.json for recommended base."
-} else {
-    try { Invoke-WebRequest -Uri "$pegasusRaw/config/claude-settings.json" -OutFile $claudeSettings -UseBasicParsing; Write-Ok "Applied Pegasus base settings to ~/.claude/settings.json" }
-    catch { Write-Warn "Couldn't download base settings. Skipped." }
+    } else { Write-Ok "$(Split-Path $dest -Leaf) already there." }
 }
 
-# Install Pegasus skills (works in Claude Code AND OpenCode)
-Write-Host "Installing the ux-ui-audit skill..."
-$skillDir = Join-Path $claudeDir "skills/ux-ui-audit"
-if (-not (Test-Path $skillDir)) { New-Item -ItemType Directory -Path $skillDir -Force | Out-Null }
-foreach ($f in @("SKILL.md", "checklist.md", "report-template.md")) {
-    $dest = Join-Path $skillDir $f
-    if (Test-Path $dest) { Write-Ok "Skill file $f already present, skipped." }
-    else {
-        try { Invoke-WebRequest -Uri "$pegasusRaw/skills/ux-ui-audit/$f" -OutFile $dest -UseBasicParsing; Write-Ok "Installed: skills/ux-ui-audit/$f" }
-        catch { Write-Warn "Couldn't install $f" }
+Clear-Host
+Write-Host @"
+   ____
+  |  _ \ ___  __ _  __ _ ___ _   _ ___
+  | |_) / _ \/ _` |/ _` / __| | | / __|
+  |  __/  __/ (_| | (_| \__ \ |_| \__ \
+  |_|   \___|\__, |\__,_|___/\__,_|___/
+             |___/
+       Designer's coding launchpad
+"@ -ForegroundColor Cyan
+
+Write-Host ""
+Write-Host "About 3-5 minutes. Skip what you have. Then opens VS Code + the dashboard."
+Write-Host ""
+if ($Custom) { if (-not (Ask "Ready to begin?")) { Write-Host "Cancelled."; exit 0 } }
+
+# 1. winget
+Write-Header "1 / 9  winget"
+if (Have winget) { Write-Ok "winget is available." }
+else { Write-Warn "winget not found. Install 'App Installer' from Microsoft Store, then re-run."; exit 1 }
+
+# 2. Git
+Write-Header "2 / 9  Git"
+if (Have git) { Write-Ok "Git already installed." }
+else { winget install --id Git.Git -e --silent --accept-package-agreements --accept-source-agreements | Out-Null; Write-Ok "Git installed." }
+
+# 3. Node.js
+Write-Header "3 / 9  Node.js"
+if (Have node) { Write-Ok "Node already installed." }
+else { winget install --id OpenJS.NodeJS.LTS -e --silent --accept-package-agreements --accept-source-agreements | Out-Null; Write-Ok "Node installed (restart PowerShell if not on PATH)." }
+
+# 4. VS Code
+Write-Header "4 / 9  Visual Studio Code"
+if (Have code) { Write-Ok "VS Code already installed." }
+else { winget install --id Microsoft.VisualStudioCode -e --silent --accept-package-agreements --accept-source-agreements | Out-Null; Write-Ok "VS Code installed." }
+
+# 5. Coding agents + designer CLIs
+Write-Header "5 / 9  Coding agents + designer CLIs"
+if (Have claude) { Write-Ok "Claude Code already installed." }
+else {
+    try { Invoke-RestMethod https://claude.ai/install.ps1 | Invoke-Expression; Write-Ok "Claude Code installed." }
+    catch { npm install -g @anthropic-ai/claude-code | Out-Null; Write-Ok "Claude Code installed via npm." }
+}
+if (Have opencode) { Write-Ok "OpenCode already installed." }
+else { try { npm install -g opencode-ai | Out-Null; Write-Ok "OpenCode installed." } catch { Write-Warn "OpenCode install failed." } }
+
+foreach ($pkg in @("Gyan.FFmpeg", "ImageMagick.ImageMagick")) {
+    try { winget install --id $pkg -e --silent --accept-package-agreements --accept-source-agreements | Out-Null; Write-Ok "$pkg installed." }
+    catch { Write-Warn "Couldn't install $pkg" }
+}
+if (Have vercel) { Write-Ok "Vercel CLI already installed." }
+else { try { npm install -g vercel | Out-Null; Write-Ok "Vercel CLI installed." } catch { Write-Warn "Couldn't install Vercel CLI" } }
+
+# Vector / SVG / image processing toolchain
+foreach ($npmpkg in @("svgo","serve","@lhci/cli","pa11y","wrangler")) {
+    try { npm install -g $npmpkg | Out-Null; Write-Ok "$npmpkg installed." }
+    catch { Write-Warn "Couldn't install $npmpkg" }
+}
+# Bun
+if (Have bun) { Write-Ok "Bun already installed." }
+else { try { Invoke-RestMethod bun.sh/install.ps1 | Invoke-Expression; Write-Ok "Bun installed." } catch { Write-Warn "Bun install skipped." } }
+# uv (for spec-kit)
+if (Have uv) { Write-Ok "uv already installed." }
+else { try { Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression; Write-Ok "uv installed." } catch { Write-Warn "Couldn't install uv" } }
+# spec-kit
+if (Have specify) { Write-Ok "spec-kit (specify) already installed." }
+else {
+    if (Have uv) {
+        try { uv tool install --from "git+https://github.com/github/spec-kit.git" specify-cli | Out-Null; Write-Ok "spec-kit installed." }
+        catch { Write-Warn "Couldn't install spec-kit. Run later: uvx --from git+https://github.com/github/spec-kit.git specify init <name>" }
+    } else { Write-Warn "Skipped spec-kit (needs uv)." }
+}
+
+# 6. VS Code extensions
+Write-Header "6 / 9  VS Code extensions"
+$extensions = @(
+    "anthropic.claude-code", "sst-dev.opencode",
+    "MermaidChart.vscode-mermaid-chart", "GitHub.vscode-github-actions",
+    "ms-vscode.live-server", "ms-python.python",
+    "esbenp.prettier-vscode", "bradlc.vscode-tailwindcss",
+    "naumovs.color-highlight", "kisstkondoros.vscode-gutter-preview",
+    "formulahendry.auto-rename-tag", "PKief.material-icon-theme",
+    "figma.figma-vscode-extension", "ecmel.vscode-html-css",
+    "adpyke.codesnap"
+)
+if (Have code) {
+    foreach ($ext in $extensions) {
+        try { code --install-extension $ext --force | Out-Null; Write-Ok $ext }
+        catch { Write-Warn "Could not install $ext" }
+    }
+} else { Write-Warn "VS Code 'code' command not on PATH yet — restart PowerShell, then re-run." }
+
+# 7. Design folder + cheatsheets + templates + helper
+Write-Header "7 / 9  Your design folder + templates"
+if (-not (Test-Path $projectsDir)) { New-Item -ItemType Directory -Path $projectsDir | Out-Null }
+Write-Ok "Design folder: $projectsDir"
+
+Download-To "$pegasusRaw/config/CLAUDE.md"        (Join-Path $projectsDir "CLAUDE.md")
+Download-To "$pegasusRaw/docs/COMMANDS.md"        (Join-Path $projectsDir "COMMANDS.md")
+Download-To "$pegasusRaw/docs/PROMPTS.md"         (Join-Path $projectsDir "PROMPTS.md")
+Download-To "$pegasusRaw/docs/POSSIBILITIES.md"   (Join-Path $projectsDir "POSSIBILITIES.md")
+Download-To "$pegasusRaw/docs/GLOSSARY.md"        (Join-Path $projectsDir "GLOSSARY.md")
+Download-To "$pegasusRaw/docs/RECOMMENDED.md"     (Join-Path $projectsDir "RECOMMENDED.md")
+Download-To "$pegasusRaw/docs/TROUBLESHOOTING.md" (Join-Path $projectsDir "TROUBLESHOOTING.md")
+
+if (-not (Test-Path "$pegasusHome/templates")) { New-Item -ItemType Directory -Path "$pegasusHome/templates" -Force | Out-Null }
+foreach ($type in @("portfolio","case-study-deck","scroll-case-study","landing-page","resume","link-in-bio","illustration-gallery")) {
+    $td = Join-Path "$pegasusHome/templates" $type
+    if (-not (Test-Path $td)) { New-Item -ItemType Directory -Path $td -Force | Out-Null }
+    foreach ($f in @("index.html","CLAUDE.md","styles.css")) {
+        Download-To "$pegasusRaw/templates/$type/$f" (Join-Path $td $f)
     }
 }
 
-Write-Host ""
-Write-Host "Connect Pegasus to your design tools (Figma, Webflow, Playwright, etc.)?" -ForegroundColor White
-Write-Host "Walks you through enabling each one, with prompts to skip the ones you don't use."
-if (Ask "Run the connect script now?") {
-    irm "$pegasusRaw/connect.ps1" | iex
-} else {
-    Write-Host "Skipped. Run it any time with:"
-    Write-Host "  irm $pegasusRaw/connect.ps1 | iex"
+# Pegasus helper command (PowerShell wrapper)
+$binDir = "$HOME/.pegasus/bin"
+if (-not (Test-Path $binDir)) { New-Item -ItemType Directory -Path $binDir -Force | Out-Null }
+$peg = Join-Path $binDir "pegasus.ps1"
+Download-To "$pegasusRaw/bin/pegasus.ps1" $peg
+if (Test-Path $peg) {
+    # Add to PATH for current session
+    $env:Path = "$binDir;$env:Path"
+    # Persist to user PATH
+    [Environment]::SetEnvironmentVariable("Path", "$binDir;$([Environment]::GetEnvironmentVariable('Path', 'User'))", "User")
+    Write-Ok "Pegasus helper installed at $peg (added to PATH)"
 }
 
-# ---------- done ----------
+# 8. Claude config + skills
+Write-Header "8 / 9  Claude config + skills"
+$claudeDir = Join-Path $HOME ".claude"
+if (-not (Test-Path $claudeDir)) { New-Item -ItemType Directory -Path $claudeDir | Out-Null }
+$claudeSettings = Join-Path $claudeDir "settings.json"
+if (Test-Path $claudeSettings) { Write-Ok "Existing ~/.claude/settings.json — leaving it alone." }
+else { Download-To "$pegasusRaw/config/claude-settings.json" $claudeSettings }
+
+foreach ($skill in @("ux-ui-audit","job-finder","vector-workflow")) {
+    $skillDir = Join-Path $claudeDir "skills/$skill"
+    if (-not (Test-Path $skillDir)) { New-Item -ItemType Directory -Path $skillDir -Force | Out-Null }
+    Download-To "$pegasusRaw/skills/$skill/SKILL.md" (Join-Path $skillDir "SKILL.md")
+    if ($skill -eq "ux-ui-audit") {
+        Download-To "$pegasusRaw/skills/$skill/checklist.md" (Join-Path $skillDir "checklist.md")
+        Download-To "$pegasusRaw/skills/$skill/report-template.md" (Join-Path $skillDir "report-template.md")
+    }
+}
+
+# 9. Connect design tools
+Write-Header "9 / 9  Design tool bridges"
+Write-Host "Wiring up MCP bridges automatically. You'll log in on first use of each."
+try { Invoke-RestMethod "$pegasusRaw/connect.ps1" | Invoke-Expression } catch { Write-Warn "Couldn't run connect.ps1" }
+
+# Welcome page + dashboard for offline use
+Download-To "$pegasusRaw/welcome.html"   "$pegasusHome/welcome.html"
+Download-To "$pegasusRaw/dashboard.html" "$pegasusHome/dashboard.html"
+
+# Done
 Write-Header "All done"
 Write-Host "You're set up." -ForegroundColor Green
 Write-Host ""
-Write-Host "Next steps:"
-Write-Host "  1. Open your projects folder:    code `"$projectsDir`""
-Write-Host "  2. Read the cheatsheet:           start `"$projectsDir\COMMANDS.md`""
-Write-Host "  3. Create your first project:    cd `"$projectsDir`"; mkdir hello; cd hello"
-Write-Host "  4. Start Claude Code:             claude"
-Write-Host "  5. Try one of the prompts in:    $projectsDir\PROMPTS.md"
+Write-Host "Try this right now:"
+Write-Host "  pegasus new portfolio my-site    # creates a working portfolio + opens VS Code"
+Write-Host "  pegasus dashboard                # visual launcher in your browser"
+Write-Host "  pegasus tour                     # 5-minute walkthrough"
+Write-Host "  pegasus help                     # all commands"
 Write-Host ""
-Write-Host "Other Pegasus commands:"
-Write-Host "  Install standalone desktop apps:  irm $pegasusRaw/desktop-apps.ps1 | iex"
-Write-Host "  Connect more design tools later:  irm $pegasusRaw/connect.ps1 | iex"
-Write-Host ""
-Write-Host "Tip: when Claude asks you to log in, follow the link it prints."
+
+# Auto-launch
+Start-Process "$pegasusHome/welcome.html"
+if (Have code) { code $projectsDir (Join-Path $projectsDir "COMMANDS.md") }
