@@ -238,6 +238,15 @@
       </p>
     </div>
 
+    <!-- Onboarding checklist -->
+    <div id="onboardingBar" class="mt-6 hidden p-4 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-900">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-sm font-medium">Setup progress: <span id="onbCount">0/4</span></p>
+        <button onclick="document.getElementById('onboardingBar').classList.add('hidden'); localStorage.setItem('pegasus.onboardingDismissed','1')" class="text-xs text-stone-500 hover:text-stone-900 underline">Hide</button>
+      </div>
+      <div id="onbList" class="space-y-1 text-sm"></div>
+    </div>
+
     <!-- Active-track banner (changes dynamically) -->
     <div id="trackBanner" class="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-full text-base font-medium shadow-md">
       <span id="trackBannerIcon">🎨</span>
@@ -519,7 +528,8 @@
     <p>
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
-    <p class="mt-1 text-xs">No tracking. No analytics. This page works fully offline once loaded.</p>
+    <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
+    <p class="mt-1 text-xs text-stone-400">Pegasus dashboard v1.0.3 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');location.reload()}" class="underline hover:text-stone-700">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -831,13 +841,68 @@ const glossary = [
 
 function renderTemplates() {
   document.getElementById('templates-grid').innerHTML = templates.map(t => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${t.track || 'both'}" data-copyable="1" data-card-copy="${t.cmd}">
-      <h3 class="font-medium font-serif text-xl">${t.name}</h3>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${t.track || 'both'}" data-copyable="1" data-card-copy="${t.cmd}" data-template="${t.name}">
+      <div class="flex items-baseline justify-between mb-1">
+        <h3 class="font-medium font-serif text-xl">${t.name}</h3>
+        <span class="text-xs text-stone-500">${t.track === 'design' ? '🎨' : t.track === 'jobs' ? '💼' : '⊕'}</span>
+      </div>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${t.desc}</p>
       <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${t.cmd}">${t.cmd}</button>
+      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-template-details">View what's inside →</button>
     </div>
   `).join('');
 }
+
+const templateContents = {
+  portfolio: 'Single-page portfolio: hero with name + tagline, project grid (4 placeholder cards), about, contact link. Tailwind via CDN, Crimson Pro + Inter fonts.',
+  'case-study-deck': '10-slide reveal.js deck (cover, problem, research, ideation, design decisions ×3, result, impact, thanks). Print-to-PDF support.',
+  'scroll-case-study': 'Long-form scrollable case study with 8 sections: hero, problem, research, approach, decisions ×2, result, impact, what-i-d-do-differently.',
+  'landing-page': 'One-page launch site with email signup form (fake by default; wire to Buttondown / ConvertKit / Mailchimp).',
+  resume: 'Printable single-page CV. Cmd-P → Save as PDF. Margins pre-tuned for US Letter.',
+  'link-in-bio': 'Linktree replacement: avatar, bio, 5 link cards. Drop into your own domain.',
+  'illustration-gallery': 'Masonry grid for paintings, vector art, lettering. Varied aspect ratios for curated feel.',
+  'mood-board': 'Image grid + 5-swatch palette + type pairings + texture/motion notes.',
+  'components-lab': 'Copy-paste-ready Tailwind components: buttons (3), card, form input, hero, stat row, pull quote.',
+  'agency-page': 'Solo studio one-pager: hero, services (3), process (4 weeks), pricing (3 tiers), recent work, contact.',
+  'error-page': 'Calm 404 page. Drop into any project as 404.html.',
+  'podcast-page': 'Dark-mode podcast site: episode list, audio players, platform links (Apple, Spotify, RSS, YouTube).',
+  'newsletter-archive': 'Signup landing + past-issues list. Wire to Buttondown / ConvertKit / Mailchimp.',
+};
+
+function openTemplateModal(name) {
+  const t = templates.find(x => x.name === name);
+  if (!t) return;
+  const modal = document.getElementById('workflowModal');
+  modal.querySelector('[data-modal-meta]').textContent = `Template · ${t.track === 'design' ? '🎨 UX Design' : '💼 Job Search'}`;
+  modal.querySelector('[data-modal-title]').textContent = t.name;
+  modal.querySelector('[data-modal-desc]').textContent = t.desc;
+  modal.querySelector('[data-modal-steps]').innerHTML = `
+    <div class="space-y-4">
+      <div>
+        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">What's inside</p>
+        <p class="text-sm text-stone-700 dark:text-stone-300">${templateContents[name] || 'Single index.html with Tailwind CDN, no build step.'}</p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Scaffold it — click to copy</p>
+        <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${t.cmd}">${t.cmd}</button>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Then ship it</p>
+        <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="cd ~/Design-Projects/${t.cmd.split(' ').pop()} && pegasus deploy">cd ~/Design-Projects/${t.cmd.split(' ').pop()} && pegasus deploy</button>
+      </div>
+      <p class="text-xs text-stone-500">All templates are HTML + Tailwind via CDN — no build step, works in any browser.</p>
+    </div>
+  `;
+  modal.querySelector('[data-modal-steps]').querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+  modal.classList.add('open');
+}
+
+document.addEventListener('click', e => {
+  const view = e.target.closest('.view-template-details');
+  if (!view) return;
+  const card = view.closest('[data-template]');
+  if (card) openTemplateModal(card.dataset.template);
+});
 
 function renderCommands() {
   document.getElementById('commands-list').innerHTML = commands.map(c => `
@@ -850,11 +915,15 @@ function renderCommands() {
 
 function renderSkills() {
   document.getElementById('skills-list').innerHTML = skills.map(s => `
-    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}" data-copyable="1" data-card-copy="${s.invoke.replace(/"/g, '&quot;')}" data-skill="${s.name}">
-      <h3 class="font-medium font-serif text-xl">${s.name}</h3>
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}" data-skill="${s.name}">
+      <div class="flex items-baseline justify-between mb-1">
+        <h3 class="font-medium font-serif text-xl">${s.name}</h3>
+        <span class="text-xs text-stone-500">${s.track === 'design' ? '🎨' : s.track === 'jobs' ? '💼' : '⊕'}</span>
+      </div>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${s.summary}</p>
       <div class="text-xs text-stone-500 mb-1">Try saying:</div>
       <button class="copy bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left text-sm italic" data-copy='${s.invoke.replace(/'/g, "&#39;")}'>"${s.invoke}"</button>
+      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-skill-details">View example use cases →</button>
     </div>
   `).join('');
 }
@@ -1917,6 +1986,100 @@ renderSparkline();
 // Re-render when track/profile updates
 const _origRenderPulse = renderPulse;
 renderPulse = function() { _origRenderPulse(); renderSparkline(); };
+
+
+
+// ─────────────────────────────────────────────
+// SKILL DETAIL MODAL — examples + paired skills
+// ─────────────────────────────────────────────
+const skillExamples = {
+  'ux-ui-audit': { examples: ['"Do a UX audit on https://my-portfolio.com"', '"Audit my new landing page against the 17 sections."', '"Score this design system\'s accessibility, ranked by severity."'], pairs: ['vector-workflow', 'content-writer', 'figma-converter'] },
+  'job-finder': { examples: ['"Use the job-finder skill to find me design jobs."', '"Pull senior product design jobs in NYC under $200k."'], pairs: ['career-ops-evaluate', 'career-ops-triage', 'resume-tailor'] },
+  'vector-workflow': { examples: ['"Use vector-workflow to convert these Procreate exports to WebP"', '"Trace this PNG logo into a clean SVG and embed it."'], pairs: ['ux-ui-audit', 'content-writer'] },
+  'figma-converter': { examples: ['"Use figma-converter on https://figma.com/design/xyz"', '"Build this Figma frame as HTML/Tailwind, mobile-first."'], pairs: ['ux-ui-audit', 'content-writer'] },
+  'content-writer': { examples: ['"Use content-writer to refine my hero tagline."', '"Tighten the about page copy. Three versions: Tight, Direct, Warm."'], pairs: ['portfolio-case-study', 'figma-converter'] },
+  'portfolio-case-study': { examples: ['"Use the portfolio-case-study skill to draft a case study for my Acme redesign."'], pairs: ['scroll-case-study (template)', 'content-writer', 'ux-ui-audit'] },
+  'interview-prep': { examples: ['"Use interview-prep — I have an interview Tuesday at Stripe for Senior Designer."', '"Switch to rehearsal mode for my Figma interview."'], pairs: ['career-ops-research', 'interview-prep-generator', 'salary-negotiation-prep'] },
+  'weekly-review': { examples: ['"Run my weekly review."', '"Sunday check-in — what should I focus on this week?"'], pairs: ['job-finder', 'content-writer'] },
+  'resume-tailor': { examples: ['"Use resume-tailor on this JD: [paste]"'], pairs: ['cover-letter-generator', 'job-description-analyzer', 'career-ops-tailor-resume'] },
+  'cover-letter-generator': { examples: ['"Use cover-letter-generator for this Stripe role."'], pairs: ['resume-tailor', 'career-ops-research'] },
+};
+
+function openSkillModal(name) {
+  const s = skills.find(x => x.name === name);
+  if (!s) return;
+  const ex = skillExamples[name];
+  const modal = document.getElementById('workflowModal');
+  modal.querySelector('[data-modal-meta]').textContent = `Skill · ${s.track === 'design' ? '🎨 UX Design' : s.track === 'jobs' ? '💼 Job Search' : '⊕ Both'}`;
+  modal.querySelector('[data-modal-title]').textContent = name;
+  modal.querySelector('[data-modal-desc]').textContent = s.summary;
+  const stepsEl = modal.querySelector('[data-modal-steps]');
+  let html = `<div class="space-y-4">
+    <div>
+      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Quick invoke — click to copy</p>
+      <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm italic font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${s.invoke.replace(/"/g, '&quot;')}">"${s.invoke}"</button>
+    </div>`;
+  if (ex && ex.examples) {
+    html += `<div>
+      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Other ways to use it</p>
+      <ul class="space-y-2">
+        ${ex.examples.map(e => `<li><button class="copy w-full text-left bg-stone-50 dark:bg-stone-900 p-2 rounded text-sm font-mono hover:bg-stone-100 dark:hover:bg-stone-800" data-copy="${e.replace(/"/g, '&quot;')}">${e}</button></li>`).join('')}
+      </ul>
+    </div>`;
+  }
+  if (ex && ex.pairs) {
+    html += `<div>
+      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Pairs well with</p>
+      <p class="text-sm text-stone-700 dark:text-stone-300">${ex.pairs.join(' · ')}</p>
+    </div>`;
+  }
+  html += `<p class="text-xs text-stone-500">Skill auto-loads in Claude Code AND OpenCode (lives at ~/.claude/skills/${name}/)</p></div>`;
+  stepsEl.innerHTML = html;
+  stepsEl.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+  modal.classList.add('open');
+}
+
+document.addEventListener('click', e => {
+  const view = e.target.closest('.view-skill-details');
+  if (!view) return;
+  const card = view.closest('[data-skill]');
+  if (card) openSkillModal(card.dataset.skill);
+});
+
+
+
+// ─────────────────────────────────────────────
+// ONBOARDING CHECKLIST — shows until user dismisses
+// ─────────────────────────────────────────────
+function renderOnboarding() {
+  const bar = document.getElementById('onboardingBar');
+  if (!bar) return;
+  if (_safeStorage.getItem('pegasus.onboardingDismissed')) return;
+  const profile = loadProfile();
+  const pulse = loadPulse();
+  const items = [
+    { label: 'Fill in your profile (used by skills)', done: !!profile.name, action: () => document.getElementById('profile').scrollIntoView({behavior:'smooth'}) },
+    { label: 'Make a project: pegasus new portfolio my-site', done: (pulse.recent || []).some(r => r.label && r.label.includes('pegasus new')), action: () => document.getElementById('templates').scrollIntoView({behavior:'smooth'}) },
+    { label: 'Try a workflow recipe', done: (pulse.recent || []).some(r => r.kind === 'Workflow'), action: () => document.getElementById('workflows').scrollIntoView({behavior:'smooth'}) },
+    { label: 'Use a skill at least once', done: (pulse.skillsSeen || []).length > 0, action: () => document.getElementById('skills').scrollIntoView({behavior:'smooth'}) },
+  ];
+  const done = items.filter(i => i.done).length;
+  document.getElementById('onbCount').textContent = `${done}/${items.length}`;
+  document.getElementById('onbList').innerHTML = items.map((i, idx) => `
+    <div class="flex items-center gap-2">
+      <span class="${i.done ? 'text-green-600' : 'text-stone-400'}">${i.done ? '✓' : '○'}</span>
+      <button onclick="(${i.action.toString()})()" class="${i.done ? 'line-through text-stone-500' : 'text-stone-900 dark:text-stone-100 hover:underline'} text-left">${i.label}</button>
+    </div>
+  `).join('');
+  if (done < items.length) bar.classList.remove('hidden');
+  else bar.classList.add('hidden');
+}
+renderOnboarding();
+// Re-check after profile saves or pulse updates
+const _origSaveP = saveProfile;
+saveProfile = function(p) { _origSaveP(p); renderOnboarding(); };
+const _origRP = renderPulse;
+renderPulse = function() { _origRP(); renderOnboarding(); };
 
 </script>
 </body>
