@@ -63,7 +63,7 @@
   </script>
   <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
        Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
-  <link rel="stylesheet" href="./dashboard.css?v=24" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
+  <link rel="stylesheet" href="./dashboard.css?v=25" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
     // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
     window.tailwind = window.tailwind || {};
@@ -205,6 +205,73 @@
     }
     #versionDot[data-version-state="behind"] { background: #ef4444; }
     @media (prefers-reduced-motion: reduce) { #versionDot { animation: none; } }
+
+    /* ─────────────────────────────────────────────────────────
+       SECTION SKINS — each major section gets a distinct visual
+       treatment so the page reads as a magazine, not a CMS.
+       ───────────────────────────────────────────────────────── */
+    /* Templates: a clean white grid against a faintly warm background — galleries should breathe. */
+    body[data-track] section.skin-paper {
+      background: linear-gradient(180deg, transparent 0%, rgba(254, 215, 170, 0.10) 50%, transparent 100%);
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-paper {
+      background: linear-gradient(180deg, transparent 0%, rgba(124, 45, 18, 0.18) 50%, transparent 100%);
+    }
+
+    /* Commands: terminal aesthetic — dark slab with mono everything. */
+    body[data-track] section.skin-terminal {
+      background: #0c0a09; color: #fafaf9;
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+      border-top: 1px solid #292524 !important; border-bottom: 1px solid #292524;
+    }
+    body[data-track] section.skin-terminal h2 { color: #fafaf9; }
+    body[data-track] section.skin-terminal .section-num { color: var(--brand-deep); border-color: var(--brand-deep); }
+    body[data-track] section.skin-terminal p { color: #d6d3d1; }
+    body[data-track] section.skin-terminal :where(.card) {
+      background: #1c1917; border-color: #292524; color: #fafaf9;
+    }
+    body[data-track] section.skin-terminal :where(.card):hover { border-color: var(--brand); }
+    body[data-track] section.skin-terminal :where(.card) .text-stone-500,
+    body[data-track] section.skin-terminal :where(.card) .text-stone-600,
+    body[data-track] section.skin-terminal :where(.card) .text-stone-700 { color: #d6d3d1; }
+    /* Override even in light mode — terminal stays terminal. */
+    :root:not(.dark) body[data-track] section.skin-terminal :where(.card) .text-stone-500,
+    :root:not(.dark) body[data-track] section.skin-terminal :where(.card) .text-stone-600,
+    :root:not(.dark) body[data-track] section.skin-terminal :where(.card) .text-stone-700 { color: #d6d3d1; }
+    /* Inner command pills (the bg-stone-100 / bg-white "code" inputs inside each
+       command card) — restyle to look like a terminal prompt: $ green prompt
+       on a near-black surface with mono cyan/amber command text. */
+    body[data-track] section.skin-terminal :where(.card) .bg-stone-100,
+    body[data-track] section.skin-terminal :where(.card) .bg-white,
+    body[data-track] section.skin-terminal :where(.card) input[type="text"],
+    body[data-track] section.skin-terminal :where(.card) pre,
+    body[data-track] section.skin-terminal :where(.card) code {
+      background: #0c0a09 !important; color: #fef3c7 !important;
+      border-color: #292524 !important;
+    }
+    body[data-track] section.skin-terminal :where(.card) .bg-stone-100::before,
+    body[data-track] section.skin-terminal :where(.card) input[type="text"]::before {
+      content: "$ "; color: var(--brand);
+    }
+
+    /* Mastery / Coaxing: editorial — slightly warmer cream tone, generous serif emphasis. */
+    body[data-track] section.skin-editorial {
+      background: linear-gradient(180deg, transparent 0%, rgba(245, 245, 244, 0.55) 50%, transparent 100%);
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-editorial {
+      background: linear-gradient(180deg, transparent 0%, rgba(28, 25, 23, 0.55) 50%, transparent 100%);
+    }
+
+    /* Flow: data-viz panel — neutral, elevated card-like surface. */
+    body[data-track] section.skin-data {
+      background: linear-gradient(180deg, transparent 0%, rgba(224, 242, 254, 0.30) 50%, transparent 100%);
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-data {
+      background: linear-gradient(180deg, transparent 0%, rgba(7, 89, 133, 0.18) 50%, transparent 100%);
+    }
 
     /* Sankey diagram theme variables — flip on .dark without re-rendering. */
     :root {
@@ -470,6 +537,18 @@
       <span class="brand-mark" aria-hidden="true">→</span>
       <span><strong>How to use:</strong> click any card to copy. Paste into your VS Code terminal or the Claude/OpenCode chat box.</span>
     </p>
+
+    <!-- Manifesto — establishes voice and what Pegasus actually is, in one bite. -->
+    <aside class="mt-10 max-w-3xl">
+      <p class="text-[10px] uppercase tracking-[0.3em] font-mono text-stone-700 dark:text-stone-300 mb-3"><span class="brand-mark mr-1" aria-hidden="true">✦</span>The pitch</p>
+      <p class="font-serif text-2xl md:text-3xl leading-snug text-stone-900 dark:text-stone-100">
+        A designer's command line that <em>doesn't make you feel like one</em>. Templates that ship in seconds. Skills that work like a senior coworker. A 14&#8209;day sprint that turns "I should learn this" into <span class="relative inline-block">
+          <span class="relative z-10">muscle memory</span>
+          <span class="absolute left-0 right-0 bottom-0 h-2 bg-[var(--brand)]/30 -z-0" aria-hidden="true"></span>
+        </span>.
+      </p>
+      <p class="mt-4 text-sm text-stone-600 dark:text-stone-400">No build steps. No frameworks. No waiting on engineering. Pegasus runs on your laptop, talks to your Figma + Gmail + Notion, and gets out of the way when you're shipping.</p>
+    </aside>
 
     <!-- Search bar -->
     <div class="mt-8 relative max-w-xl">
@@ -749,21 +828,21 @@
     <!-- WORKFLOWS — multi-step recipes that chain skills -->
     <section id="workflows" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">02</span>Workflows</h2>
-      <p class="text-stone-600 dark:text-stone-400 mb-6">Click any recipe → <strong>Copy all prompts</strong> for one-shot, or copy step-by-step.</p>
+      <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Multi-step recipes that compose 2–5 skills into a real outcome. Click any recipe → <strong>Copy all prompts</strong> to drop the whole sequence into one chat, or paste step-by-step.</p>
       <div id="workflows-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- TEMPLATES -->
-    <section id="templates" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="templates" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-paper">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">03</span>Templates <span class="text-stone-400 dark:text-stone-600">·</span> 7</h2>
-      <p class="text-stone-600 dark:text-stone-400 mb-6">Each one is a working starter. <span class="font-mono">pegasus new &lt;type&gt; &lt;name&gt;</span></p>
+      <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Working starters, not Lorem-Ipsum mockups. Spin one up in seconds with <span class="font-mono text-stone-900 dark:text-stone-100">pegasus new &lt;type&gt; &lt;name&gt;</span> and ship before lunch.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="templates-grid">
         <!-- Cards inserted by JS from data below -->
       </div>
     </section>
 
     <!-- COMMANDS -->
-    <section id="commands" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="commands" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-terminal">
       <h2 class="font-serif text-3xl mb-6"><span class="section-num">04</span>Commands</h2>
       <div id="commands-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
@@ -771,26 +850,26 @@
     <!-- SKILLS -->
     <section id="skills" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">05</span>Skills <span class="text-stone-400 dark:text-stone-600">·</span> auto-loaded by Claude &amp; OpenCode</h2>
-      <p class="text-stone-600 dark:text-stone-400 mb-6">Just describe what you want — the right skill activates.</p>
+      <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Reusable expertise the agent loads on demand. Like installing a senior coworker who never sleeps and remembers everything you taught them.</p>
       <div id="skills-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- MCPs -->
     <section id="mcps" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">06</span>Bridges <span class="text-stone-400 dark:text-stone-600">·</span> MCPs</h2>
-      <p class="text-stone-600 dark:text-stone-400 mb-6">Run <span class="font-mono">pegasus signin</span> first, then these light up.</p>
+      <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Your tools talk to each other through Pegasus. Figma reads into HTML. Gmail drafts itself. Calendar gets the deadline. Run <span class="font-mono text-stone-900 dark:text-stone-100">pegasus signin</span> once and the bridges light up.</p>
       <div id="mcps-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
 
     <!-- PROMPTS -->
     <section id="prompts" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">07</span>Prompts</h2>
-      <p class="text-stone-600 dark:text-stone-400 mb-6">Click to copy. Paste into Claude / OpenCode.</p>
+      <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Battle-tested one-shots. Click to copy, paste into Claude or OpenCode, swap the bracketed bits for your specifics.</p>
       <div id="prompts-list" class="space-y-3"></div>
     </section>
 
     <!-- MASTERY — escalation tiers + anatomy + composition formula + patterns -->
-    <section id="mastery" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="mastery" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-editorial">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">08</span>Prompt mastery</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-2">Same goal, three quality levels. Read the <strong>Basic</strong>, then watch each tier add a real lever — composed skills, pointed inputs, hard acceptance criteria, an iteration loop.</p>
       <p class="text-xs text-stone-600 dark:text-stone-400 mb-6">Tip: copy a tier-3 prompt and replace the bracketed bits with your own. That's the whole game.</p>
@@ -971,7 +1050,7 @@
     </section>
 
     <!-- COAXING — meta-prompting techniques, the moves that get the most out of the agent -->
-    <section id="coaxing" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="coaxing" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-editorial">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">09</span>Coaxing the agent</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-2">Meta-prompts that change <em>how</em> the agent works for you, not <em>what</em> it works on. These are the moves that turn a single-shot helper into an autonomous collaborator.</p>
       <p class="text-xs text-stone-600 dark:text-stone-400 mb-8">Read the <strong>Cue</strong> (what to type), the <strong>Why</strong> (what it unlocks), and the <strong>Example</strong> (the exact phrasing). Pair these with the prompt anatomy in the Mastery section.</p>
@@ -979,10 +1058,12 @@
     </section>
 
     <!-- TOOL FLOW — interactive Sankey of pegasus commands → tools → impacts -->
-    <section id="flow" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="flow" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-data">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">10</span>Tool flow</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-2">An interactive map of how Pegasus categories flow into specific tools and the artifacts they produce. Hover any node or link to follow the path.</p>
       <p class="text-xs text-stone-600 dark:text-stone-400 mb-6">Click a node to lock the highlight; click again or press <kbd>Esc</kbd> to release.</p>
+      <!-- Filter chips: toggle each source category in/out of the diagram. -->
+      <div id="sankey-filters" class="flex flex-wrap items-center gap-2 mb-3" role="group" aria-label="Filter source categories"></div>
       <!-- Source-category legend, mirrored inside the SVG by column-header text labels. -->
       <div id="sankey-legend" class="flex flex-wrap items-center gap-3 mb-3 text-xs"></div>
       <div id="sankey-wrap" class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 relative">
@@ -992,8 +1073,13 @@
         <div id="sankeyTip" role="tooltip" class="hidden absolute pointer-events-none bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 text-xs rounded px-2.5 py-1.5 shadow-lg z-10 max-w-xs leading-relaxed"></div>
         <div id="sankeyLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
         <div class="absolute top-3 right-3 flex items-baseline gap-2 z-10">
+          <span id="sankeyCount" class="text-[10px] font-mono text-stone-500 dark:text-stone-400"></span>
           <button id="sankeyReset" class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline px-1 hidden">↺ Release lock</button>
         </div>
+      </div>
+      <!-- Detail panel — populated when a node is hovered or locked, blank otherwise. -->
+      <div id="sankey-detail" class="mt-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 py-3 text-sm" aria-live="polite">
+        <span class="text-stone-500 dark:text-stone-400 italic">Hover a node to see what it produces. Click to lock the path. Filter chips above show or hide entire categories.</span>
       </div>
       <details class="mt-4 text-xs">
         <summary class="text-stone-600 dark:text-stone-400 cursor-pointer hover:text-stone-900 dark:hover:text-stone-100 select-none">No JS? Show the same paths as a list</summary>
@@ -1004,7 +1090,7 @@
     <!-- RECOMMENDED -->
     <section id="recommended" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">11</span>Recommended <span class="text-stone-400 dark:text-stone-600">·</span> external repos</h2>
-      <p class="text-stone-600 dark:text-stone-400 mb-6">Hand-picked. All MIT-licensed. Use <span class="font-mono">pegasus clone &lt;url&gt; &lt;name&gt;</span>.</p>
+      <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Curated repos worth your <span class="font-mono">git clone</span>. All MIT, all reviewed, all designer-friendly. Use <span class="font-mono text-stone-900 dark:text-stone-100">pegasus clone &lt;url&gt; &lt;name&gt;</span>.</p>
       <div id="recommended-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
@@ -1069,12 +1155,35 @@
 
   </main>
 
-  <footer class="max-w-6xl mx-auto px-6 py-8 text-sm text-stone-500 dark:text-stone-400 border-t border-stone-200 dark:border-stone-800">
-    <p>
-      Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
-    </p>
-    <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">Pegasus dashboard v1.1.6 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');_safeStorage.removeItem('pegasus.themeToggleSeen');_safeStorage.removeItem('pegasus.latestTag');location.reload()}" class="underline hover:text-stone-700 dark:hover:text-stone-200">Reset onboarding</button></p>
+  <footer class="max-w-6xl mx-auto px-6 py-12 text-sm border-t border-stone-200 dark:border-stone-800">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div>
+        <p class="text-[10px] uppercase tracking-[0.3em] font-mono text-stone-700 dark:text-stone-300 mb-3"><span class="brand-mark mr-1" aria-hidden="true">✦</span>Pegasus</p>
+        <p class="font-serif text-xl text-stone-900 dark:text-stone-100 leading-tight">Built for designers who refuse to wait for engineering.</p>
+        <p class="mt-3 text-xs text-stone-600 dark:text-stone-400">No tracking. No analytics. No accounts. Works fully offline once loaded. Your prompts and progress live in your browser, not our database (we don't have one).</p>
+      </div>
+      <div>
+        <p class="text-[10px] uppercase tracking-[0.3em] font-mono text-stone-700 dark:text-stone-300 mb-3">The deal</p>
+        <ul class="space-y-1.5 text-xs text-stone-700 dark:text-stone-300">
+          <li><span class="brand-mark mr-1" aria-hidden="true">→</span>Templates ship in seconds.</li>
+          <li><span class="brand-mark mr-1" aria-hidden="true">→</span>Skills compose like Lego.</li>
+          <li><span class="brand-mark mr-1" aria-hidden="true">→</span>Bridges talk to your real tools.</li>
+          <li><span class="brand-mark mr-1" aria-hidden="true">→</span>You own the output.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-[10px] uppercase tracking-[0.3em] font-mono text-stone-700 dark:text-stone-300 mb-3">Boring bits</p>
+        <p class="text-xs text-stone-700 dark:text-stone-300 mb-2">v1.1.6 · MIT · curated by hand</p>
+        <p class="text-xs text-stone-600 dark:text-stone-400">
+          <button onclick="openAboutModal()" class="underline hover:text-stone-900 dark:hover:text-stone-100">About</button> ·
+          <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');_safeStorage.removeItem('pegasus.themeToggleSeen');_safeStorage.removeItem('pegasus.latestTag');location.reload()}" class="underline hover:text-stone-900 dark:hover:text-stone-100">Reset onboarding</button>
+        </p>
+      </div>
+    </div>
+    <div class="pt-6 border-t border-stone-200 dark:border-stone-800 flex items-baseline justify-between flex-wrap gap-3">
+      <p class="text-xs text-stone-600 dark:text-stone-400 font-mono">Made on a laptop · pushed live · zero meetings.</p>
+      <p class="text-xs text-stone-600 dark:text-stone-400 italic">"Calculate first. Guess only when you must."</p>
+    </div>
   </footer>
 
   <!-- Toast -->
@@ -2835,7 +2944,35 @@ function renderSankeyFallback() {
     .join('');
 }
 
+// Filter state — toggle source-category visibility. Persists across re-renders
+// (responsive resize, theme flip don't clear it).
+const _sankeyFilter = { tpl: true, skl: true, mcp: true, cmd: true };
 let _sankeyState = { svg: null, links: null, nodes: null, locked: null };
+
+// Per-tool starter prompt — surfaced in the detail panel when a specific tool
+// node is hovered/locked. Gives the diagram an "okay how do I actually use
+// this?" answer in one click.
+const flowToolPrompts = {
+  'tpl-portfolio':    'pegasus new portfolio my-site',
+  'tpl-deck':         'pegasus new case-study-deck acme-redesign',
+  'tpl-resume':       'pegasus new resume my-cv',
+  'tpl-gallery':      'pegasus new illustration-gallery my-art',
+  'skl-audit':        'Run the ux-ui-audit skill on the current directory. Write findings to AUDIT.md grouped by file.',
+  'skl-figma':        'Use the figma-converter skill against [Figma URL]. Pixel-match within 8px.',
+  'skl-content':      'Use the content-writer skill to refine this copy in 3 versions: tight, plain, playful.',
+  'skl-jobfinder':    'Use the job-finder skill to pull current design jobs from BuiltIn + LinkedIn against my profile.',
+  'skl-coverletter':  'Use cover-letter-generator on the JD I will paste below.',
+  'skl-tailor':       'Use career-ops-tailor-resume to make an ATS-optimized version targeting this JD.',
+  'skl-interview':    'Use the interview-prep skill — interview is at [Company] for [Role].',
+  'skl-vector':       'Use the vector-workflow skill on these Procreate exports — convert to WebP at 1600px wide.',
+  'mcp-figma':        'Use mcp__claude_ai_Figma__get_design_context to read this file: [URL].',
+  'mcp-gmail':        'Use the Gmail MCP — find any thread from a hiring manager and draft a polite reply.',
+  'mcp-cal':          'Use Google Calendar MCP to create reminders 24h before each "Apply by" date in this-week.md.',
+  'mcp-notion':       'Use Notion MCP to mirror my projects database into a markdown index.',
+  'cmd-new':          'pegasus new <type> <name>',
+  'cmd-deploy':       'pegasus deploy',
+  'cmd-clone':        'pegasus clone <github-url> <name>'
+};
 
 // Click on an impact node scrolls to a related dashboard surface — turns the
 // diagram into navigation, not just decoration.
@@ -2867,6 +3004,99 @@ function renderSankeyLegend() {
     <span class="text-[10px] text-stone-500 dark:text-stone-400 ml-auto italic">Click a node to lock · Esc to release</span>`;
 }
 
+function renderSankeyFilters() {
+  const el = document.getElementById('sankey-filters');
+  if (!el) return;
+  const cats = [
+    { key: 'tpl', name: 'Templates' },
+    { key: 'skl', name: 'Skills' },
+    { key: 'mcp', name: 'Bridges' },
+    { key: 'cmd', name: 'Commands' }
+  ];
+  el.innerHTML = `
+    <span class="text-[10px] uppercase tracking-wider text-stone-600 dark:text-stone-400 font-mono mr-1">Show:</span>
+    ${cats.map(c => {
+      const on = _sankeyFilter[c.key];
+      return `<button type="button" data-filter="${c.key}" aria-pressed="${on}" class="text-xs px-3 py-1 rounded-full border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 dark:focus-visible:ring-stone-100 ${on ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 border-stone-900 dark:border-stone-100' : 'bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 border-stone-300 dark:border-stone-700'}" style="${on ? 'box-shadow: inset 0 0 0 2px ' + flowCategoryColor[c.key] + ';' : ''}">
+        <span class="inline-block w-2 h-2 rounded-sm mr-1.5 align-middle" style="background:${flowCategoryColor[c.key]}" aria-hidden="true"></span>${_esc(c.name)}
+      </button>`;
+    }).join('')}
+    <button type="button" id="sankeyFilterAll" class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline ml-2">show all</button>
+    <button type="button" id="sankeyFilterNone" class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline">hide all</button>`;
+  // Wire toggles
+  el.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.getAttribute('data-filter');
+      _sankeyFilter[k] = !_sankeyFilter[k];
+      _sankeyState.locked = null;
+      renderSankey();
+    });
+  });
+  document.getElementById('sankeyFilterAll')?.addEventListener('click', () => {
+    Object.keys(_sankeyFilter).forEach(k => _sankeyFilter[k] = true);
+    _sankeyState.locked = null;
+    renderSankey();
+  });
+  document.getElementById('sankeyFilterNone')?.addEventListener('click', () => {
+    Object.keys(_sankeyFilter).forEach(k => _sankeyFilter[k] = false);
+    _sankeyState.locked = null;
+    renderSankey();
+  });
+}
+
+function updateSankeyDetail(node) {
+  const el = document.getElementById('sankey-detail');
+  if (!el) return;
+  if (!node) {
+    el.innerHTML = `<span class="text-stone-500 dark:text-stone-400 italic">Hover a node to see what it produces. Click to lock the path. Filter chips above show or hide entire categories.</span>`;
+    return;
+  }
+  const inputs = (node.targetLinks || []).map(l => l.source.name);
+  const outputs = (node.sourceLinks || []).map(l => l.target.name);
+  const prompt = flowToolPrompts[node.id];
+  const isImpact = node.category === 'impact';
+  const scrollTarget = flowImpactScrollMap[node.id];
+
+  const promptHtml = prompt
+    ? `<div class="mt-3 pt-3 border-t border-stone-200 dark:border-stone-800">
+         <div class="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">Try this</div>
+         <button class="copy text-left text-xs bg-stone-50 dark:bg-stone-950 px-3 py-2 rounded w-full font-mono leading-relaxed border border-stone-200 dark:border-stone-800" data-copy='${_esc(prompt).replace(/'/g, '&#39;')}'>${_esc(prompt)}</button>
+       </div>`
+    : '';
+  const scrollHtml = (isImpact && scrollTarget)
+    ? `<div class="mt-3 pt-3 border-t border-stone-200 dark:border-stone-800">
+         <button data-detail-scroll="${scrollTarget}" class="text-xs px-3 py-1.5 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90">Jump to ${_esc(scrollTarget)} section →</button>
+       </div>`
+    : '';
+  el.innerHTML = `
+    <div class="flex items-baseline justify-between gap-3 flex-wrap">
+      <div>
+        <span class="inline-block w-2 h-2 rounded-sm align-middle mr-2" style="background:${flowCategoryColor[node.category] || '#57534e'}"></span>
+        <span class="font-medium text-base">${_esc(node.name)}</span>
+        <span class="text-xs text-stone-500 dark:text-stone-400 ml-2">${_esc(node.category)}</span>
+      </div>
+      <span class="text-[10px] font-mono text-stone-500 dark:text-stone-400">in ${inputs.length} · out ${outputs.length}</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 text-xs">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-1">Reached from</div>
+        <div class="text-stone-700 dark:text-stone-300">${inputs.length ? inputs.map(_esc).map(s => `<span class="inline-block bg-stone-100 dark:bg-stone-800 rounded px-2 py-0.5 mr-1 mb-1">${s}</span>`).join('') : '<span class="italic text-stone-500">none</span>'}</div>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-1">Produces</div>
+        <div class="text-stone-700 dark:text-stone-300">${outputs.length ? outputs.map(_esc).map(s => `<span class="inline-block bg-stone-100 dark:bg-stone-800 rounded px-2 py-0.5 mr-1 mb-1">${s}</span>`).join('') : '<span class="italic text-stone-500">none</span>'}</div>
+      </div>
+    </div>
+    ${promptHtml}
+    ${scrollHtml}`;
+  // Wire copy + scroll buttons
+  el.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () => copyAndFlash(b)));
+  el.querySelectorAll('[data-detail-scroll]').forEach(b => b.addEventListener('click', () => {
+    const target = document.getElementById(b.getAttribute('data-detail-scroll'));
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+}
+
 function renderSankey() {
   const wrap = document.getElementById('sankey');
   if (!wrap || !window.d3 || !window.d3.sankey) return;
@@ -2875,8 +3105,49 @@ function renderSankey() {
   const parentW = (wrap.parentElement?.clientWidth || wrap.clientWidth || 1100) - 32;
   const W = Math.max(640, parentW);
   const H = 580;
+  // Build the filtered graph: drop nodes whose source category is hidden, and
+  // drop nodes orphaned by that filtering (specific tools whose category is
+  // off, impacts that have no remaining input, sources whose chip is off).
+  const activeCats = Object.entries(_sankeyFilter).filter(([_,v]) => v).map(([k]) => k);
+  const droppedSpecifics = new Set();
+  flowGraph.nodes.forEach(n => {
+    if (['tpl','skl','mcp','cmd'].includes(n.category) && !activeCats.includes(n.category)) droppedSpecifics.add(n.id);
+  });
+  const droppedSources = new Set();
+  flowGraph.nodes.forEach(n => {
+    if (n.category === 'source') {
+      const catKey = n.id.replace('cat-', '');
+      if (!activeCats.includes(catKey)) droppedSources.add(n.id);
+    }
+  });
+  // Compute reachable impact nodes — only keep impacts with at least one
+  // remaining incoming link.
+  const reachableImpactIds = new Set();
+  flowGraph.links.forEach(l => {
+    const t = flowGraph.nodes.find(n => n.id === l.target);
+    const s = flowGraph.nodes.find(n => n.id === l.source);
+    if (t && t.category === 'impact' && !droppedSpecifics.has(s.id)) reachableImpactIds.add(t.id);
+  });
+  const filteredNodes = flowGraph.nodes.filter(n => {
+    if (droppedSpecifics.has(n.id)) return false;
+    if (droppedSources.has(n.id)) return false;
+    if (n.category === 'impact' && !reachableImpactIds.has(n.id)) return false;
+    return true;
+  });
+  const visibleIds = new Set(filteredNodes.map(n => n.id));
+  const filteredLinks = flowGraph.links.filter(l => visibleIds.has(l.source) && visibleIds.has(l.target));
+
+  // Update live count regardless of whether we render anything.
+  const countEl = document.getElementById('sankeyCount');
+  if (countEl) countEl.textContent = `${filteredNodes.length} nodes · ${filteredLinks.length} flows`;
+
+  if (filteredNodes.length === 0) {
+    wrap.innerHTML = `<p class="text-sm text-stone-500 dark:text-stone-400 italic p-12 text-center">No categories selected. Use the chips above to bring tools back into view.</p>`;
+    return;
+  }
+
   // Deep clone — d3.sankey() mutates the graph in place.
-  const graph = JSON.parse(JSON.stringify(flowGraph));
+  const graph = JSON.parse(JSON.stringify({ nodes: filteredNodes, links: filteredLinks }));
   const sankey = d3.sankey()
     .nodeId(d => d.id)
     .nodeWidth(14)
@@ -3010,11 +3281,13 @@ function renderSankey() {
     if (_sankeyState.locked) return;
     applyFocus(d);
     showTip(event, d);
+    updateSankeyDetail(d);
   }
   function onLeave() {
     if (_sankeyState.locked) return;
     applyFocus(null);
     tip?.classList.add('hidden');
+    updateSankeyDetail(null);
   }
   function onClick(event, d) {
     // Impact nodes scroll the user to the relevant dashboard surface — making
@@ -3031,13 +3304,45 @@ function renderSankey() {
       _sankeyState.locked = null;
       applyFocus(null);
       resetBtn?.classList.add('hidden');
+      updateSankeyDetail(null);
     } else {
       _sankeyState.locked = d;
       applyFocus(d);
       announce(d);
+      updateSankeyDetail(d);
       resetBtn?.classList.remove('hidden');
     }
     tip?.classList.add('hidden');
+  }
+
+  // Link hover: show a small tooltip describing source → target flow.
+  links
+    .on('mouseenter', function(event, l) {
+      if (_sankeyState.locked) return;
+      d3.select(this).classed('is-lit', true);
+      svg.classed('has-focus', true);
+      if (tip) {
+        tip.innerHTML = `<div class="font-medium">${_esc(l.source.name)} <span class="opacity-60">→</span> ${_esc(l.target.name)}</div><div class="opacity-80 mt-0.5">flow weight: ${l.value}</div>`;
+        tip.classList.remove('hidden');
+        const r = wrap.getBoundingClientRect();
+        let x = event.clientX - r.left + 14, y = event.clientY - r.top + 14;
+        if (x + 280 > r.width) x = r.width - 290;
+        if (y + 80 > r.height) y = r.height - 90;
+        tip.style.left = Math.max(8, x) + 'px';
+        tip.style.top = Math.max(8, y) + 'px';
+      }
+    })
+    .on('mouseleave', function() {
+      if (_sankeyState.locked) return;
+      d3.select(this).classed('is-lit', false);
+      svg.classed('has-focus', false);
+      tip?.classList.add('hidden');
+    });
+
+  // Animated entry: paths fade in left-to-right with a small per-node stagger.
+  if (!reduceMotion) {
+    links.style('opacity', 0).transition().duration(800).delay((d, i) => 60 + i * 12).style('opacity', null);
+    nodes.style('opacity', 0).transition().duration(500).delay(d => Math.min(800, (d.x0 || 0) * 0.4)).style('opacity', 1);
   }
 
   nodes
@@ -3080,6 +3385,7 @@ function initSankey() {
   const target = document.getElementById('sankey');
   if (!target) return;
   renderSankeyFallback();
+  renderSankeyFilters();
   if (typeof IntersectionObserver === 'undefined') {
     // Conservative fallback — load eagerly.
     loadD3().then(renderSankey).catch(() => {
