@@ -63,7 +63,7 @@
   </script>
   <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
        Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
-  <link rel="stylesheet" href="./dashboard.css?v=25" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
+  <link rel="stylesheet" href="./dashboard.css?v=26" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
     // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
     window.tailwind = window.tailwind || {};
@@ -152,6 +152,21 @@
       background: linear-gradient(90deg, transparent 0%, var(--brand) 18%, var(--brand) 82%, transparent 100%);
       border-radius: 4px; opacity: 0.9;
     }
+
+    /* Collapsed sections: keep the heading visible, hide everything else.
+       Saves vertical real estate without breaking ⌘K palette or search. */
+    body section.is-collapsed > *:not(h2) { display: none !important; }
+    .section-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 1.6rem; height: 1.6rem; border-radius: 999px;
+      border: 1px solid #d6d3d1; color: #57534e; background: transparent;
+      font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.85rem;
+      line-height: 1; vertical-align: middle; margin-left: 0.5em;
+      transition: border-color 150ms, color 150ms, background 150ms;
+    }
+    .section-toggle:hover { border-color: var(--brand); color: var(--brand-ink); background: var(--brand-glow); }
+    :root.dark .section-toggle { border-color: #57534e; color: #d6d3d1; }
+    :root.dark .section-toggle:hover { border-color: var(--brand); color: var(--brand-deep); }
 
     /* Section-number badges — small monospace count next to each major heading.
        Text uses --brand-ink so the digits clear AA contrast on white. */
@@ -262,6 +277,79 @@
     }
     :root.dark body[data-track] section.skin-editorial {
       background: linear-gradient(180deg, transparent 0%, rgba(28, 25, 23, 0.55) 50%, transparent 100%);
+    }
+
+    /* Skills: pill aesthetic — softer card corners, accent left rule, tag-like labels. */
+    body[data-track] section.skin-pill {
+      background: linear-gradient(180deg, transparent 0%, rgba(237, 233, 254, 0.30) 50%, transparent 100%);
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-pill {
+      background: linear-gradient(180deg, transparent 0%, rgba(76, 29, 149, 0.18) 50%, transparent 100%);
+    }
+    body[data-track] section.skin-pill :where(.card) {
+      border-radius: 1.25rem !important; border-left: 3px solid #7e22ce;
+    }
+    :root.dark body[data-track] section.skin-pill :where(.card) { border-left-color: #c4b5fd; }
+    body[data-track] section.skin-pill :where(.card) h3,
+    body[data-track] section.skin-pill :where(.card) .font-medium {
+      letter-spacing: -0.01em;
+    }
+
+    /* Workflows: recipe-card aesthetic — tinted top stripe, numbered ingredient feel. */
+    body[data-track] section.skin-recipe {
+      background: linear-gradient(180deg, transparent 0%, rgba(220, 252, 231, 0.30) 50%, transparent 100%);
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-recipe {
+      background: linear-gradient(180deg, transparent 0%, rgba(20, 83, 45, 0.18) 50%, transparent 100%);
+    }
+    body[data-track] section.skin-recipe :where(.card) {
+      position: relative; padding-top: 1.25rem !important;
+    }
+    body[data-track] section.skin-recipe :where(.card)::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #15803d 0%, #84cc16 60%, transparent 100%);
+      border-radius: 8px 8px 0 0;
+    }
+
+    /* Bridges: connector aesthetic — left arrow indicating "talks to". */
+    body[data-track] section.skin-connector {
+      background: linear-gradient(180deg, transparent 0%, rgba(254, 226, 226, 0.30) 50%, transparent 100%);
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-connector {
+      background: linear-gradient(180deg, transparent 0%, rgba(127, 29, 29, 0.16) 50%, transparent 100%);
+    }
+    body[data-track] section.skin-connector :where(.card) {
+      position: relative; padding-left: 2.5rem !important;
+    }
+    body[data-track] section.skin-connector :where(.card)::before {
+      content: "↔"; position: absolute; left: 0.85rem; top: 0.85rem;
+      color: #b91c1c; font-weight: 700; font-size: 1.25rem; line-height: 1;
+    }
+    :root.dark body[data-track] section.skin-connector :where(.card)::before { color: #fca5a5; }
+
+    /* Glossary: dictionary entry — serif terms, small caps for parts of speech vibe. */
+    body[data-track] section.skin-dictionary {
+      background: linear-gradient(180deg, transparent 0%, rgba(245, 245, 244, 0.45) 50%, transparent 100%);
+      margin: 0 -1.5rem; padding: 3rem 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-dictionary {
+      background: linear-gradient(180deg, transparent 0%, rgba(28, 25, 23, 0.45) 50%, transparent 100%);
+    }
+    body[data-track] section.skin-dictionary :where(.card) {
+      border-radius: 4px !important; border: none; border-bottom: 1px solid #d6d3d1;
+      background: transparent !important; padding: 0.75rem 0 !important;
+      box-shadow: none !important;
+    }
+    :root.dark body[data-track] section.skin-dictionary :where(.card) { border-bottom-color: #44403c; }
+    body[data-track] section.skin-dictionary :where(.card):hover {
+      box-shadow: none !important; transform: none;
+    }
+    body[data-track] section.skin-dictionary :where(.card) .font-mono {
+      font-family: 'Crimson Pro', Georgia, serif !important; font-style: italic;
+      font-weight: 600; font-size: 1rem !important;
     }
 
     /* Flow: data-viz panel — neutral, elevated card-like surface. */
@@ -826,7 +914,7 @@
     </section>
 
     <!-- WORKFLOWS — multi-step recipes that chain skills -->
-    <section id="workflows" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="workflows" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-recipe">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">02</span>Workflows</h2>
       <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Multi-step recipes that compose 2–5 skills into a real outcome. Click any recipe → <strong>Copy all prompts</strong> to drop the whole sequence into one chat, or paste step-by-step.</p>
       <div id="workflows-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -848,14 +936,14 @@
     </section>
 
     <!-- SKILLS -->
-    <section id="skills" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="skills" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-pill">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">05</span>Skills <span class="text-stone-400 dark:text-stone-600">·</span> auto-loaded by Claude &amp; OpenCode</h2>
       <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Reusable expertise the agent loads on demand. Like installing a senior coworker who never sleeps and remembers everything you taught them.</p>
       <div id="skills-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- MCPs -->
-    <section id="mcps" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="mcps" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-connector">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">06</span>Bridges <span class="text-stone-400 dark:text-stone-600">·</span> MCPs</h2>
       <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Your tools talk to each other through Pegasus. Figma reads into HTML. Gmail drafts itself. Calendar gets the deadline. Run <span class="font-mono text-stone-900 dark:text-stone-100">pegasus signin</span> once and the bridges light up.</p>
       <div id="mcps-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
@@ -1095,7 +1183,7 @@
     </section>
 
     <!-- GLOSSARY -->
-    <section id="glossary" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="glossary" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-dictionary">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">12</span>Glossary <span class="text-stone-400 dark:text-stone-600">·</span> plain English</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Every dev word that might confuse you, decoded.</p>
       <div id="glossary-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"></div>
@@ -3177,15 +3265,16 @@ function renderSankey() {
     .attr('font-size', '11')
     .text((_, i) => headers[i] || '');
 
-  // Links
+  // Links — keep `links` bound to the path selection (NOT the appended title)
+  // so later .on('mouseenter') handlers bind to the actual paths.
   const links = svg.append('g').selectAll('path')
     .data(graph.links).enter().append('path')
     .attr('class', 'link')
     .attr('d', d3.sankeyLinkHorizontal())
     .attr('stroke', d => flowCategoryColor[d.source.category] || 'var(--sk-link-stroke)')
-    .attr('stroke-width', d => Math.max(1, d.width))
-    .append('title')
-    .text(d => `${d.source.name} → ${d.target.name}`);
+    .attr('stroke-width', d => Math.max(1, d.width));
+  // Native browser tooltip — separate append so it doesn't shadow `links`.
+  links.append('title').text(d => `${d.source.name} → ${d.target.name}`);
 
   // Nodes
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3367,6 +3456,7 @@ function renderSankey() {
       _sankeyState.locked = null;
       applyFocus(null);
       resetBtn?.classList.add('hidden');
+      updateSankeyDetail(null);
     }
   });
 
@@ -3375,7 +3465,31 @@ function renderSankey() {
       _sankeyState.locked = null;
       applyFocus(null);
       resetBtn.classList.add('hidden');
+      updateSankeyDetail(null);
     };
+  }
+
+  // Document-level Escape handler — installed once, references the always-
+  // current state via the module-level _sankeyState rather than the closure.
+  if (!document._sankeyEscWired) {
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      if (!_sankeyState.locked) return;
+      _sankeyState.locked = null;
+      const live = document.getElementById('sankeyLive');
+      const tip = document.getElementById('sankeyTip');
+      const reset = document.getElementById('sankeyReset');
+      const svgEl = document.querySelector('#sankey svg');
+      if (svgEl) {
+        svgEl.classList.remove('has-focus');
+        svgEl.querySelectorAll('.is-lit').forEach(n => n.classList.remove('is-lit'));
+      }
+      tip?.classList.add('hidden');
+      reset?.classList.add('hidden');
+      updateSankeyDetail(null);
+      if (live) live.textContent = 'Highlight released.';
+    });
+    document._sankeyEscWired = true;
   }
 
   _sankeyState.svg = svg;
@@ -3949,6 +4063,36 @@ document.querySelectorAll('[data-stat]').forEach(el => {
   const k = el.dataset.stat;
   if (counts[k] != null) el.textContent = counts[k];
 });
+
+// Per-section collapse: inject a small toggle next to each numbered section
+// heading. State persists per section ID in localStorage.
+(function wireSectionCollapse() {
+  const collapsibleIds = ['workflows','templates','commands','skills','mcps','prompts','mastery','coaxing','flow','recommended','glossary','learn'];
+  let collapsed = {};
+  try { collapsed = JSON.parse(_safeStorage.getItem('pegasus.collapsedSections') || '{}'); } catch {}
+  collapsibleIds.forEach(id => {
+    const sec = document.getElementById(id);
+    if (!sec) return;
+    const h2 = sec.querySelector('h2');
+    if (!h2) return;
+    if (collapsed[id]) sec.classList.add('is-collapsed');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'section-toggle';
+    btn.setAttribute('aria-expanded', !collapsed[id]);
+    btn.setAttribute('aria-label', `Toggle ${id} section`);
+    btn.title = 'Collapse / expand this section';
+    btn.textContent = collapsed[id] ? '+' : '–';
+    btn.addEventListener('click', () => {
+      const isOn = sec.classList.toggle('is-collapsed');
+      collapsed[id] = isOn;
+      btn.textContent = isOn ? '+' : '–';
+      btn.setAttribute('aria-expanded', !isOn);
+      _safeStorage.setItem('pegasus.collapsedSections', JSON.stringify(collapsed));
+    });
+    h2.appendChild(btn);
+  });
+})();
 
 // Scroll-reveal: tag major card-grid containers and let an IntersectionObserver
 // fade them in as they enter the viewport. Once-only — no re-trigger on scroll
