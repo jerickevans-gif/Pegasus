@@ -63,7 +63,7 @@
   </script>
   <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
        Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
-  <link rel="stylesheet" href="./dashboard.css" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
+  <link rel="stylesheet" href="./dashboard.css?v=22" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
     // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
     window.tailwind = window.tailwind || {};
@@ -363,6 +363,7 @@
       <a href="#skills"      data-nav="skills"      class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Skills <span class="text-stone-500 dark:text-stone-400" data-count="skills"></span></a>
       <a href="#mcps"        data-nav="mcps"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Bridges <span class="text-stone-500 dark:text-stone-400" data-count="mcps"></span></a>
       <a href="#prompts"     data-nav="prompts"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompts <span class="text-stone-500 dark:text-stone-400" data-count="prompts"></span></a>
+      <a href="#mastery"     data-nav="mastery"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Mastery <span class="text-stone-500 dark:text-stone-400" data-count="mastery"></span></a>
       <a href="#recommended" data-nav="recommended" class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Recommended <span class="text-stone-500 dark:text-stone-400" data-count="recommended"></span></a>
       <a href="#glossary"    data-nav="glossary"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Glossary <span class="text-stone-500 dark:text-stone-400" data-count="glossary"></span></a>
       <a href="#learn"       data-nav="learn"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Learn</a>
@@ -618,6 +619,187 @@
       <div id="prompts-list" class="space-y-3"></div>
     </section>
 
+    <!-- MASTERY — escalation tiers + anatomy + composition formula + patterns -->
+    <section id="mastery" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2">Prompt mastery</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-2">Same goal, three quality levels. Read the <strong>Basic</strong>, then watch each tier add a real lever — composed skills, pointed inputs, hard acceptance criteria, an iteration loop.</p>
+      <p class="text-xs text-stone-500 dark:text-stone-500 mb-6">Tip: copy a tier-3 prompt and replace the bracketed bits with your own. That's the whole game.</p>
+
+      <!-- WEEKLY FEATURED — small curated spotlight that rotates by ISO week -->
+      <div id="masteryFeatured" class="mb-4" data-search>
+        <span class="sr-only">prompt mastery weekly spotlight featured rotating focus this week</span>
+      </div>
+
+      <!-- MASTERY SUB-TOC — horizontal pill nav linking to every surface in the section -->
+      <nav id="masterySubNav" aria-label="Mastery sections" class="flex flex-wrap gap-2 text-xs mb-8 pb-4 border-b border-stone-200 dark:border-stone-800">
+        <a href="#mastery-recommendation" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">→ Try this next</a>
+        <a href="#mastery-list" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Goal tiers</a>
+        <a href="#mastery-annotated" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Annotated</a>
+        <a href="#mastery-builder-controls" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompt lab</a>
+        <a href="#mastery-sprint" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">14-day sprint</a>
+        <a href="#doctorInput" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Doctor</a>
+        <a href="#mastery-library" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">My library</a>
+        <a href="#mastery-antipatterns" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Anti-patterns</a>
+        <a href="#mastery-models" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Mental models</a>
+        <a href="#mastery-anatomy" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Anatomy</a>
+        <a href="#mastery-patterns" data-mastery-jump class="px-2.5 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">5 patterns</a>
+      </nav>
+
+      <!-- TRY THIS NEXT — personalized recommendation read from profile + activity -->
+      <div id="mastery-recommendation" class="mb-8" data-search>
+        <span class="sr-only">prompt mastery escalation tutorial guide next step recommendation try this</span>
+      </div>
+
+      <div id="mastery-list" class="space-y-6"></div>
+
+      <!-- ANNOTATED EXPERT PROMPT — clause-by-clause callouts on a real tier-3 prompt -->
+      <div class="mt-12" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery escalation tutorial guide annotated breakdown</span>
+          <div class="flex items-baseline justify-between mb-3">
+            <h3 class="font-serif text-xl">Annotated: an expert prompt, clause by clause</h3>
+            <span class="text-[10px] font-mono uppercase text-stone-400">read-along</span>
+          </div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Hover or tap each labeled span to see what role it plays. Every color maps to one ingredient from the anatomy below.</p>
+          <div id="mastery-annotated" class="text-sm leading-relaxed bg-stone-50 dark:bg-stone-950 rounded-lg p-5 font-mono"></div>
+          <div id="mastery-annotated-legend" class="flex flex-wrap gap-3 mt-4 text-xs"></div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE PROMPT BUILDER — pick ingredients, get an assembled prompt -->
+      <div class="mt-8" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery builder lab compose construct generator</span>
+          <div class="flex items-baseline justify-between mb-3">
+            <h3 class="font-serif text-xl">Prompt lab — build your own expert prompt</h3>
+            <span class="text-[10px] font-mono uppercase text-stone-400">interactive</span>
+          </div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Pick one option per row. The lab assembles a real, paste-ready prompt below using the composition formula. Your selections persist between visits.</p>
+          <div id="mastery-builder-controls" class="space-y-4 mb-6"></div>
+          <div class="flex items-baseline justify-between mb-2">
+            <span class="text-xs uppercase tracking-wider text-stone-500">Assembled prompt</span>
+            <button id="masteryBuilderReset" class="text-[10px] uppercase tracking-wider text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline">↺ reset</button>
+          </div>
+          <div class="relative">
+            <pre id="masteryBuilderOutput" class="text-xs leading-relaxed bg-stone-50 dark:bg-stone-950 rounded-lg p-4 whitespace-pre-wrap font-mono pr-24"></pre>
+            <button id="masteryBuilderCopy" class="copy absolute top-2 right-2 text-xs px-3 py-1 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90" data-copy="">📋 Copy</button>
+          </div>
+          <p class="text-xs text-stone-500 mt-3">Tip: use this to draft your first 3-4 expert prompts. After that, the formula becomes muscle memory.</p>
+        </div>
+      </div>
+
+      <!-- ANTI-PATTERNS GALLERY — common ways prompts go sideways -->
+      <div class="mt-8" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery anti-patterns mistakes pitfalls common errors</span>
+          <div class="flex items-baseline justify-between mb-3">
+            <h3 class="font-serif text-xl">Anti-patterns — five ways prompts go sideways</h3>
+            <span class="text-[10px] font-mono uppercase text-stone-400">avoid</span>
+          </div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Spot these in your own prompts and you've already leveled up. Each card shows the bad version, what it gets you, and the one-word fix.</p>
+          <div id="mastery-antipatterns" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+
+      <!-- 14-DAY MASTERY SPRINT — structured daily exercises Day 1 → Day 14 -->
+      <div class="mt-8" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery sprint course curriculum daily exercises 14-day ladder progression</span>
+          <div class="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
+            <h3 class="font-serif text-xl">14-day mastery sprint</h3>
+            <div class="flex items-baseline gap-3">
+              <span id="sprintProgress" class="text-xs text-stone-500 dark:text-stone-400 font-mono">0 / 14 done</span>
+              <button id="sprintReset" class="text-[10px] uppercase tracking-wider text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline">↺ reset</button>
+              <span class="text-[10px] font-mono uppercase text-stone-400">do-with-us</span>
+            </div>
+          </div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">One copy-able exercise per weekday. ~5 minutes each. Click any row to expand. Mark a day complete by copying its prompt.</p>
+          <div id="mastery-sprint" class="space-y-6"></div>
+        </div>
+      </div>
+
+      <!-- PROMPT DOCTOR — paste your prompt, get a 5/5 anatomy diagnosis -->
+      <div class="mt-8" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery doctor lint analyzer diagnostic check audit your prompt</span>
+          <div class="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
+            <h3 class="font-serif text-xl">Prompt doctor — paste yours, see what's missing</h3>
+            <span class="text-[10px] font-mono uppercase text-stone-400">live diagnostic</span>
+          </div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Drop a prompt below. We'll check it against the 5 anatomy ingredients and tell you exactly what to add. No data leaves your browser.</p>
+          <textarea id="doctorInput" rows="5" placeholder="Paste a prompt you wrote (or any prompt you want to grade)..." class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none font-mono leading-relaxed"></textarea>
+          <div class="flex items-baseline justify-between mt-4 mb-3 gap-3 flex-wrap">
+            <span id="doctorScore" class="text-sm font-medium">Score: <span class="text-stone-400">paste a prompt above</span></span>
+            <button id="doctorImprove" class="text-xs px-3 py-1.5 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90 disabled:opacity-30" disabled>↑ Auto-improve missing parts</button>
+          </div>
+          <div id="doctorFindings" class="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4"></div>
+          <div id="doctorSuggestions" class="space-y-2 text-xs mb-4"></div>
+          <div class="flex items-baseline gap-2">
+            <button id="doctorSave" class="text-xs px-3 py-1.5 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition disabled:opacity-30" disabled>★ Save to library</button>
+            <span class="text-[10px] text-stone-500">save what works — your library appears below.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY LIBRARY — saved prompts persisted to localStorage -->
+      <div class="mt-8" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery library saved bookmarks favorites collection my prompts</span>
+          <div class="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
+            <h3 class="font-serif text-xl">My library <span id="libraryCount" class="text-xs text-stone-500 font-mono ml-2">· 0</span></h3>
+            <div class="flex items-baseline gap-3">
+              <button id="exportReport" class="text-xs px-2.5 py-1 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition">↓ Export my-mastery.md</button>
+              <span class="text-[10px] font-mono uppercase text-stone-400">your prompts</span>
+            </div>
+          </div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Prompts you saved from the Doctor. Click any to copy. They persist between visits. Use Export to download your full progress as a portable markdown file.</p>
+          <div id="mastery-library"></div>
+        </div>
+      </div>
+
+      <!-- MENTAL MODELS — short framings that shift how you think about the agent -->
+      <div class="mt-8" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery mental models framings principles philosophy</span>
+          <div class="flex items-baseline justify-between mb-3">
+            <h3 class="font-serif text-xl">Mental models — change how you think, change what you ship</h3>
+            <span class="text-[10px] font-mono uppercase text-stone-400">framings</span>
+          </div>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Each of these reframes saves you a hundred bad prompts.</p>
+          <div id="mastery-models" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12" data-search>
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery escalation tutorial guide</span>
+          <h3 class="font-serif text-xl mb-3">Anatomy of an expert prompt</h3>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Six ingredients. Drop any one, the prompt gets weaker.</p>
+          <ol id="mastery-anatomy" class="space-y-3 text-sm"></ol>
+        </div>
+
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
+          <span class="sr-only">prompt mastery escalation tutorial guide</span>
+          <h3 class="font-serif text-xl mb-3">The composition formula</h3>
+          <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Stack these five and you have a robust prompt.</p>
+          <pre class="text-xs leading-relaxed bg-stone-100 dark:bg-stone-800 rounded-lg p-4 whitespace-pre-wrap font-mono">[ Skill or template ]
+  + [ Pointed input    ]   ← real path / URL / id
+  + [ Tight constraint ]   ← stack, style, perf budget
+  + [ Acceptance test  ]   ← measurable done state
+  + [ Loop hook        ]   ← what to ask back
+= Robust result</pre>
+          <p class="text-xs text-stone-500 mt-4">The skill names a tool. The inputs feed it. The constraints narrow it. The acceptance test ends the back-and-forth. The loop turns one prompt into a workflow.</p>
+        </div>
+
+        <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6 md:col-span-2" data-track="both">
+          <span class="sr-only">prompt mastery escalation tutorial guide</span>
+          <h3 class="font-serif text-xl mb-3">Five patterns that always pay</h3>
+          <ol id="mastery-patterns" class="space-y-2 text-sm list-decimal list-inside marker:text-stone-400"></ol>
+          <p class="text-xs text-stone-500 mt-4">Want more? See <code>docs/PROMPTS.md</code> in the repo for full progressions per use case.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- RECOMMENDED -->
     <section id="recommended" class="py-12 border-t border-stone-200 dark:border-stone-800">
       <h2 class="font-serif text-3xl mb-2">Recommended external repos</h2>
@@ -751,6 +933,24 @@
         </div>
         <ol data-modal-steps class="list-none pl-0"></ol>
         <p class="text-xs text-stone-500 mt-6 italic">💡 Tip: paste step-by-step to follow along, or use <strong>Copy all prompts</strong> to drop the full recipe into one chat.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Walkthrough modal — paraphrased session transcript per mastery goal -->
+  <div id="walkthroughModal" class="palette-overlay" role="dialog" aria-modal="true" aria-labelledby="walkthroughTitle" onclick="if(event.target===this) closeWalkthroughModal()">
+    <div class="palette-modal" style="max-width: 760px; max-height: 88vh; overflow-y: auto;">
+      <div class="px-6 py-5 border-b border-stone-200 dark:border-stone-700 flex justify-between items-start gap-4 sticky top-0 bg-white dark:bg-stone-900 z-10">
+        <div class="flex-1">
+          <p class="text-xs uppercase tracking-widest text-stone-500">Worked walkthrough</p>
+          <h2 id="walkthroughTitle" class="font-serif text-2xl mt-1"></h2>
+          <p id="walkthroughSetup" class="text-xs text-stone-500 dark:text-stone-400 mt-2 italic"></p>
+        </div>
+        <button onclick="closeWalkthroughModal()" class="text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-3xl leading-none flex-shrink-0" aria-label="Close">×</button>
+      </div>
+      <div class="p-6">
+        <ol id="walkthroughSteps" class="space-y-4 list-none pl-0"></ol>
+        <p class="text-xs text-stone-500 mt-6 italic">💡 Agent responses are paraphrased to set expectations — the real output will vary in wording but match the shape.</p>
       </div>
     </div>
   </div>
@@ -893,6 +1093,61 @@ const prompts = [
   { goal: 'Accessibility check', track: 'design', text: 'Audit this page for accessibility. Show me a list of issues ranked by severity, then fix the easy ones automatically.' },
   { goal: 'Optimize images', track: 'design', text: 'Resize all images in ./images/ to max 1600px wide, convert to WebP, and update the HTML to point at the new files.' },
   { goal: 'Explain this code', track: 'both', text: 'Explain what\'s happening in this file like I\'m new to JavaScript: [drop file in chat]' },
+];
+
+// Mastery: same goal, three quality levels. Teaches users to climb from
+// "build me a thing" to a fully-composed prompt that names skills, points at
+// real files, sets acceptance criteria, and builds an iteration loop.
+const promptTiers = [
+  {
+    goal: 'Start a portfolio',
+    track: 'design',
+    basic: 'Build me a portfolio website.',
+    better: 'Build me a single-page portfolio at /. I\'m a graphic designer. Sections: hero with name + 1-line tagline, project grid (6 placeholder cards), about, contact link. Tailwind. Editorial style — large serif headlines, generous whitespace. Responsive. Start a Live Preview when done.',
+    expert: 'Use the portfolio template (`pegasus new portfolio my-site`). Inputs: read ~/.pegasus/profile.json for name, tagline, bio. Brand: editorial — Fraunces serif headlines, generous whitespace, max content width 80ch. Sections in order: hero (name + tagline), project grid (6 cards with `<!-- TODO: image -->` placeholders), about (2 paragraphs from bio), contact (mailto). Constraints: Tailwind only, no JS deps, WCAG-AA contrast, Lighthouse perf >90. Output: index.html + start `npx serve .` and tell me the local URL. Loop: after I see it, ask me which one of {hero, projects, about} to iterate on next.',
+    gain: ['Names the template + skill', 'Points at a real input file', 'Sets a measurable acceptance criterion (Lighthouse >90)', 'Asks for an iteration handoff']
+  },
+  {
+    goal: 'Convert a Figma design',
+    track: 'design',
+    basic: 'Convert this Figma design to HTML: [URL]',
+    better: 'Here\'s the Figma file: [URL]. Use the Figma MCP tools to read it and turn it into HTML/Tailwind that matches as closely as possible. Show me a preview when done.',
+    expert: 'Use the figma-converter skill against [Figma URL]. Plan: (1) read the file with mcp__claude_ai_Figma__get_design_context, (2) extract design tokens with get_variable_defs and map them into CSS variables under :root, (3) build each top-level frame as a section, (4) load real fonts via Google Fonts <link> (no generic substitutes), (5) generate placeholder PNGs at the actual frame dimensions for any image fills you can\'t download. Constraint: pixel-match within 8px of the source — do not invent components I can\'t see in the file. Output: index.html + tokens.css + a screenshot diff between the Figma node and your build. Loop: report any element you couldn\'t faithfully convert and why.',
+    gain: ['Names exact MCP tools', 'Step-numbered plan the agent can follow', 'Hard pixel tolerance + no-invention rule', 'Asks for a self-report on misses']
+  },
+  {
+    goal: 'Audit my site',
+    track: 'design',
+    basic: 'Check my website for issues.',
+    better: 'Use the ux-ui-audit skill on this project. I want the full 17-section pass with priorities and concrete fixes.',
+    expert: 'Run two skills in sequence on the current directory: (1) ux-ui-audit for the full 17-section pass, then (2) mp-diagnose to triage the findings into [Critical, High, Medium, Low]. For every Critical and High item, propose the actual diff (don\'t just describe it) and group by file. Constraint: don\'t apply any fix yet — produce a numbered list with [file:line] per item. Output: write AUDIT.md in the repo root. Loop: once I read it, ask me which P0 to fix first and apply that single change.',
+    gain: ['Composes two skills in order', 'Outputs to a named artifact (AUDIT.md)', 'Forbids premature edits — review-first', 'Loop applies exactly one fix at a time']
+  },
+  {
+    goal: 'Find me jobs',
+    track: 'jobs',
+    basic: 'Find me design jobs.',
+    better: 'Use the job-finder skill to pull current design jobs from BuiltIn.com and LinkedIn against my profile. My resume is at ~/Design-Projects/resume/.',
+    expert: 'Compose 3 skills: (1) job-finder pulls fresh listings from BuiltIn + LinkedIn matching ~/.pegasus/profile.json (target roles, locations, remote pref); (2) career-ops-triage scores each by fit (1–10) and drops anything below 6; (3) career-ops-evaluate writes a one-paragraph go/no-go on the survivors. Constraints: max 8 finalists, sort fit desc, exclude any company already in ~/Design-Projects/applications/. Output: this-week.md with one row per job [Company | Role | Fit | Salary | Apply by | One-liner]. Loop: ask me which 1–3 to draft applications for and run cover-letter-generator + career-ops-tailor-resume on those.',
+    gain: ['Chains 3 skills with explicit handoffs', 'Filters out duplicates from prior work', 'Picks an exact output schema (table columns)', 'Loop kicks off the next stage automatically']
+  }
+];
+
+const promptAnatomy = [
+  { label: 'Role / context', body: 'Tell the agent who you are. "I\'m a [graphic / product / illustrator] designer." Frames every choice it makes.' },
+  { label: 'Goal, not steps', body: 'Describe the outcome, not the implementation. "Scrolls horizontally on mobile" beats "add overflow-x: scroll".' },
+  { label: 'Pointed inputs', body: 'Name real files, URLs, skill names, MCP tools. "~/.pegasus/profile.json", "use the figma-converter skill".' },
+  { label: 'Tight constraints', body: 'Stack, style, length, perf budget, accessibility floor. The narrower, the more specific the output.' },
+  { label: 'Acceptance criterion', body: 'How will you know it\'s done? "Lighthouse >90", "pixel-match within 8px", "WCAG-AA contrast".' },
+  { label: 'Loop instruction', body: 'Tell the agent how to hand back. "Ask me which section to iterate on" keeps you in the driver\'s seat.' }
+];
+
+const promptPatterns = [
+  'State the goal, not the steps.',
+  'Ask for a preview at the end ("Start a Live Preview").',
+  'Use placeholders for things you\'ll fill in later (`<!-- TODO: image -->`, `[YOUR NAME]`).',
+  'Iterate in small steps. One change per prompt is faster than five.',
+  'Save what works. Add winning patterns to your project\'s CLAUDE.md so they repeat for free.'
 ];
 
 const recommended = [
@@ -1179,6 +1434,974 @@ function renderPrompts() {
   `).join('');
 }
 
+function renderMastery() {
+  // Tier badge styling: basic = warning amber, better = neutral, expert = accent.
+  const tierMeta = {
+    basic:  { label: 'Basic',  hint: 'Lazy. Agent guesses everything.',          chip: 'bg-amber-100  text-amber-900  dark:bg-amber-900/40  dark:text-amber-100' },
+    better: { label: 'Better', hint: 'Names the goal + a tool to use.',          chip: 'bg-stone-200  text-stone-800  dark:bg-stone-700      dark:text-stone-100' },
+    expert: { label: 'Expert', hint: 'Composed, pointed, measurable, looped.',   chip: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100' }
+  };
+
+  document.getElementById('mastery-list').innerHTML = promptTiers.map((p, idx) => {
+    const tierBlock = (tier) => {
+      const meta = tierMeta[tier];
+      const text = p[tier];
+      // No data-search on the inner tier blocks: applySearchHL rewrites the
+      // parent card's innerHTML, which would orphan any nested data-search nodes.
+      return `
+        <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-3" data-copyable="1" data-card-copy="${_esc(text).replace(/'/g, '&#39;')}">
+          <div class="flex items-baseline gap-2 mb-2">
+            <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${meta.chip}">${meta.label}</span>
+            <span class="text-xs text-stone-500 dark:text-stone-400">${_esc(meta.hint)}</span>
+          </div>
+          <button class="copy text-left text-xs bg-stone-50 dark:bg-stone-950 px-3 py-2 rounded w-full leading-relaxed font-mono" data-copy='${_esc(text).replace(/'/g, "&#39;")}'>${_esc(text)}</button>
+        </div>`;
+    };
+
+    const gainList = p.gain.map(g => `<li class="flex gap-2"><span class="text-emerald-600 dark:text-emerald-400">+</span><span>${_esc(g)}</span></li>`).join('');
+
+    // Walkthrough keys map 1:1 to the 4 goal cards in promptTiers order.
+    const walkthroughKey = ['portfolio', 'figma', 'audit', 'jobs'][idx];
+    return `
+      <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${p.track}">
+        <span class="sr-only">prompt mastery escalation tutorial guide walkthrough session transcript</span>
+        <div class="flex items-baseline justify-between mb-4 gap-2 flex-wrap">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-stone-500">Goal #${idx + 1}</div>
+            <h3 class="font-serif text-xl">${_esc(p.goal)}</h3>
+          </div>
+          <div class="flex items-baseline gap-3">
+            ${walkthroughKey ? `<button onclick="openWalkthroughModal('${walkthroughKey}')" class="text-xs px-2.5 py-1 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition" data-walkthrough="${walkthroughKey}">▶ Worked walkthrough</button>` : ''}
+            <span class="text-[10px] font-mono uppercase text-stone-400">${_esc(p.track)}</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          ${tierBlock('basic')}
+          ${tierBlock('better')}
+          ${tierBlock('expert')}
+        </div>
+        <details class="mt-4 group">
+          <summary class="text-xs text-stone-500 dark:text-stone-400 cursor-pointer hover:text-stone-900 dark:hover:text-stone-100 select-none">What the Expert tier added <span class="text-stone-400 group-open:hidden">▸</span><span class="text-stone-400 hidden group-open:inline">▾</span></summary>
+          <ul class="mt-3 text-xs text-stone-600 dark:text-stone-400 space-y-1.5">${gainList}</ul>
+        </details>
+      </div>`;
+  }).join('');
+
+  // Inner <li>s deliberately omit data-search — their parent card carries it,
+  // and nesting data-search trips the applySearchHL innerHTML-rewrite.
+  document.getElementById('mastery-anatomy').innerHTML = promptAnatomy.map((a, i) => `
+    <li class="flex gap-3">
+      <span class="font-mono text-stone-400 text-xs pt-0.5 w-4 shrink-0">${i + 1}</span>
+      <div>
+        <div class="font-medium">${_esc(a.label)}</div>
+        <div class="text-stone-600 dark:text-stone-400 text-xs">${_esc(a.body)}</div>
+      </div>
+    </li>`).join('');
+
+  document.getElementById('mastery-patterns').innerHTML = promptPatterns.map(p => `
+    <li class="text-stone-700 dark:text-stone-300">${_esc(p)}</li>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// MASTERY ROUND 2: annotated prompt, interactive builder, anti-patterns, mental models
+// ─────────────────────────────────────────────
+
+// Same five role-colors used everywhere mastery teaches anatomy. Keep these in
+// sync with promptAnatomy and the formula card so the visual language is consistent.
+const masteryRoleStyles = {
+  skill:      { label: 'Skill / template', chip: 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/40 dark:text-indigo-100',   ring: 'border-b border-dotted border-indigo-400 dark:border-indigo-500' },
+  input:      { label: 'Pointed input',    chip: 'bg-sky-100 text-sky-900 dark:bg-sky-900/40 dark:text-sky-100',                 ring: 'border-b border-dotted border-sky-400 dark:border-sky-500' },
+  constraint: { label: 'Tight constraint', chip: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100',         ring: 'border-b border-dotted border-amber-400 dark:border-amber-500' },
+  accept:     { label: 'Acceptance test',  chip: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100', ring: 'border-b border-dotted border-emerald-400 dark:border-emerald-500' },
+  loop:       { label: 'Loop hook',        chip: 'bg-violet-100 text-violet-900 dark:bg-violet-900/40 dark:text-violet-100',     ring: 'border-b border-dotted border-violet-400 dark:border-violet-500' }
+};
+
+// Annotated expert prompt — the same "Start a portfolio" tier-3 from promptTiers,
+// segmented by role so each clause gets a colored underline + tooltip.
+const annotatedExpert = [
+  { role: 'skill',      text: 'Use the portfolio template (`pegasus new portfolio my-site`).',                                                                  why: 'Names the exact tool. The agent knows where to start instead of inventing scaffolding.' },
+  { role: null,         text: ' ' },
+  { role: 'input',      text: 'Inputs: read ~/.pegasus/profile.json for name, tagline, bio.',                                                                   why: 'Real file path. The agent reads facts instead of guessing.' },
+  { role: null,         text: ' ' },
+  { role: 'constraint', text: 'Brand: editorial — Fraunces serif headlines, generous whitespace, max content width 80ch.',                                      why: 'Tight style brief. Three concrete rules > one fuzzy adjective.' },
+  { role: null,         text: ' ' },
+  { role: 'constraint', text: 'Sections in order: hero (name + tagline), project grid (6 cards with `<!-- TODO: image -->` placeholders), about, contact (mailto).', why: 'Structural constraint. The agent stops asking "what do you want?" and starts building.' },
+  { role: null,         text: ' ' },
+  { role: 'accept',     text: 'Constraints: Tailwind only, no JS deps, WCAG-AA contrast, Lighthouse perf >90.',                                                 why: 'Measurable acceptance. The agent self-checks before claiming done.' },
+  { role: null,         text: ' ' },
+  { role: 'accept',     text: 'Output: index.html + start `npx serve .` and tell me the local URL.',                                                             why: 'Defines what "done" looks like as deliverables you can click.' },
+  { role: null,         text: ' ' },
+  { role: 'loop',       text: 'Loop: after I see it, ask me which one of {hero, projects, about} to iterate on next.',                                          why: 'Hands the wheel back. One prompt becomes a workflow without you re-typing the brief.' }
+];
+
+// Interactive prompt builder — each row is one ingredient with a small set of
+// curated options. Each option stores the snippet it injects into the output.
+const builderRows = [
+  {
+    id: 'goal', label: 'I want to…', ingredient: 'skill',
+    options: [
+      { id: 'portfolio', label: 'Build a portfolio',       snippet: 'Use the portfolio template (`pegasus new portfolio my-site`).' },
+      { id: 'figma',     label: 'Convert a Figma design',  snippet: 'Use the figma-converter skill against [Figma URL].' },
+      { id: 'audit',     label: 'Audit my current site',   snippet: 'Run the ux-ui-audit skill on the current directory for the full 17-section pass.' },
+      { id: 'jobs',      label: 'Find me design jobs',     snippet: 'Use the job-finder skill to pull fresh listings from BuiltIn + LinkedIn.' },
+      { id: 'casestudy', label: 'Write a case study',      snippet: 'Use the portfolio-case-study skill — start a case study about [project].' }
+    ]
+  },
+  {
+    id: 'input', label: 'Inputs to point at', ingredient: 'input',
+    options: [
+      { id: 'profile',   label: 'My profile file',         snippet: 'Inputs: read ~/.pegasus/profile.json for name, tagline, bio, target roles.' },
+      { id: 'folder',    label: 'A folder of source files', snippet: 'Inputs: every file in ./art/ (read each, list what you see before you touch anything).' },
+      { id: 'url',       label: 'A URL',                   snippet: 'Inputs: fetch [URL] and extract the relevant content before building.' },
+      { id: 'jd',        label: 'A job description',       snippet: 'Inputs: the JD text I will paste below — extract role, must-haves, nice-to-haves.' },
+      { id: 'none',      label: '(no specific input)',     snippet: '' }
+    ]
+  },
+  {
+    id: 'constraint', label: 'Tight constraints', ingredient: 'constraint',
+    options: [
+      { id: 'editorial', label: 'Editorial: serif heads, big whitespace, max 80ch', snippet: 'Brand: editorial — Fraunces serif headlines, generous whitespace, max content width 80ch.' },
+      { id: 'minimal',   label: 'Minimal: sans-serif, monochrome, no decoration',    snippet: 'Brand: minimal — Inter sans, monochrome, zero decorative elements, content-first.' },
+      { id: 'playful',   label: 'Playful: bold colors, oversized type, motion',      snippet: 'Brand: playful — bold accent colors, oversized display type, subtle scroll-triggered motion.' },
+      { id: 'corporate', label: 'Corporate: conservative, navy + gray, generous',    snippet: 'Brand: corporate — conservative palette (navy + gray), serif body, generous spacing, no flourishes.' },
+      { id: 'tailwind',  label: 'Tailwind only, no JS dependencies',                 snippet: 'Stack: Tailwind only via CDN, no JS dependencies.' }
+    ]
+  },
+  {
+    id: 'accept', label: 'How will you know it\'s done', ingredient: 'accept',
+    options: [
+      { id: 'lighthouse', label: 'Lighthouse performance > 90',                       snippet: 'Acceptance: Lighthouse performance score > 90, accessibility > 95.' },
+      { id: 'pixel',      label: 'Pixel-match within 8px of the source',              snippet: 'Acceptance: pixel-match within 8px of the source — do not invent components I can\'t see.' },
+      { id: 'wcag',       label: 'WCAG-AA contrast everywhere',                       snippet: 'Acceptance: WCAG-AA contrast on every text element, keyboard-navigable end-to-end.' },
+      { id: 'preview',    label: 'Live preview running + URL printed',                snippet: 'Acceptance: start `npx serve .` and tell me the local URL when done.' },
+      { id: 'artifact',   label: 'Write a named artifact (e.g. AUDIT.md)',            snippet: 'Acceptance: write a single artifact at ./AUDIT.md grouping findings by file with [file:line] for each.' }
+    ]
+  },
+  {
+    id: 'loop', label: 'How to hand back', ingredient: 'loop',
+    options: [
+      { id: 'iterate',  label: 'Ask me which section to iterate on next',             snippet: 'Loop: after I see it, ask me which one of {hero, projects, about, contact} to iterate on first.' },
+      { id: 'report',   label: 'Self-report what you couldn\'t do (and why)',         snippet: 'Loop: report any element you couldn\'t faithfully build and the reason — don\'t silently substitute.' },
+      { id: 'next',     label: 'Run the next stage automatically',                    snippet: 'Loop: when this finishes, kick off the next skill in the pipeline without waiting for me.' },
+      { id: 'p0',       label: 'Ask which P0 to fix first',                           snippet: 'Loop: once I read the artifact, ask me which P0 to fix first and apply that single change.' },
+      { id: 'review',   label: 'Stop and wait for review (no implicit changes)',      snippet: 'Loop: stop after the plan is written — do not edit any file until I approve.' }
+    ]
+  }
+];
+
+const antiPatterns = [
+  { bad: 'Build me a website.',                                  failure: 'You get a generic landing page in some random framework. Nothing matches your brand or goals.', fix: 'Name what + who + where', good: 'Build me a single-page portfolio for a graphic designer at /. Tailwind. Editorial. Start a Live Preview.' },
+  { bad: 'Use whatever framework you think is best.',            failure: 'The agent picks something heavyweight, you spend an hour learning it instead of building.',     fix: 'Constrain the stack',     good: 'Stack: HTML + Tailwind via CDN, no build step, no framework.' },
+  { bad: 'Make it look good.',                                   failure: 'Subjective. Half-finished. You and the agent have different ideas of "good".',                  fix: 'Cite a measurable',       good: 'Acceptance: Lighthouse performance > 90, WCAG-AA contrast, max content width 80ch.' },
+  { bad: 'Fix everything that\'s wrong with this page.',         failure: 'Sprawling diff across 12 files. Hard to review. Three regressions slip through.',              fix: 'Pick one slice',          good: 'Audit the page and write findings to AUDIT.md. Don\'t edit any file. I\'ll pick the first fix.' },
+  { bad: 'Build a portfolio AND deploy it AND set up DNS AND…',  failure: 'The agent does step 1 well, step 2 partially, drops step 3, and gets confused on step 4.',     fix: 'One prompt = one outcome', good: 'First, build the portfolio and start a Live Preview. We\'ll deploy in the next prompt.' }
+];
+
+const mentalModels = [
+  { title: 'The prompt is the spec',                  body: 'Whatever you wrote down is what the agent will build to. Vague spec → vague output. Treat every prompt like a contract.' },
+  { title: 'Senior contractor, not junior intern',    body: 'Don\'t micromanage the implementation. Brief the outcome and the constraints, then let the agent choose the path.' },
+  { title: 'Wrong output = vague input',              body: 'When the result misses, your first move is to look at your prompt — not to retry. The agent is a mirror.' },
+  { title: 'Constraints make creativity',             body: '"Make it good" produces mush. "Editorial, max 80ch, Fraunces serif, no JS" produces a real choice. Boundaries free the agent.' },
+  { title: 'Iterate in small bites',                  body: 'One change per prompt. The agent has memory across the conversation — use that, don\'t batch 5 changes into one ask.' },
+  { title: 'Read the diff, not the explanation',      body: 'The agent\'s summary is what it intended to do. The diff is what it did. Always check the diff before you ship.' }
+];
+
+// Worked walkthroughs — one paraphrased session per mastery goal. Each step is
+// either a "you" prompt (copyable), an "agent" response excerpt (paraphrased
+// for expectation-setting), a "sideways" recovery hint, or a "milestone" beat.
+const walkthroughs = {
+  portfolio: {
+    title: 'Start a portfolio — full session',
+    setup: 'New empty directory · profile.json filled · ~5–8 minutes',
+    steps: [
+      { kind: 'you', text: 'Use the portfolio template (`pegasus new portfolio my-site`). Inputs: read ~/.pegasus/profile.json. Brand: editorial — Fraunces serif, max 80ch. Sections: hero, project grid (6 placeholders), about, contact. Constraints: Tailwind only, WCAG-AA, Lighthouse perf >90. Output: index.html + start `npx serve .`.', note: 'The full tier-3 prompt — every ingredient present.' },
+      { kind: 'agent',    text: 'Read profile (Jane Designer, Brooklyn). Scaffolded ./my-site/ from the portfolio template. Wired Fraunces via Google Fonts. Built hero, project grid with 6 `<!-- TODO: image -->` placeholders, about, mailto contact. Started preview at http://localhost:5173.' },
+      { kind: 'milestone', text: 'You see the page. Headlines feel small.' },
+      { kind: 'you', text: 'The hero headline feels small at this width. Bump it 1.5× on screens ≥768px and tighten line-height to 0.95.', note: 'One-change-per-prompt iteration.' },
+      { kind: 'agent',    text: 'Updated h1 from text-5xl to text-7xl md:text-8xl, set leading-[0.95]. Re-rendered.' },
+      { kind: 'sideways', text: 'If the agent picks Inter instead of Fraunces (a Tailwind default override): "Use Fraunces serif headlines per my brief — re-add the Google Fonts <link> in the <head> and switch h1/h2 to font-serif."' },
+      { kind: 'you', text: 'Now run an audit: use the ux-ui-audit skill on the current directory. Don\'t fix anything — write findings to AUDIT.md grouped by file with [file:line] tags.', note: 'Composing a second skill on top, with a strict no-edit constraint.' },
+      { kind: 'agent',    text: 'Wrote AUDIT.md (12 findings, 2 Critical, 4 High). Critical: missing alt on project images, no skip-link. High: contact link uses default link color, focus rings invisible in dark mode.' },
+      { kind: 'you', text: 'Apply the two Critical fixes only. Show me the diff before saving.', note: 'P0 first. Review-then-apply pattern.' },
+      { kind: 'agent',    text: 'Diff: added alt="" pass-through on placeholder images and a skip-link at top of <body>. Patches applied.' },
+      { kind: 'milestone', text: 'You ship. `pegasus deploy` pushes to Surge.' }
+    ]
+  },
+  figma: {
+    title: 'Convert a Figma design — full session',
+    setup: 'You have a Figma file URL · Figma MCP authenticated · ~10 minutes',
+    steps: [
+      { kind: 'you', text: 'Use the figma-converter skill against [Figma URL]. Plan: read with mcp__claude_ai_Figma__get_design_context, extract tokens via get_variable_defs into :root CSS vars, build each top-level frame as a section. Constraint: pixel-match within 8px, do not invent components I can\'t see. Output: index.html + tokens.css + a screenshot diff.', note: 'Plan-numbered prompt with hard tolerance.' },
+      { kind: 'agent',    text: 'Fetched 4 frames: Hero, Features, Pricing, Footer. Extracted 18 tokens (colors + 4 type styles). Wrote tokens.css. Generated index.html with 4 <section> blocks. Captured a side-by-side screenshot at /tmp/diff.png.' },
+      { kind: 'milestone', text: 'Side-by-side renders cleanly except the Pricing card icons.' },
+      { kind: 'you', text: 'The Pricing icons render as gray squares — what happened?', note: 'Asking the agent to self-diagnose, not silently substitute.' },
+      { kind: 'agent',    text: 'Those nodes are vector exports requiring Figma image fills I can\'t pull. I dropped 64×64 placeholder PNGs sized to the original frames. Replace at ./assets/icon-{1..4}.svg when you have the exports.' },
+      { kind: 'sideways', text: 'If colors look slightly off (often because Figma uses sRGB but you forgot a color-profile tag): "Add `color-scheme: light` to :root and re-test the diff."' },
+      { kind: 'you', text: 'Good. Audit accessibility next: contrast + keyboard nav. Use ux-ui-audit but only sections 4 (color) and 11 (keyboard).', note: 'Narrowing a multi-section skill.' },
+      { kind: 'agent',    text: 'Section 4: 2 contrast misses on muted text in dark mode (3.8:1, needs 4.5:1). Section 11: no visible focus ring on the "Get started" button.' },
+      { kind: 'milestone', text: 'You apply the two fixes, deploy, and link the URL into your portfolio grid as a case study.' }
+    ]
+  },
+  audit: {
+    title: 'Audit my site — full session',
+    setup: 'Existing project directory · ~7 minutes',
+    steps: [
+      { kind: 'you', text: 'Run two skills in sequence on the current directory: (1) ux-ui-audit full 17-section pass, then (2) mp-diagnose to triage findings into [Critical, High, Medium, Low]. For Critical and High items propose actual diffs grouped by file. Constraint: don\'t edit any file. Output: AUDIT.md.', note: 'Two-skill chain with explicit no-edit guard.' },
+      { kind: 'agent',    text: 'Ran audit (17 sections), then mp-diagnose. Wrote AUDIT.md: 31 findings — 3 Critical, 8 High, 14 Medium, 6 Low. Diffs grouped by file (5 files affected). No file edits.' },
+      { kind: 'milestone', text: 'You read AUDIT.md. The 3 Critical items are: missing skip-link, alt-text on hero image, and a form input without a <label>.' },
+      { kind: 'you', text: 'Apply the 3 Critical fixes. One commit per fix. Use mp-git-guardrails before committing.', note: 'mp-git-guardrails composes on top to keep commits small + reviewed.' },
+      { kind: 'agent',    text: 'Fix 1 (skip-link): added <a href="#main"> inside <body>. Commit. Fix 2 (alt-text): added alt="Designer at work" to hero. Commit. Fix 3 (label): wrapped input with <label>. Commit. mp-git-guardrails approved all three diffs (each <10 lines).' },
+      { kind: 'sideways', text: 'If the agent batches all 3 into one commit (skipping the guardrail): "Reset to the previous commit and redo as 3 separate commits — one per fix."' },
+      { kind: 'you', text: 'Re-run the audit on just the changed files. Did anything regress?', note: 'Closing the loop after a change is the senior move.' },
+      { kind: 'agent',    text: 'Re-audit on 3 files: 0 regressions. The 3 Critical findings are gone. 8 High items remain. Suggest tackling High #1 (insufficient color contrast on body text) next.' },
+      { kind: 'milestone', text: 'You queue the next session for High items and stop here.' }
+    ]
+  },
+  jobs: {
+    title: 'Find me jobs — full session',
+    setup: 'profile.json with target roles + locations · ~6 minutes',
+    steps: [
+      { kind: 'you', text: 'Compose 3 skills: (1) job-finder pulls fresh listings from BuiltIn + LinkedIn matching ~/.pegasus/profile.json. (2) career-ops-triage scores each by fit (1–10), drops anything <6. (3) career-ops-evaluate gives a one-paragraph go/no-go on survivors. Constraint: max 8 finalists, exclude any company in ~/Design-Projects/applications/. Output: this-week.md with [Company | Role | Fit | Salary | Apply by | One-liner].', note: '3-skill pipeline with dedup against your own history.' },
+      { kind: 'agent',    text: 'Pulled 47 listings (BuiltIn 31 + LinkedIn 16). Triaged: 18 scored ≥6. Excluded 4 already-applied. Evaluated remaining 14 → kept 8 finalists. Wrote this-week.md.' },
+      { kind: 'milestone', text: 'You read the table. Top 3 are clear; ranks 4–8 are borderline.' },
+      { kind: 'you', text: 'Run cover-letter-generator + career-ops-tailor-resume on the top 3. Save into ~/Design-Projects/applications/<Company>-<YYYYMMDD>/.', note: 'Two skills in parallel for the same 3 inputs. Filed by date.' },
+      { kind: 'agent',    text: 'Generated 3 cover letters + 3 tailored resumes. Filed under applications/Acme-20260504/, BetaCo-20260504/, Caelis-20260504/. Each folder has cover.md + resume.pdf.' },
+      { kind: 'sideways', text: 'If the cover letters all read identically (a sign the agent is templating instead of tailoring): "Re-do — anchor each letter on a specific bullet from that company\'s most recent product launch. Reference one team member if you can find them on the About page."' },
+      { kind: 'you', text: 'Add reminders to my calendar 24 hours before each "Apply by" date.', note: 'Compose with the calendar MCP if installed.' },
+      { kind: 'agent',    text: 'Created 3 calendar events via Google Calendar MCP (Acme: May 8 09:00, BetaCo: May 9 09:00, Caelis: May 11 09:00). Each with the JD URL in the description.' },
+      { kind: 'milestone', text: 'You\'re queued up for the week. Total time: under 10 minutes.' }
+    ]
+  }
+};
+
+function openWalkthroughModal(id) {
+  const w = walkthroughs[id];
+  if (!w) return;
+  document.getElementById('walkthroughTitle').textContent = w.title;
+  document.getElementById('walkthroughSetup').textContent = 'Setup: ' + w.setup;
+  const stepsEl = document.getElementById('walkthroughSteps');
+  // Style each step kind distinctly so the conversation arc is legible.
+  const kindMeta = {
+    you:        { label: 'You',          chip: 'bg-stone-900 text-stone-50 dark:bg-stone-100 dark:text-stone-900', body: 'bg-stone-50 dark:bg-stone-950 font-mono' },
+    agent:      { label: 'Agent',        chip: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100', body: 'bg-emerald-50 dark:bg-emerald-950/30' },
+    sideways:   { label: 'If sideways',  chip: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100', body: 'bg-amber-50 dark:bg-amber-950/30 italic' },
+    milestone:  { label: 'Milestone',    chip: 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/40 dark:text-indigo-100', body: 'bg-indigo-50 dark:bg-indigo-950/30 italic' }
+  };
+  stepsEl.innerHTML = w.steps.map((step, i) => {
+    const meta = kindMeta[step.kind] || kindMeta.you;
+    const copyAttr = step.kind === 'you'
+      ? `data-copy='${_esc(step.text).replace(/'/g, "&#39;")}'`
+      : '';
+    const copyClass = step.kind === 'you' ? 'copy cursor-pointer' : '';
+    const copyHint = step.kind === 'you' ? '<span class="text-[10px] text-stone-400 ml-2">click to copy</span>' : '';
+    const noteHtml = step.note ? `<p class="text-[11px] text-stone-500 dark:text-stone-400 mt-2">↳ ${_esc(step.note)}</p>` : '';
+    return `
+      <li class="border-l-2 border-stone-200 dark:border-stone-800 pl-4">
+        <div class="flex items-baseline gap-2 mb-1">
+          <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${meta.chip}">${meta.label}</span>
+          <span class="text-[10px] text-stone-400">step ${i + 1}</span>
+          ${copyHint}
+        </div>
+        <div class="${copyClass} text-sm leading-relaxed rounded p-3 ${meta.body}" ${copyAttr}>${_esc(step.text)}</div>
+        ${noteHtml}
+      </li>`;
+  }).join('');
+  // Re-bind copy buttons (clicking a "you" prompt copies it)
+  stepsEl.querySelectorAll('.copy').forEach(el => el.addEventListener('click', () => copyAndFlash(el)));
+  document.getElementById('walkthroughModal').classList.add('open');
+}
+
+function closeWalkthroughModal() {
+  document.getElementById('walkthroughModal').classList.remove('open');
+}
+
+function renderMasteryAnnotated() {
+  // Render the segmented expert prompt with role-colored spans + tooltips.
+  const hl = annotatedExpert.map(seg => {
+    if (!seg.role) return _esc(seg.text);
+    const meta = masteryRoleStyles[seg.role];
+    // tooltip content via title attribute — works on hover (desktop) and via long-press (mobile)
+    return `<span class="${meta.ring} cursor-help" title="${_esc(meta.label)} — ${_esc(seg.why)}" data-role="${seg.role}">${_esc(seg.text)}</span>`;
+  }).join('');
+  document.getElementById('mastery-annotated').innerHTML = hl;
+  // Legend mirrors the role chips used in the segments + the formula card.
+  document.getElementById('mastery-annotated-legend').innerHTML = Object.entries(masteryRoleStyles).map(([k, v]) => `
+    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded ${v.chip}">
+      <span class="w-1.5 h-1.5 rounded-full bg-current"></span>${_esc(v.label)}
+    </span>`).join('');
+}
+
+function renderMasteryBuilder() {
+  // Build dropdown UI per row. Selections persist via localStorage so the user
+  // can return and tweak rather than starting over.
+  const KEY = 'pegasus.masteryBuilder';
+  const saved = JSON.parse(_safeStorage.getItem(KEY) || '{}');
+
+  const controls = document.getElementById('mastery-builder-controls');
+  controls.innerHTML = builderRows.map(row => {
+    const meta = masteryRoleStyles[row.ingredient];
+    const optsHtml = row.options.map(o =>
+      `<option value="${_esc(o.id)}"${saved[row.id] === o.id ? ' selected' : ''}>${_esc(o.label)}</option>`
+    ).join('');
+    return `
+      <div class="grid grid-cols-1 sm:grid-cols-[14rem_1fr] gap-2 sm:gap-4 items-center">
+        <label for="builder-${row.id}" class="text-xs flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full ${meta.chip.split(' ')[0]}"></span>
+          <span class="font-medium">${_esc(row.label)}</span>
+        </label>
+        <select id="builder-${row.id}" data-row="${row.id}" class="text-sm px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none">
+          <option value="">— pick one —</option>
+          ${optsHtml}
+        </select>
+      </div>`;
+  }).join('');
+
+  function assemble() {
+    const choices = {};
+    builderRows.forEach(row => {
+      const sel = document.getElementById(`builder-${row.id}`);
+      choices[row.id] = sel.value;
+    });
+    _safeStorage.setItem(KEY, JSON.stringify(choices));
+    // Compose the prompt: collect non-empty snippets in row order.
+    const parts = builderRows
+      .map(row => row.options.find(o => o.id === choices[row.id]))
+      .filter(o => o && o.snippet)
+      .map(o => o.snippet);
+    const out = parts.length
+      ? parts.join('\n\n')
+      : '(pick at least one option above to assemble a prompt)';
+    document.getElementById('masteryBuilderOutput').textContent = out;
+    const copyBtn = document.getElementById('masteryBuilderCopy');
+    copyBtn.dataset.copy = out;
+    copyBtn.disabled = parts.length === 0;
+    copyBtn.style.opacity = parts.length === 0 ? '0.4' : '1';
+    // Builder usage may have crossed a stage threshold — refresh the recommendation.
+    if (typeof renderMasteryRecommendation === 'function') renderMasteryRecommendation();
+  }
+
+  controls.querySelectorAll('select').forEach(sel => sel.addEventListener('change', assemble));
+  document.getElementById('masteryBuilderReset').addEventListener('click', () => {
+    _safeStorage.removeItem(KEY);
+    controls.querySelectorAll('select').forEach(s => s.value = '');
+    assemble();
+  });
+  // Wire the copy button through the standard helper that updates the pulse + toast.
+  document.getElementById('masteryBuilderCopy').addEventListener('click', function() {
+    if (!this.dataset.copy) return;
+    copyAndFlash(this);
+  });
+  assemble();
+}
+
+function renderMasteryAntipatterns() {
+  document.getElementById('mastery-antipatterns').innerHTML = antiPatterns.map((a, i) => `
+    <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-4 bg-stone-50 dark:bg-stone-950">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 dark:text-rose-400 mb-1">Don't · #${i + 1}</div>
+      <p class="text-sm font-mono mb-2 text-stone-900 dark:text-stone-100">"${_esc(a.bad)}"</p>
+      <p class="text-xs text-stone-600 dark:text-stone-400 mb-3">→ ${_esc(a.failure)}</p>
+      <div class="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">Fix: ${_esc(a.fix)}</div>
+      <p class="text-xs font-mono text-stone-700 dark:text-stone-300">"${_esc(a.good)}"</p>
+    </div>`).join('');
+}
+
+function renderMasteryModels() {
+  document.getElementById('mastery-models').innerHTML = mentalModels.map((m, i) => `
+    <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-4">
+      <div class="flex items-baseline gap-2 mb-2">
+        <span class="font-mono text-stone-400 text-xs">${String(i + 1).padStart(2, '0')}</span>
+        <h4 class="font-serif text-base">${_esc(m.title)}</h4>
+      </div>
+      <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">${_esc(m.body)}</p>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// "TRY THIS NEXT" — sequenced recommendation, reads profile + pulse + builder
+// + walkthrough activity to point the user at exactly one thing.
+// ─────────────────────────────────────────────
+const WALKTHROUGHS_SEEN_KEY = 'pegasus.walkthroughsSeen';
+
+function masteryStage() {
+  const profile = loadProfile();
+  const pulse = loadPulse();
+  const profileFilled = Object.values(profile).filter(v => v && String(v).trim()).length;
+  const totalCopies = pulse.totalCopies || 0;
+  // The builder writes {} to localStorage on first render, so emptiness check
+  // can't be presence-of-key — must be at least one non-empty selection.
+  let builderUsed = false;
+  try {
+    const b = JSON.parse(_safeStorage.getItem('pegasus.masteryBuilder') || '{}');
+    builderUsed = Object.values(b).some(v => v && String(v).length);
+  } catch {}
+  let walkthroughsSeen = [];
+  try { walkthroughsSeen = JSON.parse(_safeStorage.getItem(WALKTHROUGHS_SEEN_KEY) || '[]'); } catch {}
+
+  if (profileFilled < 3)             return 'profile';
+  if (totalCopies === 0)             return 'firstCopy';
+  if (!walkthroughsSeen.length)      return 'walkthrough';
+  if (!builderUsed)                  return 'builder';
+  return 'compose';
+}
+
+const masteryRecommendations = {
+  profile: {
+    headline: 'Step 1 · Tell the agent who you are',
+    body: 'Spend 60 seconds filling out at least 3 profile fields. The agent uses these to ground every prompt — without them, you\'ll keep getting generic output.',
+    cta: 'Open profile',
+    action: () => { document.getElementById('profile').scrollIntoView({ behavior: 'smooth' }); document.querySelector('.profile-field')?.focus(); }
+  },
+  firstCopy: {
+    headline: 'Step 2 · Copy your first Better-tier prompt',
+    body: 'Pick the goal closest to what you actually want to build. Click the Better tier (the middle column) — it\'s the smallest jump that already shows what naming a skill or stack does.',
+    cta: 'Jump to first goal',
+    action: () => { document.querySelector('#mastery-list .card')?.scrollIntoView({ behavior: 'smooth' }); }
+  },
+  walkthrough: {
+    headline: 'Step 3 · Watch a real session play out',
+    body: 'Open the worked walkthrough on any goal card. You\'ll see the prompt, the agent\'s response, the iteration, and the recovery from a sideways path. That arc IS mastery.',
+    cta: 'Open a walkthrough',
+    action: () => { openWalkthroughModal('portfolio'); }
+  },
+  builder: {
+    headline: 'Step 4 · Build your own expert prompt',
+    body: 'You\'ve seen the shape. Now use the Prompt Lab to assemble one yourself: pick a skill, an input, a constraint, an acceptance test, and a loop hook. Copy what comes out.',
+    cta: 'Open the Prompt Lab',
+    action: () => { document.getElementById('mastery-builder-controls')?.scrollIntoView({ behavior: 'smooth' }); document.getElementById('builder-goal')?.focus(); }
+  },
+  compose: {
+    headline: 'You\'ve got the fundamentals. Compose two skills.',
+    body: 'You\'ve filled your profile, copied prompts, watched a walkthrough, and built one yourself. The next jump: use a Workflow recipe that chains 2–3 skills (e.g. job-finder → career-ops-triage → cover-letter-generator). Each becomes muscle memory after one run.',
+    cta: 'See workflow recipes',
+    action: () => { document.getElementById('workflows')?.scrollIntoView({ behavior: 'smooth' }); }
+  }
+};
+
+const masteryStageOrder = ['profile', 'firstCopy', 'walkthrough', 'builder', 'compose'];
+
+function renderMasteryRecommendation() {
+  const container = document.getElementById('mastery-recommendation');
+  if (!container) return;
+  // Preserve the sr-only span — recreate it after replacing innerHTML.
+  const stage = masteryStage();
+  const rec = masteryRecommendations[stage];
+  const stageIdx = masteryStageOrder.indexOf(stage);
+  const totalStages = masteryStageOrder.length;
+  const progressPct = Math.round(((stageIdx + 1) / totalStages) * 100);
+  container.innerHTML = `
+    <span class="sr-only">prompt mastery escalation tutorial guide next step recommendation try this</span>
+    <div class="bg-gradient-to-br from-stone-900 to-stone-800 dark:from-stone-100 dark:to-stone-200 text-stone-50 dark:text-stone-900 rounded-xl p-6 border border-stone-800 dark:border-stone-200">
+      <div class="flex items-baseline justify-between mb-2 gap-3 flex-wrap">
+        <span class="text-xs uppercase tracking-widest opacity-60">Try this next</span>
+        <span class="text-[10px] font-mono opacity-50">stage ${stageIdx + 1} of ${totalStages}</span>
+      </div>
+      <h3 class="font-serif text-2xl mb-2">${_esc(rec.headline)}</h3>
+      <p class="text-sm opacity-80 mb-4 leading-relaxed">${_esc(rec.body)}</p>
+      <div class="flex items-center gap-4 flex-wrap">
+        <button id="masteryRecCta" class="px-4 py-2 bg-stone-50 text-stone-900 dark:bg-stone-900 dark:text-stone-50 rounded-lg text-sm font-medium hover:opacity-90 transition">${_esc(rec.cta)} →</button>
+        <div class="flex-1 min-w-[120px]">
+          <div class="h-1 bg-stone-700 dark:bg-stone-300 rounded-full overflow-hidden">
+            <div class="h-full bg-stone-50 dark:bg-stone-900 transition-all duration-500" style="width: ${progressPct}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('masteryRecCta').addEventListener('click', rec.action);
+}
+
+// 14-day mastery sprint — two weeks of structured exercises. Each day has
+// one copy-able prompt, an expected outcome, and a time estimate. Completion
+// (a copy event on that day's row) is tracked in localStorage.
+const SPRINT_DONE_KEY = 'pegasus.sprintDone';
+const sprintDays = [
+  // Week 1 — Foundations
+  { week: 1, day: 1,  title: 'Tell the agent who you are',          time: '2 min',
+    prompt: 'I\'m a [graphic / product / illustrator] designer. My focus areas are [paste your top 3]. Save this as my context — refer back to it on every prompt today.',
+    outcome: 'You\'ve given the agent the framing it needs to make better defaults. Every later prompt builds on this.' },
+  { week: 1, day: 2,  title: 'Copy your first Better-tier prompt',  time: '5 min',
+    prompt: 'Build me a single-page portfolio at /. Sections: hero with name + tagline, project grid (6 placeholder cards), about, contact. Tailwind. Editorial style. Responsive. Start a Live Preview when done.',
+    outcome: 'You have a working preview URL. The page is generic — that\'s expected. Tomorrow you iterate.' },
+  { week: 1, day: 3,  title: 'Iterate once — change one thing',     time: '3 min',
+    prompt: 'The hero headline feels too small. Make it 1.5× bigger on screens ≥768px and tighten line-height to 0.95. Show me the diff first.',
+    outcome: 'You see the diff before it ships. One change per prompt is the discipline that scales.' },
+  { week: 1, day: 4,  title: 'Compose a skill with a template',     time: '8 min',
+    prompt: 'Use the portfolio-case-study skill to extend the most relevant project in this portfolio into a deeper case study. Anchor it on the design decisions, not the deliverables.',
+    outcome: 'A skill ran on top of your template. You\'ve composed two pieces of Pegasus together.' },
+  { week: 1, day: 5,  title: 'Use an MCP for the first time',       time: '10 min',
+    prompt: 'Here\'s a Figma file: [paste figma.com URL]. Use the Figma MCP tools to read it (mcp__claude_ai_Figma__get_design_context) and turn the hero frame into HTML/Tailwind. Match the actual colors and fonts.',
+    outcome: 'You\'ve named an MCP tool by its real id. The agent stops guessing and starts using the right wire.' },
+  { week: 1, day: 6,  title: 'Audit your work with a quality skill', time: '6 min',
+    prompt: 'Run the ux-ui-audit skill on the current project. I want the full 17-section pass with priorities. Don\'t fix anything — write findings to AUDIT.md grouped by file.',
+    outcome: 'You have a triaged list of real problems. No edits applied yet — you\'re in control.' },
+  { week: 1, day: 7,  title: 'Save what worked to CLAUDE.md',       time: '5 min',
+    prompt: 'Look at the last 3 prompts that worked well today. Distill the patterns into 3-5 rules and save them to ./CLAUDE.md so they apply automatically in future sessions.',
+    outcome: 'Your project now teaches new sessions what good looks like. Compounding starts here.' },
+  // Week 2 — Mastery
+  { week: 2, day: 8,  title: 'Use the Prompt Lab',                   time: '4 min',
+    prompt: '(Open the Prompt Lab above. Pick one option in each row. Copy the assembled prompt and paste it into Claude or OpenCode.)',
+    outcome: 'You\'ve hand-built an expert prompt using the formula. You can do this without the lab now.' },
+  { week: 2, day: 9,  title: 'Walk through a real session',          time: '7 min',
+    prompt: '(Open any "Worked walkthrough" on a goal card above. Read the full arc — prompt → response → iteration → recovery. That arc IS mastery.)',
+    outcome: 'You\'ve seen what a real session looks like, including the recovery from a sideways path. Expect that arc in your own work.' },
+  { week: 2, day: 10, title: 'Spot an anti-pattern in your past prompts', time: '5 min',
+    prompt: 'Show me my 5 most recent prompts. For each, score it on the 5 anti-pattern axes (vague goal / wrong tool / no acceptance test / no scope / kitchen sink). Suggest the one upgrade that would help most.',
+    outcome: 'You can audit your own prompts now. Self-correction beats outside review.' },
+  { week: 2, day: 11, title: 'Add a measurable acceptance criterion', time: '3 min',
+    prompt: 'Take the prompt I\'m about to paste. Rewrite it to add ONE measurable acceptance test (Lighthouse score, pixel tolerance, contrast ratio, line count, or equivalent). Show me before/after. [paste your prompt]',
+    outcome: 'Vague prompts get specific. The agent now knows when to stop and when to keep going.' },
+  { week: 2, day: 12, title: 'Build a 2-skill workflow',             time: '12 min',
+    prompt: 'Compose 2 skills in sequence on this project: (1) ux-ui-audit for findings, (2) mp-diagnose to triage them. For Critical + High items, propose actual diffs but DON\'T apply them. Output: AUDIT.md.',
+    outcome: 'Two skills, one prompt, one artifact. The pattern scales to 3, 4, 5 skills with the same shape.' },
+  { week: 2, day: 13, title: 'Master the cmd-K palette',             time: '4 min',
+    prompt: '(Press ⌘K. Type "figma" and watch the palette index every figma-related thing across templates, skills, MCPs, prompts, and mastery. Try "audit", "letter", "deploy". This is your global search across Pegasus.)',
+    outcome: 'You can find anything in Pegasus in under 3 keystrokes. The dashboard becomes a launcher, not a brochure.' },
+  { week: 2, day: 14, title: 'Teach someone else your favorite recipe', time: '8 min',
+    prompt: 'Pick the workflow from the past 2 weeks that saved you the most time. Write it as a 5-step instruction in plain English (no agent-speak) so a designer with no Pegasus experience could follow it. Save to README.md.',
+    outcome: 'Teaching is the final test of mastery. You now have a recipe that lives on after the session ends.' }
+];
+
+function loadSprintDone() {
+  try { return JSON.parse(_safeStorage.getItem(SPRINT_DONE_KEY) || '[]'); }
+  catch { return []; }
+}
+function markSprintDay(dayNum) {
+  const done = loadSprintDone();
+  if (!done.includes(dayNum)) {
+    done.push(dayNum);
+    _safeStorage.setItem(SPRINT_DONE_KEY, JSON.stringify(done));
+    renderMasterySprint();
+  }
+}
+
+function renderMasterySprint() {
+  const container = document.getElementById('mastery-sprint');
+  if (!container) return;
+  const done = new Set(loadSprintDone());
+  // Group by week so each week renders as its own collapsible block.
+  const weeks = [
+    { num: 1, label: 'Week 1 · Foundations', open: !done.has(7) },
+    { num: 2, label: 'Week 2 · Mastery',     open: done.has(7) || done.has(8) }
+  ];
+  container.innerHTML = weeks.map(wk => {
+    const days = sprintDays.filter(d => d.week === wk.num);
+    const weekDone = days.filter(d => done.has(d.day)).length;
+    const rows = days.map(d => {
+      const isDone = done.has(d.day);
+      // Each row is a <details> so it expands inline without a modal.
+      return `
+        <details class="rounded-lg border ${isDone ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-stone-200 dark:border-stone-800'}" data-day="${d.day}">
+          <summary class="flex items-baseline gap-3 px-4 py-3 cursor-pointer select-none list-none hover:bg-stone-50 dark:hover:bg-stone-800/50 rounded-lg">
+            <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${isDone ? 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800/60 dark:text-emerald-100' : 'bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300'}">${isDone ? '✓ done' : 'Day ' + d.day}</span>
+            <span class="font-medium text-sm flex-1">${_esc(d.title)}</span>
+            <span class="text-[10px] text-stone-400 font-mono">${_esc(d.time)}</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 space-y-3">
+            <button class="copy text-left text-xs bg-stone-50 dark:bg-stone-950 px-3 py-3 rounded w-full font-mono leading-relaxed border border-stone-200 dark:border-stone-800" data-copy='${_esc(d.prompt).replace(/'/g, "&#39;")}' data-sprint-day="${d.day}">${_esc(d.prompt)}</button>
+            <p class="text-xs text-stone-600 dark:text-stone-400 italic">↳ ${_esc(d.outcome)}</p>
+          </div>
+        </details>`;
+    }).join('');
+    return `
+      <div class="space-y-2">
+        <div class="flex items-baseline justify-between mb-1 gap-2">
+          <h4 class="font-serif text-base">${_esc(wk.label)}</h4>
+          <span class="text-[10px] font-mono text-stone-500 dark:text-stone-400">${weekDone} / ${days.length} done</span>
+        </div>
+        <div class="space-y-2">${rows}</div>
+      </div>`;
+  }).join('');
+  // Wire copy buttons + day-completion tracking on every row.
+  container.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      copyAndFlash(btn);
+      const day = Number(btn.dataset.sprintDay);
+      if (day) markSprintDay(day);
+    });
+  });
+  // Update aggregate progress label.
+  const total = sprintDays.length;
+  document.getElementById('sprintProgress').textContent = `${done.size} / ${total} done`;
+}
+
+document.addEventListener('click', e => {
+  if (e.target?.id === 'sprintReset') {
+    if (!confirm('Reset all 14-day sprint progress?')) return;
+    _safeStorage.removeItem(SPRINT_DONE_KEY);
+    renderMasterySprint();
+  }
+});
+
+// Mastery sub-TOC: smooth-scroll instead of an instant jump, and focus the
+// destination input when one exists (Prompt Lab / Doctor) so the user can
+// type immediately on arrival.
+document.addEventListener('click', e => {
+  const link = e.target.closest('[data-mastery-jump]');
+  if (!link) return;
+  e.preventDefault();
+  const targetId = link.getAttribute('href').slice(1);
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Focus inputs for jump-to-action targets so the user can type immediately.
+  if (targetId === 'doctorInput' || targetId === 'mastery-builder-controls') {
+    setTimeout(() => {
+      const focusable = target.matches('input, select, textarea')
+        ? target
+        : target.querySelector('input, select, textarea');
+      focusable?.focus({ preventScroll: true });
+    }, 350);
+  }
+});
+
+// ─────────────────────────────────────────────
+// WEEKLY FEATURED — deterministic rotating spotlight
+// ─────────────────────────────────────────────
+// Rotates by ISO week so every Monday a different surface gets the spotlight,
+// without needing a server. Same week → same item for everyone.
+const featuredItems = [
+  { label: 'Day 8 · Use the Prompt Lab',                 hint: 'Hand-build an expert prompt by picking ingredients.', target: 'mastery-builder-controls' },
+  { label: 'Anti-pattern #3 · "Make it look good"',       hint: 'Subjective prompts produce mush. Cite a measurable.', target: 'mastery-antipatterns' },
+  { label: 'Mental model · Constraints make creativity', hint: 'Boundaries free the agent from guessing.',           target: 'mastery-models' },
+  { label: 'Walkthrough · Convert a Figma design',       hint: 'Watch a real Figma → HTML session play out.',         target: 'mastery-list', walkthrough: 'figma' },
+  { label: 'Day 12 · Build a 2-skill workflow',          hint: 'Compose ux-ui-audit + mp-diagnose into one prompt.',  target: 'mastery-sprint' },
+  { label: 'Goal #2 · Convert a Figma design',           hint: 'Read the Basic → Better → Expert progression.',       target: 'mastery-list' },
+  { label: 'Run the Prompt Doctor on something you wrote', hint: 'Paste a prompt, see what\'s missing.',              target: 'doctorInput' },
+  { label: 'Anatomy · Acceptance criterion',             hint: 'How will you know it\'s done? Pick one measurable.', target: 'mastery-anatomy' }
+];
+
+function isoWeekIndex() {
+  // Approximation good enough for rotation purposes — millis since Jan 1.
+  const d = new Date();
+  const start = new Date(d.getFullYear(), 0, 1);
+  return Math.floor((d - start) / (7 * 86400000));
+}
+
+function thisWeekFeature() {
+  return featuredItems[isoWeekIndex() % featuredItems.length];
+}
+
+function renderWeeklyFeature() {
+  const container = document.getElementById('masteryFeatured');
+  if (!container) return;
+  const f = thisWeekFeature();
+  container.innerHTML = `
+    <span class="sr-only">prompt mastery weekly spotlight featured rotating focus this week</span>
+    <button id="masteryFeaturedBtn" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 hover:border-amber-400 dark:hover:border-amber-600 transition group">
+      <span class="text-xs font-mono uppercase tracking-wider text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 shrink-0">↻ this week</span>
+      <span class="flex-1 min-w-0">
+        <span class="block font-medium text-sm text-stone-900 dark:text-stone-100 truncate">${_esc(f.label)}</span>
+        <span class="block text-xs text-stone-600 dark:text-stone-400 truncate">${_esc(f.hint)}</span>
+      </span>
+      <span class="text-stone-400 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition shrink-0">→</span>
+    </button>`;
+  document.getElementById('masteryFeaturedBtn').addEventListener('click', () => {
+    const target = document.getElementById(f.target);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (f.walkthrough) setTimeout(() => openWalkthroughModal(f.walkthrough), 350);
+  });
+}
+
+// ─────────────────────────────────────────────
+// PROMPT DOCTOR — heuristic 5-ingredient anatomy linter
+// ─────────────────────────────────────────────
+// Each detector returns true if its ingredient is plausibly present. The
+// patterns are intentionally generous (substring + simple regex) — false
+// positives are okay; we want to encourage rather than gate-keep.
+const promptDoctorIngredients = [
+  {
+    key: 'skill',
+    label: 'Skill / template',
+    chip: 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/40 dark:text-indigo-100',
+    detect: (s) => {
+      const lower = s.toLowerCase();
+      // Tool names + verb-noun patterns. Keep this generous.
+      return /pegasus new |use the .{2,30}? (skill|template|workflow|recipe)|\bmcp__|figma-converter|ux-ui-audit|portfolio-case-study|career-ops-|job-finder|content-writer|interview-prep|cover-letter-generator|vector-workflow|mp-(diagnose|to-prd|git-guardrails)|specify\s|reveal\.js/.test(lower) || /`[a-z][a-z0-9_-]+`/.test(lower);
+    },
+    suggestion: 'Name the tool. e.g. "Use the ux-ui-audit skill" or "Use the portfolio template (`pegasus new portfolio my-site`)."'
+  },
+  {
+    key: 'input',
+    label: 'Pointed input',
+    chip: 'bg-sky-100 text-sky-900 dark:bg-sky-900/40 dark:text-sky-100',
+    detect: (s) => {
+      // File paths, URLs, MCP tool ids, paste markers.
+      return /(~\/|\.\/|\/[A-Za-z]|figma\.com|github\.com|\.json|\.md|\.html|\.css|\.js|\.png|\.svg|http[s]?:\/\/|mcp__|\[paste|paste your)/.test(s);
+    },
+    suggestion: 'Point at real inputs. e.g. "Inputs: read ~/.pegasus/profile.json" or "[paste the Figma URL]" or "the JD I will paste below".'
+  },
+  {
+    key: 'constraint',
+    label: 'Tight constraint',
+    chip: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100',
+    detect: (s) => {
+      const lower = s.toLowerCase();
+      return /(tailwind|no js|no framework|no build|max[- ]?width|max-?\d+|editorial|minimal|playful|corporate|serif|sans-serif|grid|stack:|brand:|style:|font-|color:|#[0-9a-f]{3,6}\b|\d+ch\b|\d+px\b|≤|>=|\bonly\b)/.test(lower);
+    },
+    suggestion: 'Add a hard constraint. e.g. "Stack: Tailwind only, no JS deps" or "Brand: editorial — Fraunces serif, max content width 80ch."'
+  },
+  {
+    key: 'accept',
+    label: 'Acceptance test',
+    chip: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100',
+    detect: (s) => {
+      const lower = s.toLowerCase();
+      return /(lighthouse|wcag|aa\b|aaa\b|pixel-?match|contrast|score|>\s*\d|\bperf\b|accessibility|output:|write to |save to |start.*preview|tell me the .* url|acceptance:)/.test(lower);
+    },
+    suggestion: 'Add a measurable done state. e.g. "Acceptance: Lighthouse perf >90, WCAG-AA contrast" or "Output: index.html + start `npx serve .`"'
+  },
+  {
+    key: 'loop',
+    label: 'Loop hook',
+    chip: 'bg-violet-100 text-violet-900 dark:bg-violet-900/40 dark:text-violet-100',
+    detect: (s) => {
+      const lower = s.toLowerCase();
+      return /(loop:|ask me|iterate|report any|self-report|stop after|wait for review|wait for me|don'?t edit|do not edit|next step|ask before|once .* approve)/.test(lower);
+    },
+    suggestion: 'Add a hand-back. e.g. "Loop: ask me which section to iterate on next" or "Stop after the plan — don\'t edit any file until I approve."'
+  }
+];
+
+function diagnosePrompt(text) {
+  const findings = promptDoctorIngredients.map(ing => ({
+    ...ing,
+    present: !!text.trim() && ing.detect(text)
+  }));
+  return findings;
+}
+
+function renderDoctorFindings(text) {
+  const scoreEl = document.getElementById('doctorScore');
+  const findingsEl = document.getElementById('doctorFindings');
+  const suggestionsEl = document.getElementById('doctorSuggestions');
+  const improveBtn = document.getElementById('doctorImprove');
+
+  if (!text || !text.trim()) {
+    scoreEl.innerHTML = 'Score: <span class="text-stone-400">paste a prompt above</span>';
+    // Render the 5 chips in their absent state so the user sees the categories
+    // upfront — discoverability matters more than visual minimalism here.
+    findingsEl.innerHTML = promptDoctorIngredients.map(f => `
+      <div class="rounded-lg p-3 text-center text-xs bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500" title="${_esc(f.label)}: not yet checked">
+        <div class="text-[16px] mb-1">○</div>
+        <div class="font-medium">${_esc(f.label)}</div>
+      </div>`).join('');
+    suggestionsEl.innerHTML = '';
+    improveBtn.disabled = true;
+    return;
+  }
+  const findings = diagnosePrompt(text);
+  const score = findings.filter(f => f.present).length;
+  scoreEl.innerHTML = `Score: <span class="${score === 5 ? 'text-emerald-600 dark:text-emerald-400' : ''}">${score} / 5 ingredients ${score === 5 ? '· complete prompt' : 'present'}</span>`;
+  findingsEl.innerHTML = findings.map(f => `
+    <div class="rounded-lg p-3 text-center text-xs ${f.present ? f.chip : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500'}" title="${_esc(f.label)}: ${f.present ? 'present' : 'missing'}">
+      <div class="text-[16px] mb-1">${f.present ? '✓' : '○'}</div>
+      <div class="font-medium">${_esc(f.label)}</div>
+    </div>`).join('');
+  const missing = findings.filter(f => !f.present);
+  suggestionsEl.innerHTML = missing.length
+    ? missing.map(f => `<div class="rounded-lg border border-stone-200 dark:border-stone-800 px-3 py-2 bg-stone-50 dark:bg-stone-950"><span class="font-medium text-stone-700 dark:text-stone-300">+ ${_esc(f.label)}:</span> <span class="text-stone-600 dark:text-stone-400">${_esc(f.suggestion)}</span></div>`).join('')
+    : '<p class="text-emerald-700 dark:text-emerald-400 italic">All five ingredients present. Paste this prompt and ship.</p>';
+  improveBtn.disabled = missing.length === 0;
+}
+
+function autoImprovePrompt(text) {
+  const findings = diagnosePrompt(text);
+  // Append a clause for each missing ingredient as a starter the user can edit.
+  const additions = findings.filter(f => !f.present).map(f => {
+    if (f.key === 'skill')      return 'Use the [name-of-skill-or-template] for this.';
+    if (f.key === 'input')      return 'Inputs: [point at a real file path or URL].';
+    if (f.key === 'constraint') return 'Stack: [name your stack — e.g. Tailwind only, no JS deps].';
+    if (f.key === 'accept')     return 'Acceptance: [measurable done state — e.g. Lighthouse perf >90].';
+    if (f.key === 'loop')       return 'Loop: ask me which section to iterate on next.';
+    return '';
+  }).filter(Boolean);
+  return [text.trim(), '', ...additions].join('\n');
+}
+
+function wireDoctor() {
+  const input = document.getElementById('doctorInput');
+  if (!input) return;
+  // Live re-diagnose on every keystroke (no debounce; the work is trivial).
+  input.addEventListener('input', () => {
+    renderDoctorFindings(input.value);
+    // Library save button only enables when there's a non-empty prompt.
+    document.getElementById('doctorSave').disabled = !input.value.trim();
+  });
+  document.getElementById('doctorImprove').addEventListener('click', () => {
+    input.value = autoImprovePrompt(input.value);
+    renderDoctorFindings(input.value);
+    document.getElementById('doctorSave').disabled = false;
+    input.focus();
+  });
+  document.getElementById('doctorSave').addEventListener('click', () => {
+    const text = input.value.trim();
+    if (!text) return;
+    const findings = diagnosePrompt(text);
+    const score = findings.filter(f => f.present).length;
+    saveLibraryPrompt({ text, score, source: 'Doctor' });
+    showToast('★ Saved to your library');
+  });
+  // Initial render so the chips show in their empty state.
+  renderDoctorFindings('');
+}
+
+// ─────────────────────────────────────────────
+// MY LIBRARY — saved prompts collection
+// ─────────────────────────────────────────────
+const LIBRARY_KEY = 'pegasus.savedPrompts';
+
+function loadLibrary() {
+  try { return JSON.parse(_safeStorage.getItem(LIBRARY_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveLibrary(items) { _safeStorage.setItem(LIBRARY_KEY, JSON.stringify(items)); }
+
+function saveLibraryPrompt({ text, score, source }) {
+  const items = loadLibrary();
+  // Dedup on text (no point saving twice).
+  if (items.some(i => i.text === text)) return;
+  items.unshift({
+    id: 'lib-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    text, score, source,
+    savedAt: new Date().toISOString().slice(0, 10)
+  });
+  saveLibrary(items);
+  renderLibrary();
+}
+
+function removeLibraryPrompt(id) {
+  saveLibrary(loadLibrary().filter(i => i.id !== id));
+  renderLibrary();
+}
+
+// ─────────────────────────────────────────────
+// EXPORT MASTERY REPORT — portable markdown of every state localStorage holds
+// ─────────────────────────────────────────────
+function buildMasteryReport() {
+  const today = new Date().toISOString().slice(0, 10);
+  const profile = loadProfile();
+  const pulse = loadPulse();
+  const library = loadLibrary();
+  const sprintDone = loadSprintDone();
+  const stage = masteryStage();
+  let builder = {};
+  try { builder = JSON.parse(_safeStorage.getItem('pegasus.masteryBuilder') || '{}'); } catch {}
+  let walkthroughsSeen = [];
+  try { walkthroughsSeen = JSON.parse(_safeStorage.getItem(WALKTHROUGHS_SEEN_KEY) || '[]'); } catch {}
+
+  const filledFields = Object.entries(profile)
+    .filter(([_, v]) => v && String(v).trim())
+    .map(([k, v]) => `- **${k}**: ${String(v).replace(/\n/g, ' ')}`)
+    .join('\n') || '_(profile empty)_';
+
+  const wk1Done = sprintDone.filter(d => d <= 7).sort((a,b)=>a-b);
+  const wk2Done = sprintDone.filter(d => d > 7).sort((a,b)=>a-b);
+  const dayLabel = (d) => sprintDays.find(x => x.day === d)?.title || `Day ${d}`;
+
+  const libBlock = library.length
+    ? library.map((item, i) => `### ${i + 1}. Score ${item.score}/5 · saved ${item.savedAt} · ${item.source}\n\n\`\`\`\n${item.text}\n\`\`\`\n`).join('\n')
+    : '_(no saved prompts yet)_';
+
+  const stageMeta = masteryRecommendations[stage];
+  const stageIdx = masteryStageOrder.indexOf(stage);
+
+  const recentTopics = (pulse.recent || []).slice(0, 5).map(r => `- ${r.kind}: ${r.label} (${r.at})`).join('\n') || '_(no recent activity)_';
+
+  return `# My Pegasus Mastery
+_Generated ${today}_
+
+## Mastery stage
+**Stage ${stageIdx + 1} / ${masteryStageOrder.length}** — _${stageMeta?.headline || stage}_
+
+## Profile
+${filledFields}
+
+## 14-day sprint progress
+- **Week 1 · Foundations** — ${wk1Done.length}/7 done${wk1Done.length ? '\n  - ' + wk1Done.map(d => dayLabel(d)).join('\n  - ') : ''}
+- **Week 2 · Mastery** — ${wk2Done.length}/7 done${wk2Done.length ? '\n  - ' + wk2Done.map(d => dayLabel(d)).join('\n  - ') : ''}
+
+## Activity
+- Total prompts copied: **${pulse.totalCopies || 0}**
+- Days active in last 30: **${(pulse.days || []).length}**
+- Walkthroughs watched: ${walkthroughsSeen.length ? walkthroughsSeen.join(', ') : '_(none yet)_'}
+- Last builder selections: ${Object.keys(builder).filter(k => builder[k]).length ? Object.entries(builder).filter(([_,v]) => v).map(([k,v]) => `${k}=${v}`).join(', ') : '_(builder unused)_'}
+
+### Recent activity
+${recentTopics}
+
+## My library (${library.length} saved prompt${library.length === 1 ? '' : 's'})
+${libBlock}
+
+---
+_Exported from the Pegasus dashboard. Drop into Notion, Obsidian, or anywhere markdown renders._
+`;
+}
+
+function downloadMasteryReport() {
+  const md = buildMasteryReport();
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `my-pegasus-mastery-${new Date().toISOString().slice(0, 10)}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('↓ Downloaded my-pegasus-mastery.md');
+}
+
+function renderLibrary() {
+  const container = document.getElementById('mastery-library');
+  if (!container) return;
+  const items = loadLibrary();
+  document.getElementById('libraryCount').textContent = '· ' + items.length;
+  if (!items.length) {
+    container.innerHTML = `
+      <div class="text-center py-8 px-4 rounded-lg border border-dashed border-stone-300 dark:border-stone-700">
+        <p class="text-sm text-stone-500 dark:text-stone-400">Your library is empty.</p>
+        <p class="text-xs text-stone-400 dark:text-stone-500 mt-1">Refine a prompt in the Doctor above and click ★ Save to add it here.</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = `<div class="space-y-3">${items.map(item => {
+    const scoreColor = item.score === 5
+      ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100'
+      : item.score >= 3
+        ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100'
+        : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300';
+    return `
+      <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-4">
+        <div class="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
+          <div class="flex items-baseline gap-2">
+            <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${scoreColor}">${item.score}/5</span>
+            <span class="text-[10px] text-stone-400">${_esc(item.source)} · ${_esc(item.savedAt)}</span>
+          </div>
+          <div class="flex items-baseline gap-1">
+            <button class="copy text-[10px] px-2 py-1 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90" data-copy='${_esc(item.text).replace(/'/g, "&#39;")}'>📋 Copy</button>
+            <button data-remove="${item.id}" class="text-[10px] px-2 py-1 rounded text-stone-500 hover:text-rose-700 dark:hover:text-rose-400" aria-label="Remove from library">✕</button>
+          </div>
+        </div>
+        <pre class="text-xs leading-relaxed bg-stone-50 dark:bg-stone-950 rounded p-3 whitespace-pre-wrap font-mono">${_esc(item.text)}</pre>
+      </div>`;
+  }).join('')}</div>`;
+  container.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
+  container.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeLibraryPrompt(btn.dataset.remove)));
+}
+
+// Track walkthrough opens so the recommendation engine can advance.
+const _origOpenWalkthrough = openWalkthroughModal;
+openWalkthroughModal = function(id) {
+  let seen = [];
+  try { seen = JSON.parse(_safeStorage.getItem(WALKTHROUGHS_SEEN_KEY) || '[]'); } catch {}
+  if (!seen.includes(id)) {
+    seen.push(id);
+    _safeStorage.setItem(WALKTHROUGHS_SEEN_KEY, JSON.stringify(seen));
+  }
+  _origOpenWalkthrough(id);
+  // Re-render the recommendation in case the user advanced a stage.
+  setTimeout(renderMasteryRecommendation, 0);
+};
+
 function renderRecommended() {
   document.getElementById('recommended-list').innerHTML = recommended.map(r => {
     const urlMatch = r.clone.match(/https?:\/\/github\.com\/[^\s)]+/);
@@ -1320,6 +2543,17 @@ renderCommands();
 renderSkills();
 renderMcps();
 renderPrompts();
+renderMastery();
+renderMasteryAnnotated();
+renderMasteryAntipatterns();
+renderMasteryModels();
+renderMasteryBuilder();
+renderMasterySprint();
+wireDoctor();
+renderLibrary();
+renderWeeklyFeature();
+renderMasteryRecommendation();
+document.getElementById('exportReport')?.addEventListener('click', downloadMasteryReport);
 renderRecommended();
 renderGlossary();
 
@@ -1369,7 +2603,7 @@ document.addEventListener('click', e => {
     card.style.outline = '2px solid #16a34a';
     showToast('✓ Copied — paste it into your VS Code terminal or Claude/OpenCode');
     const sectionId = card.closest('section')?.id || '';
-    const kindMap = { templates: 'Template', workflows: 'Workflow', commands: 'Command', skills: 'Skill', mcps: 'Bridge', prompts: 'Prompt', recommended: 'Repo', glossary: 'Term' };
+    const kindMap = { templates: 'Template', workflows: 'Workflow', commands: 'Command', skills: 'Skill', mcps: 'Bridge', prompts: 'Prompt', mastery: 'Mastery', recommended: 'Repo', glossary: 'Term' };
     trackCopy(text.slice(0, 60), kindMap[sectionId] || 'Other');
     setTimeout(() => { card.style.outline = ''; }, 600);
   }).catch(() => showToast('Press ⌘+C to copy'));
@@ -1447,6 +2681,8 @@ function saveProfile(p) {
   statusEl.style.color = '#16a34a';
   clearTimeout(saveProfile._t);
   saveProfile._t = setTimeout(() => { statusEl.style.color = ''; }, 1200);
+  // The recommendation engine reads profile completeness — refresh it.
+  if (typeof renderMasteryRecommendation === 'function') renderMasteryRecommendation();
 }
 
 function initProfile() {
@@ -1590,7 +2826,7 @@ function applyTrack(track) {
 }
 
 function updateEmptyStates() {
-  ['templates','workflows','commands','skills','mcps','prompts','recommended','glossary'].forEach(id => {
+  ['templates','workflows','commands','skills','mcps','prompts','mastery','recommended','glossary'].forEach(id => {
     const sec = document.getElementById(id);
     if (!sec) return;
     const cards = sec.querySelectorAll('[data-track]');
@@ -1613,7 +2849,7 @@ function updateEmptyStates() {
 
 function updateCounts() {
   // count visible (not hidden-by-track) cards per section
-  const sections = { templates: 'templates', workflows: 'workflows', commands: 'commands', skills: 'skills', mcps: 'mcps', prompts: 'prompts', recommended: 'recommended', glossary: 'glossary' };
+  const sections = { templates: 'templates', workflows: 'workflows', commands: 'commands', skills: 'skills', mcps: 'mcps', prompts: 'prompts', mastery: 'mastery', recommended: 'recommended', glossary: 'glossary' };
   Object.entries(sections).forEach(([key, sectionId]) => {
     const sec = document.getElementById(sectionId);
     if (!sec) return;
@@ -1683,7 +2919,7 @@ applyTrack(activeTrack);
 // ─────────────────────────────────────────────
 // COUNT BADGES IN NAV
 // ─────────────────────────────────────────────
-const counts = { templates: templates.length, workflows: workflows.length, commands: commands.length, skills: skills.length, mcps: mcps.length, prompts: prompts.length, recommended: recommended.length, glossary: glossary.length };
+const counts = { templates: templates.length, workflows: workflows.length, commands: commands.length, skills: skills.length, mcps: mcps.length, prompts: prompts.length, mastery: promptTiers.length, recommended: recommended.length, glossary: glossary.length };
 document.querySelectorAll('[data-count]').forEach(el => {
   const k = el.dataset.count;
   if (counts[k]) el.textContent = `· ${counts[k]}`;
@@ -1698,7 +2934,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 const navLinks = document.querySelectorAll('.nav-pill');
-const sectionsForObserver = ['profile','start','templates','workflows','commands','skills','mcps','prompts','recommended','glossary','help']
+const sectionsForObserver = ['profile','start','templates','workflows','commands','skills','mcps','prompts','mastery','recommended','glossary','help']
   .map(id => document.getElementById(id))
   .filter(Boolean);
 const setActiveNav = id => navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id));
@@ -1775,6 +3011,8 @@ function trackCopy(label, kind) {
   p.recent = [{ label, kind, at: today }, ...(p.recent || []).filter(r => r.label !== label)].slice(0, 8);
   savePulse(p);
   renderPulse();
+  // Mastery progression may have advanced — re-render the "Try this next" card.
+  if (typeof renderMasteryRecommendation === 'function') renderMasteryRecommendation();
 }
 function computeStreak(days) {
   if (!days || !days.length) return 0;
@@ -1849,7 +3087,7 @@ async function copyAndFlash(btn) {
     // Track in Pulse — pull kind from card section context
     const card = btn.closest('[data-track]') || btn.closest('section');
     const sectionId = btn.closest('section')?.id || '';
-    const kindMap = { templates: 'Template', workflows: 'Workflow', commands: 'Command', skills: 'Skill', mcps: 'Bridge', prompts: 'Prompt', recommended: 'Repo', glossary: 'Term' };
+    const kindMap = { templates: 'Template', workflows: 'Workflow', commands: 'Command', skills: 'Skill', mcps: 'Bridge', prompts: 'Prompt', mastery: 'Mastery', recommended: 'Repo', glossary: 'Term' };
     const kind = kindMap[sectionId] || 'Other';
     const label = (text || '').slice(0, 60);
     trackCopy(label, kind);
@@ -1991,6 +3229,7 @@ const allItems = [
   ...skills.map(s => ({ kind: 'Skill', label: s.name, sub: s.summary, copy: s.invoke })),
   ...mcps.map(m => ({ kind: 'Bridge', label: m.name, sub: m.desc, copy: m.name })),
   ...prompts.map(p => ({ kind: 'Prompt', label: p.goal, sub: p.text.slice(0, 100) + '…', copy: p.text })),
+  ...promptTiers.map(p => ({ kind: 'Mastery', label: `${p.goal} · expert tier`, sub: p.expert.slice(0, 100) + '…', copy: p.expert })),
   ...recommended.map(r => ({ kind: 'Repo', label: r.name, sub: r.desc, copy: r.clone })),
   ...glossary.map(g => ({ kind: 'Glossary', label: g.term, sub: g.def, copy: g.term })),
 ];
@@ -2111,7 +3350,7 @@ document.addEventListener('keydown', e => {
   if (document.activeElement.tagName === 'INPUT') return;
   if (e.key === 'g' && !lastG) { lastG = true; setTimeout(() => lastG = false, 800); return; }
   if (lastG) {
-    const map = { t: 'templates', w: 'workflows', c: 'commands', s: 'skills', m: 'mcps', p: 'prompts', r: 'recommended', l: 'glossary', h: 'help', q: 'start', i: 'profile' };
+    const map = { t: 'templates', w: 'workflows', c: 'commands', s: 'skills', m: 'mcps', p: 'prompts', y: 'mastery', r: 'recommended', l: 'glossary', h: 'help', q: 'start', i: 'profile' };
     if (map[e.key]) { e.preventDefault(); document.getElementById(map[e.key])?.scrollIntoView({ behavior: 'smooth' }); lastG = false; }
   }
 });
@@ -2597,11 +3836,11 @@ function openLearnModal(key) {
   modal.classList.add('open');
 }
 
-// Escape closes the workflow/learn modal
+// Escape closes any open mastery / workflow modal
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && document.getElementById('workflowModal')?.classList.contains('open')) {
-    closeWorkflowModal();
-  }
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('workflowModal')?.classList.contains('open'))      closeWorkflowModal();
+  if (document.getElementById('walkthroughModal')?.classList.contains('open'))  closeWalkthroughModal();
 });
 
 
