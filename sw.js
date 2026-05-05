@@ -2,11 +2,11 @@
 // Versioned cache so new dashboard releases force-refresh without manual reload.
 // Bump CACHE_VERSION when shipping a meaningful dashboard change.
 
-const CACHE_VERSION = 'pegasus-v22-2026-05-04';
+const CACHE_VERSION = 'pegasus-v24-2026-05-05';
 const ASSETS = [
   './dashboard.html',
   './dashboard.css',
-  './dashboard.css?v=22',
+  './dashboard.css?v=24',
   './manifest.webmanifest',
   './favicon.svg',
   'https://cdn.tailwindcss.com/3.4.16',

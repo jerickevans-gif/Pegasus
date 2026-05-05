@@ -63,7 +63,7 @@
   </script>
   <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
        Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
-  <link rel="stylesheet" href="./dashboard.css?v=22" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
+  <link rel="stylesheet" href="./dashboard.css?v=24" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
     // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
     window.tailwind = window.tailwind || {};
@@ -80,9 +80,156 @@
   <style>
     /* Fallback CSS if Tailwind CDN fails — keeps dashboard usable */
     body { font-family: -apple-system, system-ui, sans-serif; max-width: 1280px; margin: 0 auto; padding: 1rem; line-height: 1.5; }
-    .card { background: #fff; border: 1px solid #d6d3d1; border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; }
+    /* :where() drops the rule's specificity to 0 so any direct Tailwind bg/border
+       utility wins. Without this, .card overrides bg-stone-900 (dark cards
+       render with light text on white background — invisible). */
+    :where(.card) { background: #fff; border: 1px solid #d6d3d1; border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; }
     button, input { font: inherit; padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; }
     a { color: #0c0a09; }
+    :root.dark a { color: #fafaf9; }
+
+    /* ─────────────────────────────────────────────────────────
+       BRAND IDENTITY — signature accent + motion + texture
+       ─────────────────────────────────────────────────────────
+       Pegasus runs on stone neutrals; the brand layer adds a single warm
+       accent (#f97316 orange-500) used sparingly on signature moments.
+       The mark "✦" recurs as a bullet/leader across nav and section heads.
+    */
+    :root {
+      --brand: #f97316;       /* fills, icons, dots — passes 3:1 large/non-text on white */
+      --brand-ink: #c2410c;   /* text-only usage — passes 4.5:1 on white (4.6:1) and on stone-50 */
+      --brand-soft: #fed7oa;
+      --brand-deep: #c2410c;
+      --brand-glow: rgba(249, 115, 22, 0.18);
+      --brand-glow-strong: rgba(249, 115, 22, 0.42);
+      --grain-opacity: 0.022;
+    }
+    :root.dark {
+      --brand: #fb923c;
+      --brand-ink: #fdba74;   /* lighter orange on dark bg passes easily */
+      --brand-soft: #7c2d12;
+      --brand-deep: #fdba74;
+      --brand-glow: rgba(251, 146, 60, 0.16);
+      --brand-glow-strong: rgba(251, 146, 60, 0.42);
+      --grain-opacity: 0.035;
+    }
+
+    /* Subtle grain texture — reads as warmth, not noise. SVG-fill data URI so
+       it's zero network cost and survives offline. */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      opacity: var(--grain-opacity); mix-blend-mode: multiply;
+    }
+    :root.dark body::before { mix-blend-mode: screen; }
+
+    /* Signature mark used throughout (✦) — coloured + scaled wherever brand voice belongs.
+       Uses --brand-ink (darker) so the glyph reads as text-like contrast. */
+    .brand-mark {
+      color: var(--brand-ink); display: inline-block; font-feature-settings: normal;
+      font-style: normal; line-height: 1; transform: translateY(-0.05em);
+    }
+    .brand-mark.large { font-size: 1.4em; }
+    @keyframes brand-pulse {
+      0%, 100% { transform: translateY(-0.05em) scale(1); opacity: 1; }
+      50% { transform: translateY(-0.05em) scale(1.18); opacity: 0.85; }
+    }
+    .brand-mark.live { animation: brand-pulse 4.5s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .brand-mark.live { animation: none; }
+    }
+
+    /* Editorial display headlines — used in hero + section headers. */
+    .display-xl { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; letter-spacing: -0.025em; line-height: 0.92; font-style: italic; }
+    .display-xl em { font-style: normal; }
+
+    /* Hero gradient bar — diagonal accent stripe behind wordmark. */
+    .hero-stripe {
+      position: relative; isolation: isolate;
+    }
+    .hero-stripe::after {
+      content: ""; position: absolute; inset: auto 0 -8px 0; height: 4px;
+      background: linear-gradient(90deg, transparent 0%, var(--brand) 18%, var(--brand) 82%, transparent 100%);
+      border-radius: 4px; opacity: 0.9;
+    }
+
+    /* Section-number badges — small monospace count next to each major heading.
+       Text uses --brand-ink so the digits clear AA contrast on white. */
+    .section-num {
+      display: inline-block; font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.65em; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--brand-ink); padding: 2px 8px; border: 1px solid var(--brand);
+      border-radius: 999px; vertical-align: middle; margin-right: 0.6em;
+      transform: translateY(-0.18em);
+    }
+    :root.dark .section-num { border-color: var(--brand-deep); color: var(--brand-ink); }
+
+    /* Card hover — subtle 2px lift + brand-tinted shadow on cards that aren't already
+       interactive containers. Plays on top of the existing transition. */
+    :where(.card):hover {
+      box-shadow: 0 8px 24px var(--brand-glow), 0 2px 4px rgba(0,0,0,0.04);
+    }
+    :root.dark :where(.card):hover {
+      box-shadow: 0 8px 28px var(--brand-glow-strong), 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    /* Scroll-reveal: cards fade + slide up when they enter the viewport (once-only).
+       Skipped under prefers-reduced-motion. */
+    .reveal { opacity: 0; transform: translateY(12px); transition: opacity 600ms ease, transform 600ms cubic-bezier(0.2, 0.7, 0.3, 1); }
+    .reveal.is-revealed { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* Track tabs — stronger selected state with the brand accent. */
+    .track-tab[aria-selected="true"] {
+      box-shadow: 0 0 0 2px var(--brand) inset, 0 4px 12px var(--brand-glow);
+    }
+
+    /* Active nav pill — pair the existing dark fill with a thin brand underline. */
+    .nav-pill.active { position: relative; }
+    .nav-pill.active::after {
+      content: ""; position: absolute; left: 14px; right: 14px; bottom: -3px; height: 2px;
+      background: var(--brand); border-radius: 2px; opacity: 0.85;
+    }
+
+    /* Brand pill in top bar: replace the static dot with a diamond, animated when alive. */
+    #versionDot {
+      width: 8px; height: 8px; transform: rotate(45deg); border-radius: 1px;
+      background: var(--brand); box-shadow: 0 0 0 0 var(--brand-glow-strong);
+      animation: dot-glow 3.6s ease-in-out infinite;
+    }
+    @keyframes dot-glow {
+      0%, 100% { box-shadow: 0 0 0 0 var(--brand-glow-strong); }
+      50%      { box-shadow: 0 0 0 6px transparent; }
+    }
+    #versionDot[data-version-state="behind"] { background: #ef4444; }
+    @media (prefers-reduced-motion: reduce) { #versionDot { animation: none; } }
+
+    /* Sankey diagram theme variables — flip on .dark without re-rendering. */
+    :root {
+      --sk-link-stroke: #78716c;
+      --sk-text: #1c1917;
+      --sk-stroke: #ffffff;
+      --sk-impact: #57534e;
+    }
+    :root.dark {
+      --sk-link-stroke: #a8a29e;
+      --sk-text: #fafaf9;
+      --sk-stroke: #0c0a09;
+      --sk-impact: #d6d3d1;
+    }
+    #sankey svg { width: 100%; height: auto; display: block; }
+    #sankey svg .node rect, #sankey svg .link { transition: opacity 150ms; }
+    #sankey svg .link { fill: none; stroke-opacity: 0.4; }
+    #sankey svg .node text { font-size: 11px; pointer-events: none; }
+    /* Highlight modes */
+    #sankey svg.has-focus .link:not(.is-lit) { opacity: 0.08; }
+    #sankey svg.has-focus .node:not(.is-lit) rect,
+    #sankey svg.has-focus .node:not(.is-lit) text { opacity: 0.25; }
+    #sankey svg .link.is-lit { stroke-opacity: 0.85; }
+    #sankey svg .node:focus { outline: 2px solid #0c0a09; outline-offset: 2px; border-radius: 2px; }
+    :root.dark #sankey svg .node:focus { outline-color: #fafaf9; }
 
     :root { color-scheme: light dark; }
     html { scroll-behavior: smooth; }
@@ -128,6 +275,10 @@
     @media (min-width: 768px) { .sticky-nav nav { -webkit-mask-image: none; mask-image: none; } }
     .nav-pill.active { background: #0c0a09; color: white; }
     :root.dark .nav-pill.active { background: #fafaf9; color: #0c0a09; }
+    /* Count badge inherits parent color so it stays legible on the active pill,
+       regardless of theme. 65% opacity is enough contrast against any bg the
+       pill takes (light/dark, active/inactive). */
+    .nav-pill [data-count] { color: inherit; opacity: 0.65; }
 
     /* View Transitions: cards crossfade gracefully when track changes */
     @supports (view-transition-name: none) {
@@ -206,8 +357,8 @@
     .help-overlay.open { display: flex; }
     .help-modal { background: white; padding: 2rem; border-radius: 12px; max-width: 480px; }
     :root.dark .help-modal { background: #1c1917; }
-    kbd { background: #f5f5f4; border: 1px solid #d6d3d1; border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
-    :root.dark kbd { background: #292524; border-color: #44403c; }
+    kbd { background: #f5f5f4; color: #1c1917; border: 1px solid #d6d3d1; border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+    :root.dark kbd { background: #292524; color: #f5f5f4; border-color: #57534e; }
 
     /* Print */
     @media print {
@@ -220,17 +371,18 @@
 
     /* Dark mode */
     :root.dark body { background: #0c0a09; color: #fafaf9; }
-    :root.dark .card { background: #1c1917; border-color: #292524; }
+    :where(:root.dark .card) { background: #1c1917; border-color: #292524; }
     :root.dark .card:hover { border-color: #57534e; }
     :root.dark pre, :root.dark code { background: #1c1917; }
     :root.dark :focus-visible { outline-color: #fafaf9; }
     :root.dark .border-stone-200 { border-color: #292524 !important; }
 
-    /* Version dot — drives the green/amber/grey state from JS */
-    #versionDot[data-version-state="ok"]      { background: #22c55e; }
-    #versionDot[data-version-state="behind"]  { background: #f59e0b; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); animation: dotPulse 2s ease-out infinite; }
-    #versionDot[data-version-state="unknown"] { background: #d6d3d1; }
-    :root.dark #versionDot[data-version-state="unknown"] { background: #57534e; }
+    /* Version dot — diamond shape (rotated above), brand-coloured for ok/unknown,
+       with a state-specific color for "behind" so update prompts grab attention. */
+    #versionDot[data-version-state="ok"]      { background: var(--brand); }
+    #versionDot[data-version-state="behind"]  { background: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: dotPulse 2s ease-out infinite; }
+    #versionDot[data-version-state="unknown"] { background: var(--brand); opacity: 0.55; }
+    :root.dark #versionDot[data-version-state="unknown"] { background: var(--brand); opacity: 0.5; }
     @keyframes dotPulse {
       0%   { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
       70%  { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
@@ -291,16 +443,32 @@
     </div>
   </header>
 
-  <!-- Header -->
-  <header class="max-w-6xl mx-auto px-6 pt-16 pb-8">
-    <p class="text-sm uppercase tracking-widest text-stone-500">Pegasus</p>
-    <h1 class="font-serif text-5xl md:text-7xl mt-3 leading-none tracking-tight">Dashboard</h1>
-    <p class="mt-4 text-lg text-stone-600 dark:text-stone-400 max-w-2xl">
-      Everything in your Pegasus install, on one page.
+  <!-- Editorial hero — signature mark, italic display type, accent stripe -->
+  <header class="max-w-6xl mx-auto px-6 pt-16 pb-10 relative overflow-visible">
+    <!-- Eyebrow + brand mark -->
+    <div class="flex items-baseline gap-3 mb-4">
+      <span class="brand-mark large live" aria-hidden="true">✦</span>
+      <p class="text-xs uppercase tracking-[0.3em] font-mono text-stone-700 dark:text-stone-300">Pegasus &mdash; designer's command line</p>
+    </div>
+    <!-- Display headline with mixed weight + style -->
+    <h1 class="display-xl text-6xl md:text-8xl lg:text-[8.5rem] hero-stripe inline-block">
+      Dashboard<em class="text-stone-400 dark:text-stone-600">.</em>
+    </h1>
+    <!-- Lede that pairs the editorial type with grounded copy -->
+    <p class="mt-6 text-lg md:text-xl text-stone-700 dark:text-stone-300 max-w-2xl leading-relaxed">
+      Everything in your Pegasus install, on one page. Templates, skills, MCP bridges, prompts, walkthroughs — and a 14&#8209;day mastery sprint to actually <em>use</em> them.
     </p>
-    <p class="mt-3 text-sm text-stone-700 dark:text-stone-300 inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900">
-      <span>💡</span>
-      <span><strong>How to use:</strong> click any card — it copies the command/prompt to your clipboard. Then paste into your VS Code terminal or the Claude/OpenCode chat box.</span>
+    <!-- Signature stat strip — small numbers that establish the surface area -->
+    <div class="mt-7 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+      <div><span class="font-serif text-2xl font-semibold tabular-nums" data-stat="templates">—</span> <span class="text-stone-600 dark:text-stone-400">templates</span></div>
+      <div><span class="font-serif text-2xl font-semibold tabular-nums" data-stat="skills">—</span> <span class="text-stone-600 dark:text-stone-400">skills</span></div>
+      <div><span class="font-serif text-2xl font-semibold tabular-nums" data-stat="mcps">—</span> <span class="text-stone-600 dark:text-stone-400">bridges</span></div>
+      <div><span class="font-serif text-2xl font-semibold tabular-nums" data-stat="workflows">—</span> <span class="text-stone-600 dark:text-stone-400">workflows</span></div>
+      <div><span class="font-serif text-2xl font-semibold tabular-nums" data-stat="commands">—</span> <span class="text-stone-600 dark:text-stone-400">commands</span></div>
+    </div>
+    <p class="mt-6 text-sm text-stone-700 dark:text-stone-300 inline-flex items-start gap-2 px-3 py-2 rounded-lg bg-stone-100 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-800">
+      <span class="brand-mark" aria-hidden="true">→</span>
+      <span><strong>How to use:</strong> click any card to copy. Paste into your VS Code terminal or the Claude/OpenCode chat box.</span>
     </p>
 
     <!-- Search bar -->
@@ -313,12 +481,12 @@
         class="w-full px-5 py-3 pr-20 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none text-base"
       />
       <button id="searchClear" type="button" aria-label="Clear search" class="hidden absolute right-10 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-stone-200 hover:bg-stone-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-600 dark:text-stone-300 text-sm leading-none">×</button>
-      <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-stone-100 dark:bg-stone-800 text-xs font-mono text-stone-500">/</kbd>
+      <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-stone-100 dark:bg-stone-800 text-xs font-mono text-stone-500 dark:text-stone-400">/</kbd>
     </div>
 
     <!-- Track switcher (PROMINENT — primary navigation control) -->
     <div class="mt-8">
-      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Step 1 — pick your track</p>
+      <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Step 1 — pick your track</p>
       <div class="inline-flex items-center gap-1 p-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-base shadow-inner" role="tablist" aria-label="Pick your track">
         <button class="track-tab px-5 py-3 rounded-full transition" data-track="design" role="tab" aria-selected="true">🎨 UX Design</button>
         <button class="track-tab px-5 py-3 rounded-full transition" data-track="jobs" role="tab" aria-selected="false">💼 Job Search</button>
@@ -333,12 +501,12 @@
     <div id="onboardingBar" class="mt-6 hidden p-4 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-900">
       <div class="flex items-center justify-between mb-2">
         <p class="text-sm font-medium">Setup progress: <span id="onbCount">0/4</span></p>
-        <button onclick="document.getElementById('onboardingBar').classList.add('hidden'); document.getElementById('showOnboardingLink').classList.remove('hidden'); _safeStorage.setItem('pegasus.onboardingDismissed','1')" class="text-xs text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline">Hide</button>
+        <button onclick="document.getElementById('onboardingBar').classList.add('hidden'); document.getElementById('showOnboardingLink').classList.remove('hidden'); _safeStorage.setItem('pegasus.onboardingDismissed','1')" class="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline">Hide</button>
       </div>
       <div id="onbList" class="space-y-1 text-sm"></div>
     </div>
     <!-- Re-show onboarding link (visible only after dismissal) -->
-    <button id="showOnboardingLink" class="hidden mt-3 text-xs text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline" onclick="_safeStorage.removeItem('pegasus.onboardingDismissed'); renderOnboarding(); this.classList.add('hidden');">↺ Show setup checklist</button>
+    <button id="showOnboardingLink" class="hidden mt-3 text-xs text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline" onclick="_safeStorage.removeItem('pegasus.onboardingDismissed'); renderOnboarding(); this.classList.add('hidden');">↺ Show setup checklist</button>
 
     <!-- Active-track banner (changes dynamically) -->
     <div id="trackBanner" class="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-full text-base font-medium shadow-md">
@@ -357,15 +525,17 @@
       <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
       <a href="#jobResults"  data-nav="jobResults"  class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Jobs</a>
       <a href="#start"       data-nav="start"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Quick start</a>
-      <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-500 dark:text-stone-400" data-count="templates"></span></a>
-      <a href="#workflows"   data-nav="workflows"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Workflows <span class="text-stone-500 dark:text-stone-400" data-count="workflows"></span></a>
-      <a href="#commands"    data-nav="commands"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Commands <span class="text-stone-500 dark:text-stone-400" data-count="commands"></span></a>
-      <a href="#skills"      data-nav="skills"      class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Skills <span class="text-stone-500 dark:text-stone-400" data-count="skills"></span></a>
-      <a href="#mcps"        data-nav="mcps"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Bridges <span class="text-stone-500 dark:text-stone-400" data-count="mcps"></span></a>
-      <a href="#prompts"     data-nav="prompts"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompts <span class="text-stone-500 dark:text-stone-400" data-count="prompts"></span></a>
-      <a href="#mastery"     data-nav="mastery"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Mastery <span class="text-stone-500 dark:text-stone-400" data-count="mastery"></span></a>
-      <a href="#recommended" data-nav="recommended" class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Recommended <span class="text-stone-500 dark:text-stone-400" data-count="recommended"></span></a>
-      <a href="#glossary"    data-nav="glossary"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Glossary <span class="text-stone-500 dark:text-stone-400" data-count="glossary"></span></a>
+      <a href="#templates"   data-nav="templates"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Templates <span class="text-stone-600 dark:text-stone-400" data-count="templates"></span></a>
+      <a href="#workflows"   data-nav="workflows"   class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Workflows <span class="text-stone-600 dark:text-stone-400" data-count="workflows"></span></a>
+      <a href="#commands"    data-nav="commands"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Commands <span class="text-stone-600 dark:text-stone-400" data-count="commands"></span></a>
+      <a href="#skills"      data-nav="skills"      class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Skills <span class="text-stone-600 dark:text-stone-400" data-count="skills"></span></a>
+      <a href="#mcps"        data-nav="mcps"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Bridges <span class="text-stone-600 dark:text-stone-400" data-count="mcps"></span></a>
+      <a href="#prompts"     data-nav="prompts"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Prompts <span class="text-stone-600 dark:text-stone-400" data-count="prompts"></span></a>
+      <a href="#mastery"     data-nav="mastery"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Mastery <span class="text-stone-600 dark:text-stone-400" data-count="mastery"></span></a>
+      <a href="#coaxing"     data-nav="coaxing"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Coaxing</a>
+      <a href="#flow"        data-nav="flow"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Flow</a>
+      <a href="#recommended" data-nav="recommended" class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Recommended <span class="text-stone-600 dark:text-stone-400" data-count="recommended"></span></a>
+      <a href="#glossary"    data-nav="glossary"    class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Glossary <span class="text-stone-600 dark:text-stone-400" data-count="glossary"></span></a>
       <a href="#learn"       data-nav="learn"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Learn</a>
       <a href="#help"        data-nav="help"        class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Help</a>
     </nav>
@@ -377,7 +547,7 @@
     <!-- TODAY widget — one specific thing to do, computed from profile + pulse -->
     <section id="today" class="py-6" data-search>
       <div class="card bg-stone-900 text-stone-50 dark:bg-stone-100 dark:text-stone-900 rounded-xl p-6">
-        <p class="text-xs uppercase tracking-widest opacity-60 mb-2">Today</p>
+        <p class="text-xs uppercase tracking-widest text-stone-300 dark:text-stone-700 mb-2">Today</p>
         <p id="todayMessage" class="text-xl font-serif">Open the dashboard to see what to do next.</p>
         <button id="todayAction" class="mt-4 px-4 py-2 bg-stone-50 text-stone-900 dark:bg-stone-900 dark:text-stone-50 rounded-lg text-sm font-medium hidden">Do it</button>
       </div>
@@ -394,7 +564,7 @@
               <option value="light">☀️ Light</option>
               <option value="dark">🌙 Dark</option>
             </select>
-            <button id="pulseReset" class="text-stone-500 hover:text-red-600 underline">reset stats</button>
+            <button id="pulseReset" class="text-stone-500 dark:text-stone-400 hover:text-red-600 underline">reset stats</button>
           </div>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
@@ -405,12 +575,12 @@
         </div>
         <div>
           <div class="flex items-end justify-between mb-3">
-            <p class="text-xs uppercase tracking-wider text-stone-500">Last 7 days</p>
+            <p class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">Last 7 days</p>
             <div id="weekSparkline" class="flex gap-1 items-end" aria-label="Weekly activity sparkline"></div>
           </div>
-          <p class="text-xs uppercase tracking-wider text-stone-500 mb-2">Recently used</p>
+          <p class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">Recently used</p>
           <div id="recentList" class="flex flex-wrap gap-2">
-            <span class="text-xs text-stone-400 italic">Nothing yet — click any copy button and it'll show up here.</span>
+            <span class="text-xs text-stone-500 dark:text-stone-400 italic">Nothing yet — click any copy button and it'll show up here.</span>
           </div>
         </div>
       </div>
@@ -421,7 +591,7 @@
       <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6">
         <div class="flex items-baseline justify-between mb-1">
           <h2 class="font-serif text-2xl">Your profile</h2>
-          <span id="profileStatus" class="text-xs text-stone-500">— not yet saved</span>
+          <span id="profileStatus" class="text-xs text-stone-500 dark:text-stone-400">— not yet saved</span>
         </div>
         <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Autosaves as you type. To use it in Claude/OpenCode: click <strong>Copy as Claude context</strong> below, then paste at the start of any chat.</p>
 
@@ -480,14 +650,14 @@
           <button id="profileCopyContext" class="px-5 py-2.5 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg text-sm font-medium">📋 Copy as Claude context</button>
           <button id="profileSaveFile" class="px-4 py-2 bg-stone-200 dark:bg-stone-800 rounded-lg text-sm hidden">💾 Save to ~/.pegasus/profile.json</button>
           <button id="profileSample" class="px-3 py-2 text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 text-sm underline">Load sample</button>
-          <button id="profileClear" class="px-3 py-2 text-stone-500 hover:text-red-600 text-sm">Clear</button>
-          <button id="profileAdvancedToggle" class="ml-auto text-xs text-stone-500 underline">Advanced ▾</button>
+          <button id="profileClear" class="px-3 py-2 text-stone-500 dark:text-stone-400 hover:text-red-600 text-sm">Clear</button>
+          <button id="profileAdvancedToggle" class="ml-auto text-xs text-stone-500 dark:text-stone-400 underline">Advanced ▾</button>
         </div>
         <div id="profileAdvanced" class="mt-3 p-3 rounded bg-stone-50 dark:bg-stone-900 hidden">
           <p class="text-xs text-stone-600 dark:text-stone-400 mb-2">For users who want the file-based workflow used by CLI skills:</p>
           <button id="profileExport" class="px-3 py-1.5 bg-stone-200 dark:bg-stone-800 rounded text-xs">Download profile.json</button>
           <button class="copy px-3 py-1.5 bg-stone-200 dark:bg-stone-800 rounded text-xs font-mono ml-2" data-copy="pegasus profile import ~/Downloads/profile.json">Copy install command</button>
-          <p class="text-xs text-stone-500 mt-2">Then run that command in your terminal to install at <span class="font-mono">~/.pegasus/profile.json</span> where Pegasus's CLI skills can read it.</p>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-2">Then run that command in your terminal to install at <span class="font-mono">~/.pegasus/profile.json</span> where Pegasus's CLI skills can read it.</p>
         </div>
       </div>
     </section>
@@ -501,7 +671,7 @@
         <ol id="jobChecklist" class="space-y-3 mb-5"></ol>
 
         <button id="findJobsBtn" disabled
-          class="w-full px-5 py-4 bg-stone-300 text-stone-500 rounded-xl text-base font-semibold cursor-not-allowed transition">
+          class="w-full px-5 py-4 bg-stone-300 text-stone-500 dark:text-stone-400 rounded-xl text-base font-semibold cursor-not-allowed transition">
           🎯 Find me jobs to apply to today
         </button>
         <p id="findJobsHint" class="text-xs text-stone-600 dark:text-stone-400 mt-2 text-center">↑ Complete the steps above to enable</p>
@@ -518,14 +688,14 @@
       <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6">
         <div class="flex items-baseline justify-between mb-2">
           <h2 class="font-serif text-2xl">📋 Your job results</h2>
-          <button id="jobsClear" class="text-xs text-stone-500 hover:text-red-600 underline hidden">Clear all</button>
+          <button id="jobsClear" class="text-xs text-stone-500 dark:text-stone-400 hover:text-red-600 underline hidden">Clear all</button>
         </div>
         <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">After the 'Find me jobs' prompt finishes in Claude, paste the results here or drop the saved <span class="font-mono">jobs-today-*.md</span> file. Pegasus parses the table and shows each job as a clickable card with score, fit, and apply link.</p>
 
         <div id="jobsEmpty" class="border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-xl p-8 text-center">
           <p class="text-4xl mb-2">📥</p>
           <p class="font-medium">No job results yet</p>
-          <p class="text-sm text-stone-500 mt-2">After running '🎯 Find me jobs to apply to today':</p>
+          <p class="text-sm text-stone-500 dark:text-stone-400 mt-2">After running '🎯 Find me jobs to apply to today':</p>
           <div class="mt-4 flex gap-2 justify-center flex-wrap">
             <button id="jobsPasteBtn" class="px-4 py-2 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg text-sm">📋 Paste from clipboard</button>
             <label class="px-4 py-2 bg-stone-200 dark:bg-stone-800 rounded-lg text-sm cursor-pointer">
@@ -533,11 +703,11 @@
               <input type="file" accept=".md,.markdown,.txt" id="jobsFileInput" class="hidden" />
             </label>
           </div>
-          <p class="text-xs text-stone-500 mt-3">Or just drag the .md file onto this page</p>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-3">Or just drag the .md file onto this page</p>
         </div>
 
         <div id="jobsList" class="space-y-2 hidden"></div>
-        <div id="jobsStats" class="mt-4 text-xs text-stone-500 hidden"></div>
+        <div id="jobsStats" class="mt-4 text-xs text-stone-500 dark:text-stone-400 hidden"></div>
       </div>
     </section>
 
@@ -556,20 +726,20 @@
 
     <!-- QUICK START -->
     <section id="start" class="py-12">
-      <h2 class="font-serif text-3xl mb-6">Quick start · 3 commands</h2>
+      <h2 class="font-serif text-3xl mb-6"><span class="section-num">01</span>Quick start <span class="text-stone-400 dark:text-stone-600">·</span> 3 commands</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
-          <div class="text-sm text-stone-500 mb-1">1. Make</div>
+          <div class="text-sm text-stone-500 dark:text-stone-400 mb-1">1. Make</div>
           <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="pegasus new portfolio my-site">pegasus new portfolio my-site</button>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Creates a working portfolio + opens VS Code.</p>
         </div>
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
-          <div class="text-sm text-stone-500 mb-1">2. Edit</div>
+          <div class="text-sm text-stone-500 dark:text-stone-400 mb-1">2. Edit</div>
           <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="claude">claude</button>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">In your project. Then describe what you want.</p>
         </div>
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
-          <div class="text-sm text-stone-500 mb-1">3. Ship</div>
+          <div class="text-sm text-stone-500 dark:text-stone-400 mb-1">3. Ship</div>
           <button class="copy font-mono text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="pegasus deploy">pegasus deploy</button>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-2">Surge returns a public URL within seconds.</p>
         </div>
@@ -578,14 +748,14 @@
 
     <!-- WORKFLOWS — multi-step recipes that chain skills -->
     <section id="workflows" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Workflows</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">02</span>Workflows</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Click any recipe → <strong>Copy all prompts</strong> for one-shot, or copy step-by-step.</p>
       <div id="workflows-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- TEMPLATES -->
     <section id="templates" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Templates · 7</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">03</span>Templates <span class="text-stone-400 dark:text-stone-600">·</span> 7</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Each one is a working starter. <span class="font-mono">pegasus new &lt;type&gt; &lt;name&gt;</span></p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="templates-grid">
         <!-- Cards inserted by JS from data below -->
@@ -594,36 +764,36 @@
 
     <!-- COMMANDS -->
     <section id="commands" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-6">Commands</h2>
+      <h2 class="font-serif text-3xl mb-6"><span class="section-num">04</span>Commands</h2>
       <div id="commands-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
 
     <!-- SKILLS -->
     <section id="skills" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Skills · auto-loaded by Claude & OpenCode</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">05</span>Skills <span class="text-stone-400 dark:text-stone-600">·</span> auto-loaded by Claude &amp; OpenCode</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Just describe what you want — the right skill activates.</p>
       <div id="skills-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- MCPs -->
     <section id="mcps" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Bridges (MCPs)</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">06</span>Bridges <span class="text-stone-400 dark:text-stone-600">·</span> MCPs</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Run <span class="font-mono">pegasus signin</span> first, then these light up.</p>
       <div id="mcps-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
 
     <!-- PROMPTS -->
     <section id="prompts" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Prompts</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">07</span>Prompts</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Click to copy. Paste into Claude / OpenCode.</p>
       <div id="prompts-list" class="space-y-3"></div>
     </section>
 
     <!-- MASTERY — escalation tiers + anatomy + composition formula + patterns -->
     <section id="mastery" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Prompt mastery</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">08</span>Prompt mastery</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-2">Same goal, three quality levels. Read the <strong>Basic</strong>, then watch each tier add a real lever — composed skills, pointed inputs, hard acceptance criteria, an iteration loop.</p>
-      <p class="text-xs text-stone-500 dark:text-stone-500 mb-6">Tip: copy a tier-3 prompt and replace the bracketed bits with your own. That's the whole game.</p>
+      <p class="text-xs text-stone-600 dark:text-stone-400 mb-6">Tip: copy a tier-3 prompt and replace the bracketed bits with your own. That's the whole game.</p>
 
       <!-- WEEKLY FEATURED — small curated spotlight that rotates by ISO week -->
       <div id="masteryFeatured" class="mb-4" data-search>
@@ -658,7 +828,7 @@
           <span class="sr-only">prompt mastery escalation tutorial guide annotated breakdown</span>
           <div class="flex items-baseline justify-between mb-3">
             <h3 class="font-serif text-xl">Annotated: an expert prompt, clause by clause</h3>
-            <span class="text-[10px] font-mono uppercase text-stone-400">read-along</span>
+            <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">read-along</span>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Hover or tap each labeled span to see what role it plays. Every color maps to one ingredient from the anatomy below.</p>
           <div id="mastery-annotated" class="text-sm leading-relaxed bg-stone-50 dark:bg-stone-950 rounded-lg p-5 font-mono"></div>
@@ -672,19 +842,19 @@
           <span class="sr-only">prompt mastery builder lab compose construct generator</span>
           <div class="flex items-baseline justify-between mb-3">
             <h3 class="font-serif text-xl">Prompt lab — build your own expert prompt</h3>
-            <span class="text-[10px] font-mono uppercase text-stone-400">interactive</span>
+            <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">interactive</span>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Pick one option per row. The lab assembles a real, paste-ready prompt below using the composition formula. Your selections persist between visits.</p>
           <div id="mastery-builder-controls" class="space-y-4 mb-6"></div>
           <div class="flex items-baseline justify-between mb-2">
-            <span class="text-xs uppercase tracking-wider text-stone-500">Assembled prompt</span>
-            <button id="masteryBuilderReset" class="text-[10px] uppercase tracking-wider text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline">↺ reset</button>
+            <span class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">Assembled prompt</span>
+            <button id="masteryBuilderReset" class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline">↺ reset</button>
           </div>
           <div class="relative">
             <pre id="masteryBuilderOutput" class="text-xs leading-relaxed bg-stone-50 dark:bg-stone-950 rounded-lg p-4 whitespace-pre-wrap font-mono pr-24"></pre>
             <button id="masteryBuilderCopy" class="copy absolute top-2 right-2 text-xs px-3 py-1 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90" data-copy="">📋 Copy</button>
           </div>
-          <p class="text-xs text-stone-500 mt-3">Tip: use this to draft your first 3-4 expert prompts. After that, the formula becomes muscle memory.</p>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-3">Tip: use this to draft your first 3-4 expert prompts. After that, the formula becomes muscle memory.</p>
         </div>
       </div>
 
@@ -694,7 +864,7 @@
           <span class="sr-only">prompt mastery anti-patterns mistakes pitfalls common errors</span>
           <div class="flex items-baseline justify-between mb-3">
             <h3 class="font-serif text-xl">Anti-patterns — five ways prompts go sideways</h3>
-            <span class="text-[10px] font-mono uppercase text-stone-400">avoid</span>
+            <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">avoid</span>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Spot these in your own prompts and you've already leveled up. Each card shows the bad version, what it gets you, and the one-word fix.</p>
           <div id="mastery-antipatterns" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -709,8 +879,8 @@
             <h3 class="font-serif text-xl">14-day mastery sprint</h3>
             <div class="flex items-baseline gap-3">
               <span id="sprintProgress" class="text-xs text-stone-500 dark:text-stone-400 font-mono">0 / 14 done</span>
-              <button id="sprintReset" class="text-[10px] uppercase tracking-wider text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 underline">↺ reset</button>
-              <span class="text-[10px] font-mono uppercase text-stone-400">do-with-us</span>
+              <button id="sprintReset" class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline">↺ reset</button>
+              <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">do-with-us</span>
             </div>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">One copy-able exercise per weekday. ~5 minutes each. Click any row to expand. Mark a day complete by copying its prompt.</p>
@@ -724,19 +894,19 @@
           <span class="sr-only">prompt mastery doctor lint analyzer diagnostic check audit your prompt</span>
           <div class="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
             <h3 class="font-serif text-xl">Prompt doctor — paste yours, see what's missing</h3>
-            <span class="text-[10px] font-mono uppercase text-stone-400">live diagnostic</span>
+            <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">live diagnostic</span>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-4">Drop a prompt below. We'll check it against the 5 anatomy ingredients and tell you exactly what to add. No data leaves your browser.</p>
           <textarea id="doctorInput" rows="5" placeholder="Paste a prompt you wrote (or any prompt you want to grade)..." class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none font-mono leading-relaxed"></textarea>
           <div class="flex items-baseline justify-between mt-4 mb-3 gap-3 flex-wrap">
-            <span id="doctorScore" class="text-sm font-medium">Score: <span class="text-stone-400">paste a prompt above</span></span>
+            <span id="doctorScore" class="text-sm font-medium">Score: <span class="text-stone-500 dark:text-stone-400">paste a prompt above</span></span>
             <button id="doctorImprove" class="text-xs px-3 py-1.5 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90 disabled:opacity-30" disabled>↑ Auto-improve missing parts</button>
           </div>
           <div id="doctorFindings" class="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4"></div>
           <div id="doctorSuggestions" class="space-y-2 text-xs mb-4"></div>
           <div class="flex items-baseline gap-2">
             <button id="doctorSave" class="text-xs px-3 py-1.5 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition disabled:opacity-30" disabled>★ Save to library</button>
-            <span class="text-[10px] text-stone-500">save what works — your library appears below.</span>
+            <span class="text-[10px] text-stone-500 dark:text-stone-400">save what works — your library appears below.</span>
           </div>
         </div>
       </div>
@@ -746,10 +916,10 @@
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6" data-track="both">
           <span class="sr-only">prompt mastery library saved bookmarks favorites collection my prompts</span>
           <div class="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
-            <h3 class="font-serif text-xl">My library <span id="libraryCount" class="text-xs text-stone-500 font-mono ml-2">· 0</span></h3>
+            <h3 class="font-serif text-xl">My library <span id="libraryCount" class="text-xs text-stone-500 dark:text-stone-400 font-mono ml-2">· 0</span></h3>
             <div class="flex items-baseline gap-3">
               <button id="exportReport" class="text-xs px-2.5 py-1 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition">↓ Export my-mastery.md</button>
-              <span class="text-[10px] font-mono uppercase text-stone-400">your prompts</span>
+              <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">your prompts</span>
             </div>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Prompts you saved from the Doctor. Click any to copy. They persist between visits. Use Export to download your full progress as a portable markdown file.</p>
@@ -763,7 +933,7 @@
           <span class="sr-only">prompt mastery mental models framings principles philosophy</span>
           <div class="flex items-baseline justify-between mb-3">
             <h3 class="font-serif text-xl">Mental models — change how you think, change what you ship</h3>
-            <span class="text-[10px] font-mono uppercase text-stone-400">framings</span>
+            <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">framings</span>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Each of these reframes saves you a hundred bad prompts.</p>
           <div id="mastery-models" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -788,60 +958,91 @@
   + [ Acceptance test  ]   ← measurable done state
   + [ Loop hook        ]   ← what to ask back
 = Robust result</pre>
-          <p class="text-xs text-stone-500 mt-4">The skill names a tool. The inputs feed it. The constraints narrow it. The acceptance test ends the back-and-forth. The loop turns one prompt into a workflow.</p>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-4">The skill names a tool. The inputs feed it. The constraints narrow it. The acceptance test ends the back-and-forth. The loop turns one prompt into a workflow.</p>
         </div>
 
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-6 md:col-span-2" data-track="both">
           <span class="sr-only">prompt mastery escalation tutorial guide</span>
           <h3 class="font-serif text-xl mb-3">Five patterns that always pay</h3>
-          <ol id="mastery-patterns" class="space-y-2 text-sm list-decimal list-inside marker:text-stone-400"></ol>
-          <p class="text-xs text-stone-500 mt-4">Want more? See <code>docs/PROMPTS.md</code> in the repo for full progressions per use case.</p>
+          <ol id="mastery-patterns" class="space-y-2 text-sm list-decimal list-inside marker:text-stone-500 dark:text-stone-400"></ol>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-4">Want more? See <code>docs/PROMPTS.md</code> in the repo for full progressions per use case.</p>
         </div>
       </div>
     </section>
 
+    <!-- COAXING — meta-prompting techniques, the moves that get the most out of the agent -->
+    <section id="coaxing" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">09</span>Coaxing the agent</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-2">Meta-prompts that change <em>how</em> the agent works for you, not <em>what</em> it works on. These are the moves that turn a single-shot helper into an autonomous collaborator.</p>
+      <p class="text-xs text-stone-600 dark:text-stone-400 mb-8">Read the <strong>Cue</strong> (what to type), the <strong>Why</strong> (what it unlocks), and the <strong>Example</strong> (the exact phrasing). Pair these with the prompt anatomy in the Mastery section.</p>
+      <div id="coaxing-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- TOOL FLOW — interactive Sankey of pegasus commands → tools → impacts -->
+    <section id="flow" class="py-12 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">10</span>Tool flow</h2>
+      <p class="text-stone-600 dark:text-stone-400 mb-2">An interactive map of how Pegasus categories flow into specific tools and the artifacts they produce. Hover any node or link to follow the path.</p>
+      <p class="text-xs text-stone-600 dark:text-stone-400 mb-6">Click a node to lock the highlight; click again or press <kbd>Esc</kbd> to release.</p>
+      <!-- Source-category legend, mirrored inside the SVG by column-header text labels. -->
+      <div id="sankey-legend" class="flex flex-wrap items-center gap-3 mb-3 text-xs"></div>
+      <div id="sankey-wrap" class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 relative">
+        <div id="sankey" role="img" aria-label="Pegasus tools flow into artifacts" class="min-h-[480px]">
+          <p class="text-sm text-stone-500 dark:text-stone-400 italic p-8 text-center">Loading the flow diagram…</p>
+        </div>
+        <div id="sankeyTip" role="tooltip" class="hidden absolute pointer-events-none bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 text-xs rounded px-2.5 py-1.5 shadow-lg z-10 max-w-xs leading-relaxed"></div>
+        <div id="sankeyLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+        <div class="absolute top-3 right-3 flex items-baseline gap-2 z-10">
+          <button id="sankeyReset" class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline px-1 hidden">↺ Release lock</button>
+        </div>
+      </div>
+      <details class="mt-4 text-xs">
+        <summary class="text-stone-600 dark:text-stone-400 cursor-pointer hover:text-stone-900 dark:hover:text-stone-100 select-none">No JS? Show the same paths as a list</summary>
+        <div id="sankey-fallback" class="mt-3 text-stone-700 dark:text-stone-300 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1"></div>
+      </details>
+    </section>
+
     <!-- RECOMMENDED -->
     <section id="recommended" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Recommended external repos</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">11</span>Recommended <span class="text-stone-400 dark:text-stone-600">·</span> external repos</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Hand-picked. All MIT-licensed. Use <span class="font-mono">pegasus clone &lt;url&gt; &lt;name&gt;</span>.</p>
       <div id="recommended-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- GLOSSARY -->
     <section id="glossary" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Glossary · plain English</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">12</span>Glossary <span class="text-stone-400 dark:text-stone-600">·</span> plain English</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Every dev word that might confuse you, decoded.</p>
       <div id="glossary-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"></div>
     </section>
 
     <!-- LEARN — designer-friendly explainers -->
     <section id="learn" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-2">Learn</h2>
+      <h2 class="font-serif text-3xl mb-2"><span class="section-num">13</span>Learn</h2>
       <p class="text-stone-600 dark:text-stone-400 mb-6">Plain-language explainers for the dev concepts you'll bump into. Written for designers, not engineers.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <a href="javascript:void(0)" onclick="openLearnModal('tokens')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
-          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Tokens, CLIs &amp; Auth 101</h3><span class="text-xs text-stone-500">~10 min</span></div>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Tokens, CLIs &amp; Auth 101</h3><span class="text-xs text-stone-500 dark:text-stone-400">~10 min</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">What's a token, what's a CLI, when do you OAuth vs paste a key, where to put your tokens safely.</p>
         </a>
         <a href="javascript:void(0)" onclick="openLearnModal('glossary')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
-          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Plain-English Glossary</h3><span class="text-xs text-stone-500">browse</span></div>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Plain-English Glossary</h3><span class="text-xs text-stone-500 dark:text-stone-400">browse</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">Every dev word that might confuse you, decoded in 1-2 lines.</p>
         </a>
         <a href="javascript:void(0)" onclick="document.getElementById('prompts').scrollIntoView({behavior:'smooth'}); showToast('Prompts section is in the dashboard — scroll down')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
-          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Prompt patterns</h3><span class="text-xs text-stone-500">copy-paste</span></div>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Prompt patterns</h3><span class="text-xs text-stone-500 dark:text-stone-400">copy-paste</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">Real prompts that work, organized by what you're trying to ship.</p>
         </a>
         <a href="javascript:void(0)" onclick="openLearnModal('troubleshooting')" class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 block hover:border-stone-900" data-search>
-          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Troubleshooting</h3><span class="text-xs text-stone-500">5 min</span></div>
+          <div class="flex items-baseline justify-between"><h3 class="font-medium font-serif text-xl">Troubleshooting</h3><span class="text-xs text-stone-500 dark:text-stone-400">5 min</span></div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">The 5 most common stuck-points and how to fix each.</p>
         </a>
       </div>
-      <p class="text-xs text-stone-500 mt-4">External resources we trust: <a href="https://docs.claude.com/claude-code" class="underline">Claude Code docs</a> · <a href="https://opencode.ai" class="underline">OpenCode docs</a> · <a href="https://figma.com/blog/introducing-figmas-dev-mode-mcp-server/" class="underline">Figma MCP guide</a></p>
+      <p class="text-xs text-stone-500 dark:text-stone-400 mt-4">External resources we trust: <a href="https://docs.claude.com/claude-code" class="underline">Claude Code docs</a> · <a href="https://opencode.ai" class="underline">OpenCode docs</a> · <a href="https://figma.com/blog/introducing-figmas-dev-mode-mcp-server/" class="underline">Figma MCP guide</a></p>
     </section>
 
     <!-- HELP -->
     <section id="help" class="py-12 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="font-serif text-3xl mb-6">Help</h2>
+      <h2 class="font-serif text-3xl mb-6"><span class="section-num">14</span>Help</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search>
           <h3 class="font-medium mb-2">Something not working?</h3>
@@ -873,7 +1074,7 @@
       Pegasus · made for designers · <button onclick="openAboutModal()" class="underline">About Pegasus</button>
     </p>
     <p class="mt-1 text-xs">No tracking. No analytics. Works fully offline once loaded.</p>
-    <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">Pegasus dashboard v1.1.6 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');_safeStorage.removeItem('pegasus.themeToggleSeen');_safeStorage.removeItem('pegasus.latestTag');location.reload()}" class="underline hover:text-stone-700 dark:hover:text-stone-200">Reset onboarding</button></p>
+    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">Pegasus dashboard v1.1.6 · <button onclick="if(confirm('Reset onboarding hint?')){_safeStorage.removeItem('pegasus.onboardingDismissed');_safeStorage.removeItem('pegasus.firstRunSeen');_safeStorage.removeItem('pegasus.themeToggleSeen');_safeStorage.removeItem('pegasus.latestTag');location.reload()}" class="underline hover:text-stone-700 dark:hover:text-stone-200">Reset onboarding</button></p>
   </footer>
 
   <!-- Toast -->
@@ -887,7 +1088,7 @@
     <div class="bg-white dark:bg-stone-900 rounded-2xl p-12 text-center shadow-2xl">
       <div class="text-6xl mb-4">📥</div>
       <p class="font-serif text-2xl">Drop your file</p>
-      <p class="text-stone-500 mt-2"><span class="font-mono">jobs-today-*.md</span> for job results · <span class="font-mono">pegasus-snapshot.json</span> to restore profile</p>
+      <p class="text-stone-500 dark:text-stone-400 mt-2"><span class="font-mono">jobs-today-*.md</span> for job results · <span class="font-mono">pegasus-snapshot.json</span> to restore profile</p>
     </div>
   </div>
 
@@ -898,12 +1099,12 @@
       <h2 class="font-serif text-3xl mb-3">Welcome to Pegasus</h2>
       <p class="text-stone-700 dark:text-stone-300 mb-6">Three things to know:</p>
       <ol class="space-y-4 mb-6">
-        <li class="flex gap-3"><span class="font-mono text-stone-500">1</span><div><strong>Pick your track</strong> at the top: 🎨 UX Design or 💼 Job Search. Filters everything.</div></li>
-        <li class="flex gap-3"><span class="font-mono text-stone-500">2</span><div><strong>Click any card to copy</strong> its command/prompt. Paste into your VS Code terminal or Claude/OpenCode.</div></li>
-        <li class="flex gap-3"><span class="font-mono text-stone-500">3</span><div><strong>Search anything</strong>: press <kbd class="bg-stone-200 dark:bg-stone-700 px-1.5 rounded font-mono">⌘K</kbd> for the palette, or <kbd class="bg-stone-200 dark:bg-stone-700 px-1.5 rounded font-mono">/</kbd> to filter inline.</div></li>
+        <li class="flex gap-3"><span class="font-mono text-stone-500 dark:text-stone-400">1</span><div><strong>Pick your track</strong> at the top: 🎨 UX Design or 💼 Job Search. Filters everything.</div></li>
+        <li class="flex gap-3"><span class="font-mono text-stone-500 dark:text-stone-400">2</span><div><strong>Click any card to copy</strong> its command/prompt. Paste into your VS Code terminal or Claude/OpenCode.</div></li>
+        <li class="flex gap-3"><span class="font-mono text-stone-500 dark:text-stone-400">3</span><div><strong>Search anything</strong>: press <kbd class="bg-stone-200 dark:bg-stone-700 px-1.5 rounded font-mono">⌘K</kbd> for the palette, or <kbd class="bg-stone-200 dark:bg-stone-700 px-1.5 rounded font-mono">/</kbd> to filter inline.</div></li>
       </ol>
       <button onclick="dismissFirstRun()" class="w-full px-6 py-3 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded-lg font-medium hover:bg-stone-700 transition">Let's go</button>
-      <button onclick="dismissFirstRun()" class="w-full mt-2 text-xs text-stone-500 hover:text-stone-700 dark:hover:text-stone-300">Skip — I've used this before</button>
+      <button onclick="dismissFirstRun()" class="w-full mt-2 text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300">Skip — I've used this before</button>
     </div>
   </div>
 
@@ -920,19 +1121,19 @@
     <div class="palette-modal" style="max-width: 720px; max-height: 85vh; overflow-y: auto;">
       <div class="px-6 py-5 border-b border-stone-200 dark:border-stone-700 flex justify-between items-start gap-4">
         <div class="flex-1">
-          <p class="text-xs uppercase tracking-widest text-stone-500" data-modal-meta></p>
+          <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400" data-modal-meta></p>
           <h2 class="font-serif text-2xl mt-1" data-modal-title></h2>
           <p class="text-sm text-stone-600 dark:text-stone-400 mt-2" data-modal-desc></p>
         </div>
-        <button onclick="closeWorkflowModal()" class="text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-3xl leading-none flex-shrink-0" aria-label="Close">×</button>
+        <button onclick="closeWorkflowModal()" class="text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-3xl leading-none flex-shrink-0" aria-label="Close">×</button>
       </div>
       <div class="p-6">
         <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
-          <p class="text-xs uppercase tracking-widest text-stone-500">Steps — click any to copy</p>
+          <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400">Steps — click any to copy</p>
           <button data-copy-all class="copy-all px-3 py-1.5 rounded text-xs font-medium bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90 transition">📋 Copy all prompts</button>
         </div>
         <ol data-modal-steps class="list-none pl-0"></ol>
-        <p class="text-xs text-stone-500 mt-6 italic">💡 Tip: paste step-by-step to follow along, or use <strong>Copy all prompts</strong> to drop the full recipe into one chat.</p>
+        <p class="text-xs text-stone-500 dark:text-stone-400 mt-6 italic">💡 Tip: paste step-by-step to follow along, or use <strong>Copy all prompts</strong> to drop the full recipe into one chat.</p>
       </div>
     </div>
   </div>
@@ -942,15 +1143,15 @@
     <div class="palette-modal" style="max-width: 760px; max-height: 88vh; overflow-y: auto;">
       <div class="px-6 py-5 border-b border-stone-200 dark:border-stone-700 flex justify-between items-start gap-4 sticky top-0 bg-white dark:bg-stone-900 z-10">
         <div class="flex-1">
-          <p class="text-xs uppercase tracking-widest text-stone-500">Worked walkthrough</p>
+          <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400">Worked walkthrough</p>
           <h2 id="walkthroughTitle" class="font-serif text-2xl mt-1"></h2>
           <p id="walkthroughSetup" class="text-xs text-stone-500 dark:text-stone-400 mt-2 italic"></p>
         </div>
-        <button onclick="closeWalkthroughModal()" class="text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-3xl leading-none flex-shrink-0" aria-label="Close">×</button>
+        <button onclick="closeWalkthroughModal()" class="text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-3xl leading-none flex-shrink-0" aria-label="Close">×</button>
       </div>
       <div class="p-6">
         <ol id="walkthroughSteps" class="space-y-4 list-none pl-0"></ol>
-        <p class="text-xs text-stone-500 mt-6 italic">💡 Agent responses are paraphrased to set expectations — the real output will vary in wording but match the shape.</p>
+        <p class="text-xs text-stone-500 dark:text-stone-400 mt-6 italic">💡 Agent responses are paraphrased to set expectations — the real output will vary in wording but match the shape.</p>
       </div>
     </div>
   </div>
@@ -1274,11 +1475,11 @@ function renderTemplates() {
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${t.track || 'both'}" data-copyable="1" data-card-copy="${t.cmd}" data-template="${t.name}">
       <div class="flex items-baseline justify-between mb-1">
         <h3 class="font-medium font-serif text-xl">${t.name}</h3>
-        <span class="text-xs text-stone-500">${t.track === 'design' ? '🎨' : t.track === 'jobs' ? '💼' : '⊕'}</span>
+        <span class="text-xs text-stone-500 dark:text-stone-400">${t.track === 'design' ? '🎨' : t.track === 'jobs' ? '💼' : '⊕'}</span>
       </div>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${t.desc}</p>
       <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${t.cmd}">${t.cmd}</button>
-      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-template-details">View what's inside →</button>
+      <button class="text-xs underline text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-template-details">View what's inside →</button>
     </div>
   `).join('');
 }
@@ -1309,18 +1510,18 @@ function openTemplateModal(name) {
   modal.querySelector('[data-modal-steps]').innerHTML = `
     <div class="space-y-4">
       <div>
-        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">What's inside</p>
+        <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">What's inside</p>
         <p class="text-sm text-stone-700 dark:text-stone-300">${templateContents[name] || 'Single index.html with Tailwind CDN, no build step.'}</p>
       </div>
       <div>
-        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Scaffold it — click to copy</p>
+        <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Scaffold it — click to copy</p>
         <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${t.cmd}">${t.cmd}</button>
       </div>
       <div>
-        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Then ship it</p>
+        <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Then ship it</p>
         <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="cd ~/Design-Projects/${t.cmd.split(' ').pop()} && pegasus deploy">cd ~/Design-Projects/${t.cmd.split(' ').pop()} && pegasus deploy</button>
       </div>
-      <p class="text-xs text-stone-500">All templates are HTML + Tailwind via CDN — no build step, works in any browser.</p>
+      <p class="text-xs text-stone-500 dark:text-stone-400">All templates are HTML + Tailwind via CDN — no build step, works in any browser.</p>
     </div>
   `;
   modal.querySelector('[data-modal-steps]').querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
@@ -1348,12 +1549,12 @@ function renderSkills() {
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${s.track || 'both'}" data-skill="${s.name}">
       <div class="flex items-baseline justify-between mb-1">
         <h3 class="font-medium font-serif text-xl">${s.name}</h3>
-        <span class="text-xs text-stone-500">${s.track === 'design' ? '🎨' : s.track === 'jobs' ? '💼' : '⊕'}</span>
+        <span class="text-xs text-stone-500 dark:text-stone-400">${s.track === 'design' ? '🎨' : s.track === 'jobs' ? '💼' : '⊕'}</span>
       </div>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${s.summary}</p>
-      <div class="text-xs text-stone-500 mb-1">Try saying:</div>
+      <div class="text-xs text-stone-500 dark:text-stone-400 mb-1">Try saying:</div>
       <button class="copy bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left text-sm italic" data-copy='${s.invoke.replace(/'/g, "&#39;")}'>"${s.invoke}"</button>
-      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-skill-details">View example use cases →</button>
+      <button class="text-xs underline text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 mt-2 view-skill-details">View example use cases →</button>
     </div>
   `).join('');
 }
@@ -1380,8 +1581,8 @@ function renderMcps() {
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 cursor-pointer" data-search data-track="${m.track || 'both'}" data-mcp="${m.name.replace(/"/g, '&quot;')}">
       <h3 class="font-medium">${m.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1">${m.desc}</p>
-      ${m.note ? `<p class="text-xs text-stone-500 mt-2">${m.note}</p>` : ''}
-      <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 mt-2">View install + auth →</button>
+      ${m.note ? `<p class="text-xs text-stone-500 dark:text-stone-400 mt-2">${m.note}</p>` : ''}
+      <button class="text-xs underline text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 mt-2">View install + auth →</button>
     </div>
   `).join('');
   document.querySelectorAll('[data-mcp]').forEach(card => {
@@ -1405,22 +1606,22 @@ function openMcpModal(name) {
     stepsEl.innerHTML = `
       <div class="space-y-4">
         <div>
-          <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Install command — click to copy</p>
+          <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Install command — click to copy</p>
           <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${detail.install.replace(/"/g, '&quot;')}">${detail.install}</button>
         </div>
         <div>
-          <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Auth</p>
+          <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Auth</p>
           <p class="text-sm text-stone-700 dark:text-stone-300">${detail.auth}</p>
         </div>
         <div>
-          <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">How to use</p>
+          <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">How to use</p>
           <p class="text-sm text-stone-700 dark:text-stone-300">${detail.use}</p>
         </div>
       </div>
     `;
     stepsEl.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
   } else {
-    stepsEl.innerHTML = '<p class="text-sm text-stone-500">No details yet for this bridge.</p>';
+    stepsEl.innerHTML = '<p class="text-sm text-stone-500 dark:text-stone-400">No details yet for this bridge.</p>';
   }
   modal.classList.add('open');
 }
@@ -1428,7 +1629,7 @@ function openMcpModal(name) {
 function renderPrompts() {
   document.getElementById('prompts-list').innerHTML = prompts.map(p => `
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4" data-search data-track="${p.track || 'both'}" data-copyable="1" data-card-copy="${p.text.replace(/\'/g, '&#39;')}">
-      <div class="text-xs uppercase tracking-wider text-stone-500 mb-1">${p.goal}</div>
+      <div class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-1">${p.goal}</div>
       <button class="copy text-left text-sm bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full" data-copy='${p.text.replace(/'/g, "&#39;")}'>${p.text}</button>
     </div>
   `).join('');
@@ -1448,8 +1649,11 @@ function renderMastery() {
       const text = p[tier];
       // No data-search on the inner tier blocks: applySearchHL rewrites the
       // parent card's innerHTML, which would orphan any nested data-search nodes.
+      // No data-copyable either: the inner <button class="copy"> is the
+      // interactive surface — making the wrapper a role=button as well would be
+      // a nested-interactive WCAG violation.
       return `
-        <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-3" data-copyable="1" data-card-copy="${_esc(text).replace(/'/g, '&#39;')}">
+        <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-3">
           <div class="flex items-baseline gap-2 mb-2">
             <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${meta.chip}">${meta.label}</span>
             <span class="text-xs text-stone-500 dark:text-stone-400">${_esc(meta.hint)}</span>
@@ -1467,12 +1671,12 @@ function renderMastery() {
         <span class="sr-only">prompt mastery escalation tutorial guide walkthrough session transcript</span>
         <div class="flex items-baseline justify-between mb-4 gap-2 flex-wrap">
           <div>
-            <div class="text-xs uppercase tracking-wider text-stone-500">Goal #${idx + 1}</div>
+            <div class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">Goal #${idx + 1}</div>
             <h3 class="font-serif text-xl">${_esc(p.goal)}</h3>
           </div>
           <div class="flex items-baseline gap-3">
             ${walkthroughKey ? `<button onclick="openWalkthroughModal('${walkthroughKey}')" class="text-xs px-2.5 py-1 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition" data-walkthrough="${walkthroughKey}">▶ Worked walkthrough</button>` : ''}
-            <span class="text-[10px] font-mono uppercase text-stone-400">${_esc(p.track)}</span>
+            <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">${_esc(p.track)}</span>
           </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
@@ -1481,7 +1685,7 @@ function renderMastery() {
           ${tierBlock('expert')}
         </div>
         <details class="mt-4 group">
-          <summary class="text-xs text-stone-500 dark:text-stone-400 cursor-pointer hover:text-stone-900 dark:hover:text-stone-100 select-none">What the Expert tier added <span class="text-stone-400 group-open:hidden">▸</span><span class="text-stone-400 hidden group-open:inline">▾</span></summary>
+          <summary class="text-xs text-stone-500 dark:text-stone-400 cursor-pointer hover:text-stone-900 dark:hover:text-stone-100 select-none">What the Expert tier added <span class="text-stone-500 dark:text-stone-400 group-open:hidden">▸</span><span class="text-stone-500 dark:text-stone-400 hidden group-open:inline">▾</span></summary>
           <ul class="mt-3 text-xs text-stone-600 dark:text-stone-400 space-y-1.5">${gainList}</ul>
         </details>
       </div>`;
@@ -1491,7 +1695,7 @@ function renderMastery() {
   // and nesting data-search trips the applySearchHL innerHTML-rewrite.
   document.getElementById('mastery-anatomy').innerHTML = promptAnatomy.map((a, i) => `
     <li class="flex gap-3">
-      <span class="font-mono text-stone-400 text-xs pt-0.5 w-4 shrink-0">${i + 1}</span>
+      <span class="font-mono text-stone-500 dark:text-stone-400 text-xs pt-0.5 w-4 shrink-0">${i + 1}</span>
       <div>
         <div class="font-medium">${_esc(a.label)}</div>
         <div class="text-stone-600 dark:text-stone-400 text-xs">${_esc(a.body)}</div>
@@ -1693,13 +1897,13 @@ function openWalkthroughModal(id) {
       ? `data-copy='${_esc(step.text).replace(/'/g, "&#39;")}'`
       : '';
     const copyClass = step.kind === 'you' ? 'copy cursor-pointer' : '';
-    const copyHint = step.kind === 'you' ? '<span class="text-[10px] text-stone-400 ml-2">click to copy</span>' : '';
+    const copyHint = step.kind === 'you' ? '<span class="text-[10px] text-stone-500 dark:text-stone-400 ml-2">click to copy</span>' : '';
     const noteHtml = step.note ? `<p class="text-[11px] text-stone-500 dark:text-stone-400 mt-2">↳ ${_esc(step.note)}</p>` : '';
     return `
       <li class="border-l-2 border-stone-200 dark:border-stone-800 pl-4">
         <div class="flex items-baseline gap-2 mb-1">
           <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${meta.chip}">${meta.label}</span>
-          <span class="text-[10px] text-stone-400">step ${i + 1}</span>
+          <span class="text-[10px] text-stone-500 dark:text-stone-400">step ${i + 1}</span>
           ${copyHint}
         </div>
         <div class="${copyClass} text-sm leading-relaxed rounded p-3 ${meta.body}" ${copyAttr}>${_esc(step.text)}</div>
@@ -1809,7 +2013,7 @@ function renderMasteryModels() {
   document.getElementById('mastery-models').innerHTML = mentalModels.map((m, i) => `
     <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-4">
       <div class="flex items-baseline gap-2 mb-2">
-        <span class="font-mono text-stone-400 text-xs">${String(i + 1).padStart(2, '0')}</span>
+        <span class="font-mono text-stone-500 dark:text-stone-400 text-xs">${String(i + 1).padStart(2, '0')}</span>
         <h4 class="font-serif text-base">${_esc(m.title)}</h4>
       </div>
       <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">${_esc(m.body)}</p>
@@ -1993,7 +2197,7 @@ function renderMasterySprint() {
           <summary class="flex items-baseline gap-3 px-4 py-3 cursor-pointer select-none list-none hover:bg-stone-50 dark:hover:bg-stone-800/50 rounded-lg">
             <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${isDone ? 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800/60 dark:text-emerald-100' : 'bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300'}">${isDone ? '✓ done' : 'Day ' + d.day}</span>
             <span class="font-medium text-sm flex-1">${_esc(d.title)}</span>
-            <span class="text-[10px] text-stone-400 font-mono">${_esc(d.time)}</span>
+            <span class="text-[10px] text-stone-500 dark:text-stone-400 font-mono">${_esc(d.time)}</span>
           </summary>
           <div class="px-4 pb-4 pt-2 space-y-3">
             <button class="copy text-left text-xs bg-stone-50 dark:bg-stone-950 px-3 py-3 rounded w-full font-mono leading-relaxed border border-stone-200 dark:border-stone-800" data-copy='${_esc(d.prompt).replace(/'/g, "&#39;")}' data-sprint-day="${d.day}">${_esc(d.prompt)}</button>
@@ -2092,7 +2296,7 @@ function renderWeeklyFeature() {
         <span class="block font-medium text-sm text-stone-900 dark:text-stone-100 truncate">${_esc(f.label)}</span>
         <span class="block text-xs text-stone-600 dark:text-stone-400 truncate">${_esc(f.hint)}</span>
       </span>
-      <span class="text-stone-400 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition shrink-0">→</span>
+      <span class="text-stone-500 dark:text-stone-400 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition shrink-0">→</span>
     </button>`;
   document.getElementById('masteryFeaturedBtn').addEventListener('click', () => {
     const target = document.getElementById(f.target);
@@ -2176,11 +2380,11 @@ function renderDoctorFindings(text) {
   const improveBtn = document.getElementById('doctorImprove');
 
   if (!text || !text.trim()) {
-    scoreEl.innerHTML = 'Score: <span class="text-stone-400">paste a prompt above</span>';
+    scoreEl.innerHTML = 'Score: <span class="text-stone-500 dark:text-stone-400">paste a prompt above</span>';
     // Render the 5 chips in their absent state so the user sees the categories
     // upfront — discoverability matters more than visual minimalism here.
     findingsEl.innerHTML = promptDoctorIngredients.map(f => `
-      <div class="rounded-lg p-3 text-center text-xs bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500" title="${_esc(f.label)}: not yet checked">
+      <div class="rounded-lg p-3 text-center text-xs bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400" title="${_esc(f.label)}: not yet checked">
         <div class="text-[16px] mb-1">○</div>
         <div class="font-medium">${_esc(f.label)}</div>
       </div>`).join('');
@@ -2192,7 +2396,7 @@ function renderDoctorFindings(text) {
   const score = findings.filter(f => f.present).length;
   scoreEl.innerHTML = `Score: <span class="${score === 5 ? 'text-emerald-600 dark:text-emerald-400' : ''}">${score} / 5 ingredients ${score === 5 ? '· complete prompt' : 'present'}</span>`;
   findingsEl.innerHTML = findings.map(f => `
-    <div class="rounded-lg p-3 text-center text-xs ${f.present ? f.chip : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500'}" title="${_esc(f.label)}: ${f.present ? 'present' : 'missing'}">
+    <div class="rounded-lg p-3 text-center text-xs ${f.present ? f.chip : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400'}" title="${_esc(f.label)}: ${f.present ? 'present' : 'missing'}">
       <div class="text-[16px] mb-1">${f.present ? '✓' : '○'}</div>
       <div class="font-medium">${_esc(f.label)}</div>
     </div>`).join('');
@@ -2359,7 +2563,7 @@ function renderLibrary() {
     container.innerHTML = `
       <div class="text-center py-8 px-4 rounded-lg border border-dashed border-stone-300 dark:border-stone-700">
         <p class="text-sm text-stone-500 dark:text-stone-400">Your library is empty.</p>
-        <p class="text-xs text-stone-400 dark:text-stone-500 mt-1">Refine a prompt in the Doctor above and click ★ Save to add it here.</p>
+        <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">Refine a prompt in the Doctor above and click ★ Save to add it here.</p>
       </div>`;
     return;
   }
@@ -2374,11 +2578,11 @@ function renderLibrary() {
         <div class="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
           <div class="flex items-baseline gap-2">
             <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${scoreColor}">${item.score}/5</span>
-            <span class="text-[10px] text-stone-400">${_esc(item.source)} · ${_esc(item.savedAt)}</span>
+            <span class="text-[10px] text-stone-500 dark:text-stone-400">${_esc(item.source)} · ${_esc(item.savedAt)}</span>
           </div>
           <div class="flex items-baseline gap-1">
             <button class="copy text-[10px] px-2 py-1 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90" data-copy='${_esc(item.text).replace(/'/g, "&#39;")}'>📋 Copy</button>
-            <button data-remove="${item.id}" class="text-[10px] px-2 py-1 rounded text-stone-500 hover:text-rose-700 dark:hover:text-rose-400" aria-label="Remove from library">✕</button>
+            <button data-remove="${item.id}" class="text-[10px] px-2 py-1 rounded text-stone-500 dark:text-stone-400 hover:text-rose-700 dark:hover:text-rose-400" aria-label="Remove from library">✕</button>
           </div>
         </div>
         <pre class="text-xs leading-relaxed bg-stone-50 dark:bg-stone-950 rounded p-3 whitespace-pre-wrap font-mono">${_esc(item.text)}</pre>
@@ -2402,6 +2606,513 @@ openWalkthroughModal = function(id) {
   setTimeout(renderMasteryRecommendation, 0);
 };
 
+// ─────────────────────────────────────────────
+// COAXING — meta-prompting techniques
+// ─────────────────────────────────────────────
+const coaxingTechniques = [
+  {
+    name: 'Loop indefinitely',
+    cue: '"Loop indefinitely until [target outcome]."',
+    why: 'Hands the agent an open-ended budget. Without a stop condition, it stays inside the conversation, iterating on quality without re-asking permission for each round.',
+    example: '"Loop indefinitely until this dashboard is a powerhouse of the design-to-develop divide."',
+    risk: 'Use only when you trust the direction. Pair with explicit guardrails if the work touches shared infra.'
+  },
+  {
+    name: 'The 10–30 pass rule',
+    cue: '"Try 10–30 passes to improve [thing]."',
+    why: 'A single round of refinement is rarely the best output. Naming a high pass count gives the agent permission to keep iterating instead of stopping at "good enough."',
+    example: '"Polish this case study with 15 passes — each one tightening a single thing."',
+    risk: 'Each pass costs tokens. Cap with "stop early if you stop finding improvements."'
+  },
+  {
+    name: 'DAG-first',
+    cue: '"Search the DAG before asking."',
+    why: 'Most questions are already answered as a stored bead, FRT atom, or saved memory. Searching first costs nothing; asking the user costs interruption + lost flow.',
+    example: '"Before web-searching, run `br ready`, `frt search`, `sq search` — only ask me what\'s genuinely missing."',
+    risk: 'Only useful when a DAG/issue tracker is wired up. Without one, this becomes "check the codebase + docs first."'
+  },
+  {
+    name: 'Yes to it all',
+    cue: '"Yes to it all — keep going."',
+    why: 'Batch-approves a set of pending decisions. Saves you from N back-and-forths when the agent has surfaced multiple questions you\'re already aligned on.',
+    example: 'After the agent proposes 4 follow-up rounds: "Yes to all four. Ship them and keep going."',
+    risk: 'Only after you\'ve actually read the proposals. Skip for irreversible actions or anything affecting shared systems.'
+  },
+  {
+    name: 'Direct critique',
+    cue: '"That\'s lame / weak / shallow. Try again."',
+    why: 'The agent calibrates to your taste through bluntness. Polite hedges produce polite output. Naming what\'s wrong lets it actually re-aim instead of re-skinning.',
+    example: '"The examples feel lame. Make them powerful — concrete, specific, with actual file paths."',
+    risk: 'Pair with one specific improvement direction so the agent has somewhere to go.'
+  },
+  {
+    name: 'Course-correct without restart',
+    cue: '"Pivot to [new direction] instead."',
+    why: 'Mid-session corrections are cheaper than starting over. The agent keeps all the context it has built; you just re-aim. Restarting throws away the load-bearing reasoning.',
+    example: '"Pivot — instead of more recipes, build a Prompt Doctor that scores prompts against the anatomy."',
+    risk: 'Almost none. This is strictly an optimization over restart.'
+  },
+  {
+    name: 'Commit + push as you go',
+    cue: '"Commit the work, then keep going."',
+    why: 'Checkpointing locks in progress. If a later round goes sideways, you have a clean rollback point. Also lets parallel agents pick up your branch.',
+    example: '"Once Round 4 ships and tests are green, commit and push to a branch — then continue with Round 5."',
+    risk: 'Avoid pushing to shared branches without explicit approval each time.'
+  },
+  {
+    name: 'Pause + summarize',
+    cue: '"Pause and summarize what we\'ve shipped before continuing."',
+    why: 'Forces the agent to consolidate understanding mid-stream. Surfaces gaps. Creates a written checkpoint that future-you can read in 30 seconds.',
+    example: '"Take stock — list every surface we\'ve added in this session and what\'s still queued."',
+    risk: 'None. Always available, always cheap.'
+  },
+  {
+    name: 'Constrain by absence',
+    cue: '"Don\'t do X / don\'t edit Y / don\'t add Z."',
+    why: 'Negative constraints are often clearer than positive ones. The agent tends to over-deliver — telling it what NOT to do narrows the response shape better than another adjective.',
+    example: '"Don\'t edit any other file. Don\'t add tests. Don\'t refactor the surrounding code. Just fix this one bug."',
+    risk: 'None — negative constraints almost always pay.'
+  },
+  {
+    name: 'Borrow your own voice',
+    cue: '"Write like I do — terse, declarative, two-beat sentences."',
+    why: 'Agents have a default voice that\'s often too verbose, too hedged. Naming a style explicitly makes them adopt yours within a few exchanges.',
+    example: '"Match my voice: terse, declarative, plain technical English. Calculate first; guess only when you must."',
+    risk: 'None — voice corrections compound over the session.'
+  }
+];
+
+function renderCoaxing() {
+  const container = document.getElementById('coaxing-list');
+  if (!container) return;
+  container.innerHTML = coaxingTechniques.map((t, i) => `
+    <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="both">
+      <div class="flex items-baseline gap-3 mb-2">
+        <span class="font-mono text-stone-500 dark:text-stone-400 text-xs">${String(i + 1).padStart(2, '0')}</span>
+        <h3 class="font-serif text-xl">${_esc(t.name)}</h3>
+      </div>
+      <div class="text-[10px] uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mt-3 mb-1">Cue</div>
+      <p class="text-sm font-mono text-stone-900 dark:text-stone-100">${_esc(t.cue)}</p>
+      <div class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 mt-3 mb-1">Why it works</div>
+      <p class="text-xs text-stone-700 dark:text-stone-300 leading-relaxed">${_esc(t.why)}</p>
+      <div class="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mt-3 mb-1">Example</div>
+      <p class="text-xs text-stone-700 dark:text-stone-300 italic">${_esc(t.example)}</p>
+      <div class="text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-300 mt-3 mb-1">Watch out</div>
+      <p class="text-xs text-stone-600 dark:text-stone-400">${_esc(t.risk)}</p>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// SANKEY — interactive flow of pegasus tools → impacts
+// ─────────────────────────────────────────────
+// Static metadata: 4 source categories → ~18 representative tools → ~10 impact
+// types. Edges have uniform weight unless noted; the diagram's value is the
+// shape of the graph, not numerical weight.
+const flowGraph = {
+  nodes: [
+    // Sources (column 0)
+    { id: 'cat-tpl',     name: 'Templates',  category: 'source', color: '#0e7490' },
+    { id: 'cat-skl',     name: 'Skills',     category: 'source', color: '#7e22ce' },
+    { id: 'cat-mcp',     name: 'Bridges',    category: 'source', color: '#15803d' },
+    { id: 'cat-cmd',     name: 'Commands',   category: 'source', color: '#c2410c' },
+    // Specifics (column 1)
+    { id: 'tpl-portfolio',     name: 'portfolio',                category: 'tpl' },
+    { id: 'tpl-deck',          name: 'case-study-deck',          category: 'tpl' },
+    { id: 'tpl-resume',        name: 'resume',                   category: 'tpl' },
+    { id: 'tpl-gallery',       name: 'illustration-gallery',     category: 'tpl' },
+    { id: 'skl-audit',         name: 'ux-ui-audit',              category: 'skl' },
+    { id: 'skl-figma',         name: 'figma-converter',          category: 'skl' },
+    { id: 'skl-content',       name: 'content-writer',           category: 'skl' },
+    { id: 'skl-jobfinder',     name: 'job-finder',               category: 'skl' },
+    { id: 'skl-coverletter',   name: 'cover-letter-generator',   category: 'skl' },
+    { id: 'skl-tailor',        name: 'career-ops-tailor-resume', category: 'skl' },
+    { id: 'skl-interview',     name: 'interview-prep',           category: 'skl' },
+    { id: 'skl-vector',        name: 'vector-workflow',          category: 'skl' },
+    { id: 'mcp-figma',         name: 'Figma',                    category: 'mcp' },
+    { id: 'mcp-gmail',         name: 'Gmail',                    category: 'mcp' },
+    { id: 'mcp-cal',           name: 'Google Calendar',          category: 'mcp' },
+    { id: 'mcp-notion',        name: 'Notion',                   category: 'mcp' },
+    { id: 'cmd-new',           name: 'pegasus new',              category: 'cmd' },
+    { id: 'cmd-deploy',        name: 'pegasus deploy',           category: 'cmd' },
+    { id: 'cmd-clone',         name: 'pegasus clone',            category: 'cmd' },
+    // Impacts (column 2)
+    { id: 'imp-html',          name: 'HTML page',                category: 'impact' },
+    { id: 'imp-md',            name: 'Markdown doc',             category: 'impact' },
+    { id: 'imp-pdf',           name: 'PDF / Resume',             category: 'impact' },
+    { id: 'imp-preview',       name: 'Live preview',             category: 'impact' },
+    { id: 'imp-deploy',        name: 'Deploy URL',               category: 'impact' },
+    { id: 'imp-image',         name: 'Image / WebP',             category: 'impact' },
+    { id: 'imp-tokens',        name: 'Design tokens',            category: 'impact' },
+    { id: 'imp-event',         name: 'Calendar event',           category: 'impact' },
+    { id: 'imp-draft',         name: 'Email draft',              category: 'impact' },
+    { id: 'imp-repo',          name: 'Cloned repo',              category: 'impact' }
+  ],
+  links: [
+    // Categories → specifics
+    { source: 'cat-tpl', target: 'tpl-portfolio',    value: 2 },
+    { source: 'cat-tpl', target: 'tpl-deck',         value: 1 },
+    { source: 'cat-tpl', target: 'tpl-resume',       value: 1 },
+    { source: 'cat-tpl', target: 'tpl-gallery',      value: 1 },
+    { source: 'cat-skl', target: 'skl-audit',        value: 2 },
+    { source: 'cat-skl', target: 'skl-figma',        value: 2 },
+    { source: 'cat-skl', target: 'skl-content',      value: 1 },
+    { source: 'cat-skl', target: 'skl-jobfinder',    value: 1 },
+    { source: 'cat-skl', target: 'skl-coverletter',  value: 1 },
+    { source: 'cat-skl', target: 'skl-tailor',       value: 1 },
+    { source: 'cat-skl', target: 'skl-interview',    value: 1 },
+    { source: 'cat-skl', target: 'skl-vector',       value: 1 },
+    { source: 'cat-mcp', target: 'mcp-figma',        value: 2 },
+    { source: 'cat-mcp', target: 'mcp-gmail',        value: 1 },
+    { source: 'cat-mcp', target: 'mcp-cal',          value: 1 },
+    { source: 'cat-mcp', target: 'mcp-notion',       value: 1 },
+    { source: 'cat-cmd', target: 'cmd-new',          value: 2 },
+    { source: 'cat-cmd', target: 'cmd-deploy',       value: 1 },
+    { source: 'cat-cmd', target: 'cmd-clone',        value: 1 },
+    // Specifics → impacts
+    { source: 'tpl-portfolio',    target: 'imp-html',     value: 2 },
+    { source: 'tpl-portfolio',    target: 'imp-preview',  value: 1 },
+    { source: 'tpl-deck',         target: 'imp-html',     value: 1 },
+    { source: 'tpl-deck',         target: 'imp-preview',  value: 1 },
+    { source: 'tpl-resume',       target: 'imp-html',     value: 1 },
+    { source: 'tpl-resume',       target: 'imp-pdf',      value: 1 },
+    { source: 'tpl-gallery',      target: 'imp-html',     value: 1 },
+    { source: 'tpl-gallery',      target: 'imp-image',    value: 1 },
+    { source: 'skl-audit',        target: 'imp-md',       value: 2 },
+    { source: 'skl-figma',        target: 'imp-html',     value: 2 },
+    { source: 'skl-figma',        target: 'imp-tokens',   value: 1 },
+    { source: 'skl-content',      target: 'imp-md',       value: 1 },
+    { source: 'skl-jobfinder',    target: 'imp-md',       value: 1 },
+    { source: 'skl-coverletter',  target: 'imp-md',       value: 1 },
+    { source: 'skl-coverletter',  target: 'imp-draft',    value: 1 },
+    { source: 'skl-tailor',       target: 'imp-pdf',      value: 1 },
+    { source: 'skl-tailor',       target: 'imp-md',       value: 1 },
+    { source: 'skl-interview',    target: 'imp-md',       value: 1 },
+    { source: 'skl-vector',       target: 'imp-image',    value: 1 },
+    { source: 'mcp-figma',        target: 'imp-tokens',   value: 1 },
+    { source: 'mcp-figma',        target: 'imp-html',     value: 1 },
+    { source: 'mcp-gmail',        target: 'imp-draft',    value: 1 },
+    { source: 'mcp-cal',          target: 'imp-event',    value: 1 },
+    { source: 'mcp-notion',       target: 'imp-md',       value: 1 },
+    { source: 'cmd-new',          target: 'imp-html',     value: 2 },
+    { source: 'cmd-new',          target: 'imp-preview',  value: 1 },
+    { source: 'cmd-deploy',       target: 'imp-deploy',   value: 2 },
+    { source: 'cmd-clone',        target: 'imp-repo',     value: 1 }
+  ]
+};
+
+const flowCategoryColor = {
+  source: '#1c1917', tpl: '#0e7490', skl: '#7e22ce', mcp: '#15803d', cmd: '#c2410c', impact: '#57534e'
+};
+
+let _d3LoadPromise;
+function loadD3() {
+  if (_d3LoadPromise) return _d3LoadPromise;
+  const load = (src) => new Promise((ok, err) => {
+    const s = document.createElement('script');
+    s.src = src; s.async = true; s.crossOrigin = 'anonymous';
+    s.onload = ok; s.onerror = () => err(new Error('load fail: ' + src));
+    document.head.appendChild(s);
+  });
+  _d3LoadPromise = load('https://unpkg.com/d3@7.9.0/dist/d3.min.js')
+    .then(() => load('https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js'))
+    .then(() => window.d3);
+  return _d3LoadPromise;
+}
+
+function renderSankeyFallback() {
+  // Static list version of the same edges, for users without JS or after a load fail.
+  const container = document.getElementById('sankey-fallback');
+  if (!container) return;
+  const lookup = Object.fromEntries(flowGraph.nodes.map(n => [n.id, n.name]));
+  // Group impact-side links by source.
+  const grouped = {};
+  for (const l of flowGraph.links) {
+    if (!flowGraph.nodes.find(n => n.id === l.target && n.category === 'impact')) continue;
+    (grouped[l.source] = grouped[l.source] || []).push(lookup[l.target]);
+  }
+  container.innerHTML = Object.entries(grouped)
+    .map(([src, impacts]) => `<div><strong>${_esc(lookup[src])}</strong> → ${impacts.map(_esc).join(', ')}</div>`)
+    .join('');
+}
+
+let _sankeyState = { svg: null, links: null, nodes: null, locked: null };
+
+// Click on an impact node scrolls to a related dashboard surface — turns the
+// diagram into navigation, not just decoration.
+const flowImpactScrollMap = {
+  'imp-html':    'templates',
+  'imp-md':      'workflows',
+  'imp-pdf':     'jobResults',
+  'imp-preview': 'templates',
+  'imp-deploy':  'commands',
+  'imp-image':   'templates',
+  'imp-tokens':  'mcps',
+  'imp-event':   'mcps',
+  'imp-draft':   'mcps',
+  'imp-repo':    'recommended'
+};
+
+function renderSankeyLegend() {
+  const el = document.getElementById('sankey-legend');
+  if (!el) return;
+  const cats = [
+    { key: 'tpl', name: 'Templates', desc: 'Starter scaffolds you customize.' },
+    { key: 'skl', name: 'Skills',    desc: 'Composable instruction sheets the agent invokes.' },
+    { key: 'mcp', name: 'Bridges',   desc: 'MCP integrations that touch external systems.' },
+    { key: 'cmd', name: 'Commands',  desc: 'Direct pegasus CLI subcommands.' }
+  ];
+  el.innerHTML = `
+    <span class="text-[10px] uppercase tracking-wider text-stone-600 dark:text-stone-400 font-mono mr-2">Categories:</span>
+    ${cats.map(c => `<span class="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300" title="${_esc(c.desc)}"><span class="inline-block w-2.5 h-2.5 rounded-sm" style="background:${flowCategoryColor[c.key]}" aria-hidden="true"></span>${_esc(c.name)}</span>`).join('')}
+    <span class="text-[10px] text-stone-500 dark:text-stone-400 ml-auto italic">Click a node to lock · Esc to release</span>`;
+}
+
+function renderSankey() {
+  const wrap = document.getElementById('sankey');
+  if (!wrap || !window.d3 || !window.d3.sankey) return;
+  const d3 = window.d3;
+  // Width: prefer the wrapping card's inner width so columns are spaced well.
+  const parentW = (wrap.parentElement?.clientWidth || wrap.clientWidth || 1100) - 32;
+  const W = Math.max(640, parentW);
+  const H = 580;
+  // Deep clone — d3.sankey() mutates the graph in place.
+  const graph = JSON.parse(JSON.stringify(flowGraph));
+  const sankey = d3.sankey()
+    .nodeId(d => d.id)
+    .nodeWidth(14)
+    .nodePadding(8)
+    .nodeAlign(d3.sankeyJustify)
+    .extent([[110, 36], [W - 130, H - 18]]);
+  sankey(graph);
+
+  renderSankeyLegend();
+  wrap.innerHTML = '';
+  const svg = d3.select(wrap).append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  // Column headers — read top to bottom, the column header tells you which
+  // band you're in. Computed from the node x positions actually produced.
+  const columnX = [...new Set(graph.nodes.map(n => n.x0))].sort((a, b) => a - b);
+  const headers = ['Source category', 'Specific tool', 'Artifact / impact'];
+  svg.append('g').selectAll('text.col-header')
+    .data(columnX.slice(0, headers.length)).enter().append('text')
+    .attr('class', 'col-header')
+    .attr('x', x => x + 7)
+    .attr('y', 22)
+    .attr('text-anchor', (x, i) => i === columnX.length - 1 ? 'end' : 'start')
+    .attr('fill', 'var(--sk-text)')
+    .attr('font-weight', '600')
+    .attr('font-size', '11')
+    .text((_, i) => headers[i] || '');
+
+  // Links
+  const links = svg.append('g').selectAll('path')
+    .data(graph.links).enter().append('path')
+    .attr('class', 'link')
+    .attr('d', d3.sankeyLinkHorizontal())
+    .attr('stroke', d => flowCategoryColor[d.source.category] || 'var(--sk-link-stroke)')
+    .attr('stroke-width', d => Math.max(1, d.width))
+    .append('title')
+    .text(d => `${d.source.name} → ${d.target.name}`);
+
+  // Nodes
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isImpact = d => d.category === 'impact';
+  const nodes = svg.append('g').selectAll('g')
+    .data(graph.nodes).enter().append('g')
+    .attr('class', 'node')
+    .attr('tabindex', '0')
+    .attr('role', 'button')
+    .attr('aria-label', d => {
+      const inCount = (d.targetLinks || []).length;
+      const outCount = (d.sourceLinks || []).length;
+      const action = isImpact(d) ? 'Press Enter to jump to a related section.' : 'Press Enter to lock the path highlight.';
+      return `${d.name}, ${d.category}. ${inCount} inputs, ${outCount} outputs. ${action}`;
+    });
+  nodes.append('rect')
+    .attr('x', d => d.x0)
+    .attr('y', d => d.y0)
+    .attr('width', d => d.x1 - d.x0)
+    .attr('height', d => Math.max(2, d.y1 - d.y0))
+    .attr('fill', d => d.color || flowCategoryColor[d.category] || 'var(--sk-impact)')
+    .attr('stroke', 'var(--sk-stroke)');
+  nodes.append('text')
+    .attr('x', d => d.x0 < W / 2 ? d.x1 + 6 : d.x0 - 6)
+    .attr('y', d => (d.y1 + d.y0) / 2)
+    .attr('dy', '0.35em')
+    .attr('text-anchor', d => d.x0 < W / 2 ? 'start' : 'end')
+    .attr('fill', 'var(--sk-text)')
+    .text(d => d.name);
+
+  // Path-aware highlight helpers
+  const tip = document.getElementById('sankeyTip');
+  const live = document.getElementById('sankeyLive');
+  const resetBtn = document.getElementById('sankeyReset');
+  function lit(node) {
+    const litLinks = new Set();
+    const litNodes = new Set([node.id]);
+    const walk = (n, dir) => {
+      const arr = dir === 'down' ? n.sourceLinks : n.targetLinks;
+      for (const l of (arr || [])) {
+        litLinks.add(l);
+        const next = dir === 'down' ? l.target : l.source;
+        if (!litNodes.has(next.id)) { litNodes.add(next.id); walk(next, dir); }
+      }
+    };
+    walk(node, 'down'); walk(node, 'up');
+    return { litLinks, litNodes };
+  }
+  function applyFocus(focus) {
+    if (!focus) {
+      svg.classed('has-focus', false);
+      links.each(function() { d3.select(this.parentNode).classed('is-lit', false); });
+      svg.selectAll('.link').classed('is-lit', false);
+      svg.selectAll('.node').classed('is-lit', false);
+      return;
+    }
+    const { litLinks, litNodes } = lit(focus);
+    svg.classed('has-focus', true);
+    svg.selectAll('.link').classed('is-lit', function(l) { return litLinks.has(l); });
+    svg.selectAll('.node').classed('is-lit', function(n) { return litNodes.has(n.id); });
+  }
+
+  function summarizePaths(d) {
+    // For a focus node, show readable sentence: "X is reached from {A, B} and produces {C, D}."
+    const inputs = (d.targetLinks || []).map(l => l.source.name);
+    const outputs = (d.sourceLinks || []).map(l => l.target.name);
+    const lines = [];
+    if (inputs.length)  lines.push(`Reached from: ${inputs.slice(0, 6).join(', ')}${inputs.length > 6 ? '…' : ''}`);
+    if (outputs.length) lines.push(`Produces: ${outputs.slice(0, 6).join(', ')}${outputs.length > 6 ? '…' : ''}`);
+    return lines.length ? lines.join(' · ') : 'No connections.';
+  }
+
+  function showTip(event, d) {
+    if (!tip) return;
+    tip.innerHTML = `<div class="font-medium">${_esc(d.name)}</div><div class="opacity-80 mt-0.5">${_esc(summarizePaths(d))}</div>`;
+    tip.classList.remove('hidden');
+    const r = wrap.getBoundingClientRect();
+    let x = (event.clientX ?? r.left + 50) - r.left + 14;
+    let y = (event.clientY ?? r.top + 50) - r.top + 14;
+    // Keep tooltip inside the wrapper.
+    if (x + 280 > r.width) x = r.width - 290;
+    if (y + 80 > r.height) y = r.height - 90;
+    tip.style.left = Math.max(8, x) + 'px';
+    tip.style.top  = Math.max(8, y) + 'px';
+  }
+
+  function announce(d) {
+    if (!live) return;
+    live.textContent = `${d.name}: ${summarizePaths(d)}`;
+  }
+
+  function onEnter(event, d) {
+    if (_sankeyState.locked) return;
+    applyFocus(d);
+    showTip(event, d);
+  }
+  function onLeave() {
+    if (_sankeyState.locked) return;
+    applyFocus(null);
+    tip?.classList.add('hidden');
+  }
+  function onClick(event, d) {
+    // Impact nodes scroll the user to the relevant dashboard surface — making
+    // the diagram a navigation tool, not just a chart.
+    if (isImpact(d) && flowImpactScrollMap[d.id]) {
+      const target = document.getElementById(flowImpactScrollMap[d.id]);
+      if (target) {
+        target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        announce({ name: d.name, sourceLinks: d.sourceLinks, targetLinks: d.targetLinks });
+        return;
+      }
+    }
+    if (_sankeyState.locked && _sankeyState.locked.id === d.id) {
+      _sankeyState.locked = null;
+      applyFocus(null);
+      resetBtn?.classList.add('hidden');
+    } else {
+      _sankeyState.locked = d;
+      applyFocus(d);
+      announce(d);
+      resetBtn?.classList.remove('hidden');
+    }
+    tip?.classList.add('hidden');
+  }
+
+  nodes
+    .on('mouseenter', onEnter)
+    .on('mouseleave', onLeave)
+    .on('mousemove', onEnter)
+    .on('click', onClick)
+    .on('keydown', function(event, d) {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onClick(event, d); }
+      else if (event.key === 'Escape') { _sankeyState.locked = null; applyFocus(null); resetBtn?.classList.add('hidden'); }
+    })
+    .on('focus', function(e, d) {
+      if (!_sankeyState.locked) { applyFocus(d); }
+      announce(d);
+    })
+    .on('blur', () => { if (!_sankeyState.locked) applyFocus(null); });
+
+  // Click outside any node releases the lock.
+  d3.select(wrap).on('click', function(event) {
+    if (event.target.closest('.node')) return;
+    if (_sankeyState.locked) {
+      _sankeyState.locked = null;
+      applyFocus(null);
+      resetBtn?.classList.add('hidden');
+    }
+  });
+
+  if (resetBtn) {
+    resetBtn.onclick = () => {
+      _sankeyState.locked = null;
+      applyFocus(null);
+      resetBtn.classList.add('hidden');
+    };
+  }
+
+  _sankeyState.svg = svg;
+}
+
+function initSankey() {
+  const target = document.getElementById('sankey');
+  if (!target) return;
+  renderSankeyFallback();
+  if (typeof IntersectionObserver === 'undefined') {
+    // Conservative fallback — load eagerly.
+    loadD3().then(renderSankey).catch(() => {
+      target.innerHTML = '<p class="text-sm text-stone-500 dark:text-stone-400 italic p-8 text-center">Diagram unavailable. Showing list below.</p>';
+    });
+    return;
+  }
+  const obs = new IntersectionObserver((entries) => {
+    if (!entries.some(e => e.isIntersecting)) return;
+    obs.disconnect();
+    loadD3().then(renderSankey).catch(() => {
+      target.innerHTML = '<p class="text-sm text-stone-500 dark:text-stone-400 italic p-8 text-center">Diagram unavailable. Showing list below.</p>';
+    });
+  }, { rootMargin: '200px' });
+  obs.observe(target);
+  // Re-layout on width change (debounced).
+  if (typeof ResizeObserver !== 'undefined') {
+    let lastW = 0, t;
+    const ro = new ResizeObserver(entries => {
+      const w = entries[0]?.contentRect.width || 0;
+      if (Math.abs(w - lastW) < 24) return;
+      clearTimeout(t);
+      t = setTimeout(() => {
+        if (window.d3 && window.d3.sankey && target.querySelector('svg')) {
+          lastW = w;
+          renderSankey();
+        }
+      }, 120);
+    });
+    ro.observe(target.parentElement);
+  }
+}
+
 function renderRecommended() {
   document.getElementById('recommended-list').innerHTML = recommended.map(r => {
     const urlMatch = r.clone.match(/https?:\/\/github\.com\/[^\s)]+/);
@@ -2414,13 +3125,13 @@ function renderRecommended() {
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5" data-search data-track="${r.track || 'both'}" data-copyable="1" data-card-copy="${_esc(r.clone)}" data-recommended="${_esc(r.name)}">
       <div class="flex items-baseline justify-between">
         <h3 class="font-medium font-mono text-sm">${r.name}</h3>
-        <span class="text-xs text-stone-500">★ ${r.stars}</span>
+        <span class="text-xs text-stone-500 dark:text-stone-400">★ ${r.stars}</span>
       </div>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${r.desc}</p>
       <button class="copy font-mono text-xs bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded w-full text-left" data-copy="${_esc(r.clone)}">${_esc(r.clone)}</button>
       <div class="flex items-center justify-between mt-2 gap-2">
         ${repoUrl ? `<a href="${repoUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation();" class="text-xs text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white inline-flex items-center gap-1">↗ Open on GitHub</a>` : '<span></span>'}
-        <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 view-recommended-details">View details →</button>
+        <button class="text-xs underline text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 view-recommended-details">View details →</button>
       </div>
     </div>
   `;
@@ -2440,19 +3151,19 @@ function openRecommendedModal(name) {
   modal.querySelector('[data-modal-steps]').innerHTML = `
     <div class="space-y-4">
       <div>
-        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Install / clone — click to copy</p>
+        <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Install / clone — click to copy</p>
         <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${r.clone.replace(/"/g, '&quot;')}">${r.clone}</button>
       </div>
       <div>
-        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Why we recommend it</p>
+        <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Why we recommend it</p>
         <p class="text-sm text-stone-700 dark:text-stone-300">${r.desc}</p>
       </div>
       <div>
-        <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">License</p>
+        <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">License</p>
         <p class="text-sm text-stone-700 dark:text-stone-300">${r.stars.includes('★') || /^[0-9]/.test(r.stars) ? 'See repo for license details' : r.stars} ${r.stars === 'MIT' ? '— vendor freely with attribution' : ''}</p>
       </div>
       ${repoUrl ? `<div class="pt-3 border-t border-stone-200 dark:border-stone-700">
-        <p class="text-xs text-stone-500">Need to verify license, browse code, or open issues? <a href="${repoUrl}" target="_blank" class="underline">Open the repo on GitHub →</a></p>
+        <p class="text-xs text-stone-500 dark:text-stone-400">Need to verify license, browse code, or open issues? <a href="${repoUrl}" target="_blank" class="underline">Open the repo on GitHub →</a></p>
       </div>` : ''}
     </div>
   `;
@@ -2473,14 +3184,14 @@ function renderWorkflows() {
     return `
     <div class="card bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-5 cursor-pointer" data-search data-track="${w.track}" data-workflow="${w.id}">
       <div class="flex items-baseline justify-between mb-1">
-        <span class="font-mono text-xs text-stone-500">${w.id} · ${w.steps} steps</span>
-        <span class="text-xs uppercase tracking-wider text-stone-500">${w.track === 'design' ? '🎨' : w.track === 'jobs' ? '💼' : '⊕'}</span>
+        <span class="font-mono text-xs text-stone-500 dark:text-stone-400">${w.id} · ${w.steps} steps</span>
+        <span class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">${w.track === 'design' ? '🎨' : w.track === 'jobs' ? '💼' : '⊕'}</span>
       </div>
       <h3 class="font-medium font-serif text-xl">${w.name}</h3>
       <p class="text-sm text-stone-600 dark:text-stone-400 mt-1 mb-3">${w.desc}</p>
       <div class="flex items-center gap-3">
         <button class="copy text-xs px-2.5 py-1 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90" data-copy="${_esc(allText)}" onclick="event.stopPropagation();">📋 Copy all prompts</button>
-        <button class="text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Open recipe →</button>
+        <button class="text-xs underline text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100">Open recipe →</button>
       </div>
     </div>
   `;
@@ -2505,7 +3216,7 @@ function openWorkflowModal(id) {
   stepsEl.innerHTML = w.recipe.map((step, i) => `
     <li class="mb-3">
       <div class="flex items-start gap-3">
-        <span class="font-mono text-xs text-stone-500 mt-1 flex-shrink-0 w-6">${i + 1}.</span>
+        <span class="font-mono text-xs text-stone-500 dark:text-stone-400 mt-1 flex-shrink-0 w-6">${i + 1}.</span>
         <button class="copy text-left flex-1 bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${_esc(step)}">${_esc(step)}</button>
       </div>
     </li>
@@ -2553,6 +3264,8 @@ wireDoctor();
 renderLibrary();
 renderWeeklyFeature();
 renderMasteryRecommendation();
+renderCoaxing();
+initSankey();
 document.getElementById('exportReport')?.addEventListener('click', downloadMasteryReport);
 renderRecommended();
 renderGlossary();
@@ -2925,6 +3638,49 @@ document.querySelectorAll('[data-count]').forEach(el => {
   if (counts[k]) el.textContent = `· ${counts[k]}`;
 });
 
+// Hero stat strip — populate the editorial number row from the same source.
+document.querySelectorAll('[data-stat]').forEach(el => {
+  const k = el.dataset.stat;
+  if (counts[k] != null) el.textContent = counts[k];
+});
+
+// Scroll-reveal: tag major card-grid containers and let an IntersectionObserver
+// fade them in as they enter the viewport. Once-only — no re-trigger on scroll
+// back. Honors prefers-reduced-motion via the .reveal CSS rule itself.
+(function wireScrollReveal() {
+  if (typeof IntersectionObserver === 'undefined') return;
+  // Targets: every section's primary card grid + the mastery sub-cards. Skip
+  // sticky / above-the-fold elements (header, top bar, today widget) so the
+  // page doesn't fade in beneath the user's eyes on first paint.
+  const selectors = [
+    '#templates-grid',
+    '#workflows-list',
+    '#commands-list',
+    '#skills-list',
+    '#mcps-list',
+    '#prompts-list',
+    '#mastery-list > .card',
+    '#mastery .grid > .card',
+    '#mastery > div > .card',
+    '#coaxing-list > .card',
+    '#sankey-wrap',
+    '#recommended-list',
+    '#glossary-list'
+  ];
+  const targets = [];
+  selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => targets.push(el)));
+  targets.forEach(el => el.classList.add('reveal'));
+  const obs = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed');
+        obs.unobserve(entry.target);
+      }
+    }
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+  targets.forEach(el => obs.observe(el));
+})();
+
 // ─────────────────────────────────────────────
 // STICKY NAV STYLING + ACTIVE SECTION
 // ─────────────────────────────────────────────
@@ -2934,7 +3690,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 const navLinks = document.querySelectorAll('.nav-pill');
-const sectionsForObserver = ['profile','start','templates','workflows','commands','skills','mcps','prompts','mastery','recommended','glossary','help']
+const sectionsForObserver = ['profile','start','templates','workflows','commands','skills','mcps','prompts','mastery','coaxing','flow','recommended','glossary','help']
   .map(id => document.getElementById(id))
   .filter(Boolean);
 const setActiveNav = id => navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id));
@@ -3035,7 +3791,7 @@ function renderPulse() {
   // recent
   const recentList = el('recentList');
   if (!p.recent || !p.recent.length) {
-    recentList.innerHTML = '<span class="text-xs text-stone-400 italic">Nothing yet — click any copy button and it\'ll show up here.</span>';
+    recentList.innerHTML = '<span class="text-xs text-stone-500 dark:text-stone-400 italic">Nothing yet — click any copy button and it\'ll show up here.</span>';
   } else {
     recentList.innerHTML = p.recent.map(r =>
       `<span class="recent-pill" title="${r.kind} · ${r.at}">${r.kind === 'Skill' ? '🛠' : r.kind === 'Template' ? '📁' : r.kind === 'Workflow' ? '⚡' : '⌘'} ${r.label.slice(0, 40)}${r.label.length > 40 ? '…' : ''}</span>`
@@ -3242,12 +3998,12 @@ function renderPaletteResults(filter) {
     !filter || i.label.toLowerCase().includes(filter) || i.sub.toLowerCase().includes(filter) || i.kind.toLowerCase().includes(filter)
   ).slice(0, 30);
   if (!matches.length) {
-    paletteResults.innerHTML = '<div class="palette-item text-stone-500">No matches.</div>';
+    paletteResults.innerHTML = '<div class="palette-item text-stone-500 dark:text-stone-400">No matches.</div>';
     return;
   }
   paletteResults.innerHTML = matches.map((m, i) => `
     <div class="palette-item ${i === paletteSelection ? 'selected' : ''}" data-index="${i}">
-      <div class="text-xs uppercase tracking-wider text-stone-500">${m.kind}</div>
+      <div class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">${m.kind}</div>
       <div class="font-medium">${m.label}</div>
       <div class="text-xs text-stone-600 dark:text-stone-400 truncate">${m.sub}</div>
     </div>
@@ -3397,10 +4153,10 @@ renderPaletteResults = function(filter) {
   if (!filter) {
     const p = loadPulse();
     if (p.recent && p.recent.length) {
-      paletteResults.innerHTML = '<div class="palette-item text-xs text-stone-500 italic">Recently used (start typing to search all)</div>' +
+      paletteResults.innerHTML = '<div class="palette-item text-xs text-stone-500 dark:text-stone-400 italic">Recently used (start typing to search all)</div>' +
         p.recent.slice(0, 8).map((r, i) => `
           <div class="palette-item ${i === paletteSelection ? 'selected' : ''}" data-recent-index="${i}">
-            <div class="text-xs uppercase tracking-wider text-stone-500">${r.kind}</div>
+            <div class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">${r.kind}</div>
             <div class="font-medium">${r.label}</div>
           </div>
         `).join('');
@@ -3444,7 +4200,13 @@ renderPaletteResults = function(filter) {
 // ─────────────────────────────────────────────
 // TAB NAVIGATION ON CARDS — Enter to copy
 // ─────────────────────────────────────────────
+// Only promote a card to role=button when it has NO focusable child. If the
+// card already contains a button or link, those are the keyboard-reachable
+// targets — duplicating role=button on the wrapper would be a nested-
+// interactive WCAG violation (and a screen reader nuisance).
+const FOCUSABLE_SEL = 'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 document.querySelectorAll('[data-copyable="1"]').forEach(card => {
+  if (card.querySelector(FOCUSABLE_SEL)) return;
   card.setAttribute('tabindex', '0');
   card.setAttribute('role', 'button');
   card.addEventListener('keydown', e => {
@@ -3529,9 +4291,9 @@ function renderJobs() {
         <div class="flex-1 min-w-0">
           <div class="flex items-baseline gap-2 flex-wrap">
             <h3 class="font-medium ${j.applied ? 'line-through' : ''}">${j.title}</h3>
-            <span class="text-sm text-stone-500">· ${j.company}</span>
+            <span class="text-sm text-stone-500 dark:text-stone-400">· ${j.company}</span>
           </div>
-          <div class="text-xs text-stone-500 mt-1 flex flex-wrap gap-2">
+          <div class="text-xs text-stone-500 dark:text-stone-400 mt-1 flex flex-wrap gap-2">
             ${j.location ? `<span>📍 ${j.location}</span>` : ''}
             ${j.salary ? `<span>💰 ${j.salary}</span>` : ''}
             <span>🗓 imported ${j.imported}</span>
@@ -3550,7 +4312,7 @@ function renderJobs() {
       <div class="flex gap-2 mt-3">
         ${j.url ? `<a href="${j.url}" target="_blank" rel="noopener" class="px-3 py-1.5 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded text-xs">Apply →</a>` : ''}
         <button onclick="toggleApplied('${j.id}')" class="px-3 py-1.5 bg-stone-200 dark:bg-stone-800 rounded text-xs">${j.applied ? '↩️ Unmark applied' : '✓ Mark applied'}</button>
-        <button onclick="deleteJob('${j.id}')" class="px-3 py-1.5 text-stone-500 hover:text-red-600 rounded text-xs ml-auto">remove</button>
+        <button onclick="deleteJob('${j.id}')" class="px-3 py-1.5 text-stone-500 dark:text-stone-400 hover:text-red-600 rounded text-xs ml-auto">remove</button>
       </div>
     </div>`;
   }).join('');
@@ -3646,9 +4408,9 @@ function renderJobChecklist() {
   ];
   list.innerHTML = items.map(i => `
     <li class="flex items-center gap-3">
-      <span class="${i.check ? 'text-green-600' : 'text-stone-400'} text-lg">${i.check ? '✓' : '○'}</span>
-      <span class="${i.check ? 'line-through text-stone-500' : 'text-stone-900 dark:text-stone-100'}">${i.label}</span>
-      ${!i.check ? `<button onclick="document.getElementById('${i.fix}').scrollIntoView({behavior:'smooth'}); document.querySelector('[data-profile=\\'${i.key}\\']')?.focus()" class="ml-auto text-xs underline text-stone-500 hover:text-stone-900 dark:hover:text-stone-100">Fill in →</button>` : ''}
+      <span class="${i.check ? 'text-green-600' : 'text-stone-500 dark:text-stone-400'} text-lg">${i.check ? '✓' : '○'}</span>
+      <span class="${i.check ? 'line-through text-stone-500 dark:text-stone-400' : 'text-stone-900 dark:text-stone-100'}">${i.label}</span>
+      ${!i.check ? `<button onclick="document.getElementById('${i.fix}').scrollIntoView({behavior:'smooth'}); document.querySelector('[data-profile=\\'${i.key}\\']')?.focus()" class="ml-auto text-xs underline text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100">Fill in →</button>` : ''}
     </li>
   `).join('');
   const done = items.filter(i => i.check).length;
@@ -3661,7 +4423,7 @@ function renderJobChecklist() {
     hint.textContent = "Click below — we'll build a complete prompt and copy it to your clipboard.";
   } else {
     btn.disabled = true;
-    btn.className = 'w-full px-5 py-4 bg-stone-300 dark:bg-stone-700 text-stone-500 rounded-xl text-base font-semibold cursor-not-allowed transition';
+    btn.className = 'w-full px-5 py-4 bg-stone-300 dark:bg-stone-700 text-stone-500 dark:text-stone-400 rounded-xl text-base font-semibold cursor-not-allowed transition';
     btn.innerHTML = `🎯 Find me jobs to apply to today &nbsp;·&nbsp; <span class="font-mono text-sm">${done}/${total} ready</span>`;
     const missing = total - done;
     hint.textContent = `↑ ${missing} more step${missing > 1 ? 's' : ''} to fill in above`;
@@ -3880,7 +4642,7 @@ function openAboutModal() {
         <p class="mt-1">MIT. Fork it, remix it, share it.</p>
       </div>
       <div class="pt-3 border-t border-stone-200 dark:border-stone-700">
-        <p class="text-xs text-stone-500">Repo: <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">github.com/jerickevans-gif/Pegasus</a></p>
+        <p class="text-xs text-stone-500 dark:text-stone-400">Repo: <a href="https://github.com/jerickevans-gif/Pegasus" class="underline">github.com/jerickevans-gif/Pegasus</a></p>
       </div>
     </div>
   `;
@@ -3936,12 +4698,12 @@ function openSkillModal(name) {
   const stepsEl = modal.querySelector('[data-modal-steps]');
   let html = `<div class="space-y-4">
     <div>
-      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Quick invoke — click to copy</p>
+      <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Quick invoke — click to copy</p>
       <button class="copy w-full text-left bg-stone-100 dark:bg-stone-800 p-3 rounded text-sm italic font-mono leading-relaxed hover:bg-stone-200 dark:hover:bg-stone-700" data-copy="${s.invoke.replace(/"/g, '&quot;')}">"${s.invoke}"</button>
     </div>`;
   if (ex && ex.examples) {
     html += `<div>
-      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Other ways to use it</p>
+      <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Other ways to use it</p>
       <ul class="space-y-2">
         ${ex.examples.map(e => `<li><button class="copy w-full text-left bg-stone-50 dark:bg-stone-900 p-2 rounded text-sm font-mono hover:bg-stone-100 dark:hover:bg-stone-800" data-copy="${e.replace(/"/g, '&quot;')}">${e}</button></li>`).join('')}
       </ul>
@@ -3949,11 +4711,11 @@ function openSkillModal(name) {
   }
   if (ex && ex.pairs) {
     html += `<div>
-      <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Pairs well with</p>
+      <p class="text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400 mb-2">Pairs well with</p>
       <p class="text-sm text-stone-700 dark:text-stone-300">${ex.pairs.join(' · ')}</p>
     </div>`;
   }
-  html += `<p class="text-xs text-stone-500">Skill auto-loads in Claude Code AND OpenCode (lives at ~/.claude/skills/${name}/)</p></div>`;
+  html += `<p class="text-xs text-stone-500 dark:text-stone-400">Skill auto-loads in Claude Code AND OpenCode (lives at ~/.claude/skills/${name}/)</p></div>`;
   stepsEl.innerHTML = html;
   stepsEl.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
   modal.classList.add('open');
@@ -3991,8 +4753,8 @@ function renderOnboarding() {
   document.getElementById('onbCount').textContent = `${done}/${items.length}`;
   document.getElementById('onbList').innerHTML = items.map((i, idx) => `
     <div class="flex items-center gap-2">
-      <span class="${i.done ? 'text-green-600' : 'text-stone-400'}">${i.done ? '✓' : '○'}</span>
-      <button onclick="(${i.action.toString()})()" class="${i.done ? 'line-through text-stone-500' : 'text-stone-900 dark:text-stone-100 hover:underline'} text-left">${i.label}</button>
+      <span class="${i.done ? 'text-green-600' : 'text-stone-500 dark:text-stone-400'}">${i.done ? '✓' : '○'}</span>
+      <button onclick="(${i.action.toString()})()" class="${i.done ? 'line-through text-stone-500 dark:text-stone-400' : 'text-stone-900 dark:text-stone-100 hover:underline'} text-left">${i.label}</button>
     </div>
   `).join('');
   if (done < items.length) bar.classList.remove('hidden');
