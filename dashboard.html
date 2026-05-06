@@ -63,7 +63,7 @@
   </script>
   <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
        Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
-  <link rel="stylesheet" href="./dashboard.css?v=26" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
+  <link rel="stylesheet" href="./dashboard.css?v=27" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
     // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
     window.tailwind = window.tailwind || {};
@@ -352,6 +352,41 @@
       font-weight: 600; font-size: 1rem !important;
     }
 
+    /* Recommended: passport-stamp — curated external goods get an "approved" tag. */
+    body[data-track] section.skin-stamp {
+      background: linear-gradient(180deg, transparent 0%, rgba(254, 243, 199, 0.45) 50%, transparent 100%);
+    }
+    :root.dark body[data-track] section.skin-stamp {
+      background: linear-gradient(180deg, transparent 0%, rgba(120, 53, 15, 0.18) 50%, transparent 100%);
+    }
+    body[data-track] section.skin-stamp :where(.card) {
+      border-radius: 4px;
+      border: 1px dashed #d6d3d1;
+      background: #fffdf7 !important;
+      position: relative;
+      padding-top: 1.5rem !important;
+    }
+    :root.dark body[data-track] section.skin-stamp :where(.card) {
+      border-color: #57534e;
+      background: #1c1917 !important;
+    }
+    body[data-track] section.skin-stamp :where(.card)::before {
+      content: "★ APPROVED";
+      position: absolute; top: -8px; right: 14px;
+      font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.18em;
+      background: var(--brand-ink); color: #fff;
+      padding: 4px 9px; border-radius: 2px;
+      transform: rotate(2deg);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+    }
+    :root.dark body[data-track] section.skin-stamp :where(.card)::before {
+      background: var(--brand-deep); color: #1c1917;
+    }
+    body[data-track] section.skin-stamp :where(.card):hover {
+      border-style: solid; border-color: var(--brand);
+    }
+
     /* Flow: data-viz panel — neutral, elevated card-like surface. */
     body[data-track] section.skin-data {
       background: linear-gradient(180deg, transparent 0%, rgba(224, 242, 254, 0.30) 50%, transparent 100%);
@@ -469,6 +504,63 @@
     :root.dark .recent-pill { background: #292524; }
     .recent-pill:hover { background: #e7e5e4; }
     :root.dark .recent-pill:hover { background: #44403c; }
+
+    /* Achievement badges — chips that light up when their condition is met. */
+    .badge-chip {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.25rem 0.6rem; border-radius: 999px;
+      font-size: 0.7rem; line-height: 1;
+      border: 1px solid #e7e5e4;
+      background: #fafaf9; color: #a8a29e;
+      filter: grayscale(100%); opacity: 0.55;
+      transition: filter 200ms ease, opacity 200ms ease, transform 120ms ease, border-color 120ms ease;
+    }
+    :root.dark .badge-chip { background: #1c1917; border-color: #44403c; color: #57534e; }
+    .badge-chip.is-earned {
+      background: var(--brand-glow); color: var(--brand-ink);
+      border-color: var(--brand);
+      filter: none; opacity: 1;
+    }
+    :root.dark .badge-chip.is-earned { background: rgba(249, 115, 22, 0.15); color: var(--brand-deep); border-color: var(--brand-deep); }
+    .badge-chip.is-earned:hover { transform: translateY(-1px); }
+    .badge-icon { font-size: 0.85rem; }
+
+    /* Daily summary card — compact today-only stats below Today widget. */
+    .daily-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+    .daily-summary .ds-cell { display: flex; flex-direction: column; gap: 0.15rem; }
+    .daily-summary .ds-num { font-family: 'Crimson Pro', serif; font-size: 1.5rem; line-height: 1; color: var(--brand-ink); }
+    :root.dark .daily-summary .ds-num { color: var(--brand-deep); }
+    .daily-summary .ds-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: #78716c; }
+    :root.dark .daily-summary .ds-label { color: #a8a29e; }
+    /* Inverse variant: lives inside the Today widget, which always flips the palette. */
+    .daily-summary-inverse .ds-num { color: var(--brand-deep); }
+    :root.dark .daily-summary-inverse .ds-num { color: var(--brand-ink); }
+    .daily-summary-inverse .ds-label { color: rgba(255, 255, 255, 0.72); }
+    :root.dark .daily-summary-inverse .ds-label { color: rgba(0, 0, 0, 0.55); }
+    @media (max-width: 640px) { .daily-summary { grid-template-columns: repeat(2, 1fr); } }
+
+    /* Compare prompts surface — side-by-side columns with shared-clause highlights. */
+    .compare-grid { display: grid; gap: 0.75rem; }
+    .compare-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .compare-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 720px) { .compare-grid.cols-2, .compare-grid.cols-3 { grid-template-columns: 1fr; } }
+    .compare-col { display: flex; flex-direction: column; gap: 0.5rem; }
+    .compare-pick { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; cursor: pointer; }
+    .compare-pick input { accent-color: var(--brand-ink); }
+
+    /* Tier prompt: ★ inline save button, sits next to the copy button. */
+    .tier-star {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 6px;
+      border: 1px solid #d6d3d1; background: transparent;
+      color: #a8a29e; font-size: 0.85rem; line-height: 1;
+      cursor: pointer; transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+    :root.dark .tier-star { border-color: #44403c; color: #78716c; }
+    .tier-star:hover { color: var(--brand-ink); border-color: var(--brand); }
+    :root.dark .tier-star:hover { color: var(--brand-deep); border-color: var(--brand-deep); }
+    .tier-star.is-saved { color: var(--brand-ink); border-color: var(--brand); background: var(--brand-glow); }
+    :root.dark .tier-star.is-saved { color: var(--brand-deep); border-color: var(--brand-deep); background: rgba(249, 115, 22, 0.15); }
 
     /* Mobile: track tabs scroll cleanly, palette goes full-screen */
     @media (max-width: 640px) {
@@ -687,6 +779,7 @@
   <!-- Sticky section nav -->
   <div class="sticky-nav" id="stickyNav">
     <div class="max-w-6xl mx-auto px-6 py-3 flex items-center gap-3">
+    <button id="collapseAllBtn" type="button" class="shrink-0 text-[11px] uppercase tracking-wider px-2.5 py-1.5 rounded-full border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition whitespace-nowrap" title="Collapse or expand every section at once" aria-label="Collapse or expand all sections">⊟ All</button>
     <nav aria-label="Sections" class="flex-1 min-w-0 flex flex-wrap gap-2 text-sm overflow-x-auto">
       <a href="#pulse"       data-nav="pulse"       class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Pulse</a>
       <a href="#profile"     data-nav="profile"     class="nav-pill px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-100 dark:hover:text-stone-900 transition whitespace-nowrap">Profile</a>
@@ -717,6 +810,15 @@
         <p class="text-xs uppercase tracking-widest text-stone-300 dark:text-stone-700 mb-2">Today</p>
         <p id="todayMessage" class="text-xl font-serif">Open the dashboard to see what to do next.</p>
         <button id="todayAction" class="mt-4 px-4 py-2 bg-stone-50 text-stone-900 dark:bg-stone-900 dark:text-stone-50 rounded-lg text-sm font-medium hidden">Do it</button>
+        <!-- Daily summary: today-only stats. Hides itself until there's at least one event. -->
+        <div id="dailySummary" class="hidden mt-5 pt-4 border-t border-stone-700/40 dark:border-stone-400/30">
+          <div class="daily-summary daily-summary-inverse">
+            <div class="ds-cell"><div class="ds-num" id="dsCopies">0</div><div class="ds-label">Copies today</div></div>
+            <div class="ds-cell"><div class="ds-num" id="dsSaved">0</div><div class="ds-label">Saved today</div></div>
+            <div class="ds-cell"><div class="ds-num" id="dsStreak">0</div><div class="ds-label">Day streak</div></div>
+            <div class="ds-cell"><div class="ds-num" id="dsSprint">0</div><div class="ds-label">Sprint days</div></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -748,6 +850,14 @@
           <p class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">Recently used</p>
           <div id="recentList" class="flex flex-wrap gap-2">
             <span class="text-xs text-stone-500 dark:text-stone-400 italic">Nothing yet — click any copy button and it'll show up here.</span>
+          </div>
+          <!-- Badges: compute-on-render achievements derived from pulse + library + sprint state. -->
+          <div class="mt-5 pt-4 border-t border-stone-200 dark:border-stone-800">
+            <div class="flex items-baseline justify-between mb-2">
+              <p class="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">Badges</p>
+              <span id="badgeProgress" class="text-[10px] font-mono text-stone-500 dark:text-stone-400">0 / 8</span>
+            </div>
+            <div id="badgeList" class="flex flex-wrap gap-1.5"></div>
           </div>
         </div>
       </div>
@@ -1084,13 +1194,26 @@
           <span class="sr-only">prompt mastery library saved bookmarks favorites collection my prompts</span>
           <div class="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
             <h3 class="font-serif text-xl">My library <span id="libraryCount" class="text-xs text-stone-500 dark:text-stone-400 font-mono ml-2">· 0</span></h3>
-            <div class="flex items-baseline gap-3">
+            <div class="flex items-baseline gap-2">
+              <button id="compareToggle" class="text-xs px-2.5 py-1 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition" aria-expanded="false">⇆ Compare</button>
               <button id="exportReport" class="text-xs px-2.5 py-1 rounded border border-stone-300 dark:border-stone-700 hover:border-stone-900 dark:hover:border-stone-100 transition">↓ Export my-mastery.md</button>
-              <span class="text-[10px] font-mono uppercase text-stone-500 dark:text-stone-400">your prompts</span>
             </div>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Prompts you saved from the Doctor. Click any to copy. They persist between visits. Use Export to download your full progress as a portable markdown file.</p>
           <div id="mastery-library"></div>
+          <!-- Compare surface: tick 2 or 3 prompts and view them side-by-side. -->
+          <div id="comparePanel" class="hidden mt-6 pt-5 border-t border-stone-200 dark:border-stone-800">
+            <div class="flex items-baseline justify-between mb-3 gap-3 flex-wrap">
+              <h4 class="font-serif text-lg">Side-by-side <span id="compareCount" class="text-xs text-stone-500 dark:text-stone-400 font-mono ml-1">· pick 2 or 3</span></h4>
+              <div class="flex items-baseline gap-2">
+                <button id="compareClear" class="text-xs text-stone-500 dark:text-stone-400 underline">Clear</button>
+                <button id="compareRender" class="text-xs px-2.5 py-1 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 disabled:opacity-30" disabled>Compare selected</button>
+              </div>
+            </div>
+            <p class="text-xs text-stone-600 dark:text-stone-400 mb-3">Tick the prompts you want to read together — useful for spotting which clauses your strongest prompts share.</p>
+            <div id="comparePicker" class="space-y-1 mb-4 max-h-56 overflow-y-auto pr-2 text-xs"></div>
+            <div id="compareResult"></div>
+          </div>
         </div>
       </div>
 
@@ -1154,6 +1277,8 @@
       <div id="sankey-filters" class="flex flex-wrap items-center gap-2 mb-3" role="group" aria-label="Filter source categories"></div>
       <!-- Source-category legend, mirrored inside the SVG by column-header text labels. -->
       <div id="sankey-legend" class="flex flex-wrap items-center gap-3 mb-3 text-xs"></div>
+      <!-- Mobile-only scroll hint: the diagram horizontally scrolls on narrow viewports. -->
+      <p id="sankeyScrollHint" class="hidden mb-2 text-[11px] text-stone-500 dark:text-stone-400 italic">← scroll the diagram horizontally →</p>
       <div id="sankey-wrap" class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 relative">
         <div id="sankey" role="img" aria-label="Pegasus tools flow into artifacts" class="min-h-[480px]">
           <p class="text-sm text-stone-500 dark:text-stone-400 italic p-8 text-center">Loading the flow diagram…</p>
@@ -1176,7 +1301,7 @@
     </section>
 
     <!-- RECOMMENDED -->
-    <section id="recommended" class="py-12 border-t border-stone-200 dark:border-stone-800">
+    <section id="recommended" class="py-12 border-t border-stone-200 dark:border-stone-800 skin-stamp">
       <h2 class="font-serif text-3xl mb-2"><span class="section-num">11</span>Recommended <span class="text-stone-400 dark:text-stone-600">·</span> external repos</h2>
       <p class="text-stone-700 dark:text-stone-300 mb-6 max-w-2xl">Curated repos worth your <span class="font-mono">git clone</span>. All MIT, all reviewed, all designer-friendly. Use <span class="font-mono text-stone-900 dark:text-stone-100">pegasus clone &lt;url&gt; &lt;name&gt;</span>.</p>
       <div id="recommended-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -1844,18 +1969,17 @@ function renderMastery() {
     const tierBlock = (tier) => {
       const meta = tierMeta[tier];
       const text = p[tier];
-      // No data-search on the inner tier blocks: applySearchHL rewrites the
-      // parent card's innerHTML, which would orphan any nested data-search nodes.
-      // No data-copyable either: the inner <button class="copy"> is the
-      // interactive surface — making the wrapper a role=button as well would be
-      // a nested-interactive WCAG violation.
+      // Star button gets its own row so it doesn't nest inside the copy button
+      // (avoiding nested-interactive). data-tier-star payload is the prompt text.
+      const safe = _esc(text).replace(/'/g, "&#39;");
       return `
         <div class="rounded-lg border border-stone-200 dark:border-stone-800 p-3">
           <div class="flex items-baseline gap-2 mb-2">
             <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${meta.chip}">${meta.label}</span>
-            <span class="text-xs text-stone-500 dark:text-stone-400">${_esc(meta.hint)}</span>
+            <span class="text-xs text-stone-500 dark:text-stone-400 flex-1">${_esc(meta.hint)}</span>
+            <button type="button" class="tier-star" data-tier-star='${safe}' data-tier-name="${tier}" aria-label="Save this ${meta.label} prompt to your library" title="Save to library">★</button>
           </div>
-          <button class="copy text-left text-xs bg-stone-50 dark:bg-stone-950 px-3 py-2 rounded w-full leading-relaxed font-mono" data-copy='${_esc(text).replace(/'/g, "&#39;")}'>${_esc(text)}</button>
+          <button class="copy text-left text-xs bg-stone-50 dark:bg-stone-950 px-3 py-2 rounded w-full leading-relaxed font-mono" data-copy='${safe}'>${_esc(text)}</button>
         </div>`;
     };
 
@@ -2432,6 +2556,37 @@ document.addEventListener('click', e => {
   }
 });
 
+// Tier-prompt star buttons (renderMastery + recommended elsewhere): saves the
+// payload to the library, marks the chip "is-saved", and refreshes badges.
+document.addEventListener('click', e => {
+  const star = e.target.closest('[data-tier-star]');
+  if (!star) return;
+  const text = star.getAttribute('data-tier-star');
+  const tierName = star.getAttribute('data-tier-name') || '';
+  if (!text) return;
+  const score = (typeof diagnosePrompt === 'function')
+    ? diagnosePrompt(text).filter(f => f.present).length
+    : 5;
+  saveLibraryPrompt({ text, score, source: tierName ? `Tier ${tierName}` : 'Tier' });
+  star.classList.add('is-saved');
+  star.title = 'Saved to library';
+  showToast('★ Saved to your library');
+  renderPulse();
+});
+
+// Mark stars as already-saved on first paint so the UI matches localStorage.
+function markSavedStars() {
+  if (typeof loadLibrary !== 'function') return;
+  const savedTexts = new Set(loadLibrary().map(i => i.text));
+  document.querySelectorAll('[data-tier-star]').forEach(btn => {
+    const t = btn.getAttribute('data-tier-star');
+    if (t && savedTexts.has(t)) {
+      btn.classList.add('is-saved');
+      btn.title = 'Already in library';
+    }
+  });
+}
+
 // Mastery sub-TOC: smooth-scroll instead of an instant jump, and focus the
 // destination input when one exists (Prompt Lab / Doctor) so the user can
 // type immediately on arrival.
@@ -2787,7 +2942,111 @@ function renderLibrary() {
   }).join('')}</div>`;
   container.querySelectorAll('.copy').forEach(btn => btn.addEventListener('click', () => copyAndFlash(btn)));
   container.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeLibraryPrompt(btn.dataset.remove)));
+  // Compare panel mirrors the library — refresh its picker too if visible.
+  if (typeof renderComparePicker === 'function') renderComparePicker();
 }
+
+// ─────────────────────────────────────────────
+// COMPARE — pick 2 or 3 saved prompts and read them in parallel columns
+// ─────────────────────────────────────────────
+const _compareSelected = new Set();
+
+function renderComparePicker() {
+  const picker = document.getElementById('comparePicker');
+  if (!picker) return;
+  const items = loadLibrary();
+  if (!items.length) {
+    picker.innerHTML = `<p class="text-stone-500 dark:text-stone-400 italic">Save 2+ prompts to your library to compare them.</p>`;
+    return;
+  }
+  // Drop selections that no longer exist (item was removed).
+  for (const id of [..._compareSelected]) {
+    if (!items.find(i => i.id === id)) _compareSelected.delete(id);
+  }
+  picker.innerHTML = items.map(item => {
+    const checked = _compareSelected.has(item.id);
+    const preview = item.text.length > 90 ? item.text.slice(0, 90) + '…' : item.text;
+    return `<label class="compare-pick block py-1.5 px-2 rounded hover:bg-stone-50 dark:hover:bg-stone-800/50">
+      <input type="checkbox" data-compare-id="${item.id}"${checked ? ' checked' : ''} />
+      <span class="font-mono text-[10px] text-stone-500 dark:text-stone-400 mr-1">${item.score}/5</span>
+      <span class="text-stone-700 dark:text-stone-300">${_esc(preview)}</span>
+    </label>`;
+  }).join('');
+  picker.querySelectorAll('input[data-compare-id]').forEach(box => {
+    box.addEventListener('change', () => {
+      const id = box.dataset.compareId;
+      if (box.checked) {
+        if (_compareSelected.size >= 3) {
+          box.checked = false;
+          showToast('Pick at most 3 to compare');
+          return;
+        }
+        _compareSelected.add(id);
+      } else {
+        _compareSelected.delete(id);
+      }
+      updateCompareControls();
+    });
+  });
+  updateCompareControls();
+}
+
+function updateCompareControls() {
+  const n = _compareSelected.size;
+  const count = document.getElementById('compareCount');
+  if (count) count.textContent = n === 0 ? '· pick 2 or 3' : `· ${n} selected`;
+  const btn = document.getElementById('compareRender');
+  if (btn) btn.disabled = n < 2;
+}
+
+function renderCompareResult() {
+  const out = document.getElementById('compareResult');
+  if (!out) return;
+  const items = loadLibrary().filter(i => _compareSelected.has(i.id));
+  if (items.length < 2) {
+    out.innerHTML = '';
+    return;
+  }
+  // Find words that appear in every selected prompt — surface "what they share".
+  const tokenize = s => new Set(s.toLowerCase().match(/[a-z][a-z0-9-]{3,}/g) || []);
+  const sets = items.map(i => tokenize(i.text));
+  const sharedWords = [...sets[0]].filter(w => sets.every(s => s.has(w))).slice(0, 24);
+  const cls = items.length === 3 ? 'cols-3' : 'cols-2';
+  out.innerHTML = `
+    <div class="compare-grid ${cls}">
+      ${items.map(item => `
+        <div class="compare-col">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-stone-500 dark:text-stone-400">${item.score}/5 · ${_esc(item.source)} · ${_esc(item.savedAt)}</div>
+          <pre class="text-xs leading-relaxed bg-stone-50 dark:bg-stone-950 rounded p-3 whitespace-pre-wrap font-mono border border-stone-200 dark:border-stone-800">${_esc(item.text)}</pre>
+        </div>`).join('')}
+    </div>
+    ${sharedWords.length ? `
+      <div class="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800">
+        <p class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">Shared vocabulary <span class="font-mono">· ${sharedWords.length}</span></p>
+        <div class="flex flex-wrap gap-1">
+          ${sharedWords.map(w => `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">${_esc(w)}</span>`).join('')}
+        </div>
+      </div>` : ''}
+  `;
+}
+
+(function wireCompare() {
+  const toggle = document.getElementById('compareToggle');
+  const panel = document.getElementById('comparePanel');
+  if (!toggle || !panel) return;
+  toggle.addEventListener('click', () => {
+    const showing = !panel.classList.toggle('hidden');
+    toggle.setAttribute('aria-expanded', showing);
+    if (showing) renderComparePicker();
+  });
+  document.getElementById('compareRender')?.addEventListener('click', renderCompareResult);
+  document.getElementById('compareClear')?.addEventListener('click', () => {
+    _compareSelected.clear();
+    renderComparePicker();
+    const out = document.getElementById('compareResult');
+    if (out) out.innerHTML = '';
+  });
+})();
 
 // Track walkthrough opens so the recommendation engine can advance.
 const _origOpenWalkthrough = openWalkthroughModal;
@@ -3191,8 +3450,17 @@ function renderSankey() {
   const d3 = window.d3;
   // Width: prefer the wrapping card's inner width so columns are spaced well.
   const parentW = (wrap.parentElement?.clientWidth || wrap.clientWidth || 1100) - 32;
-  const W = Math.max(640, parentW);
-  const H = 580;
+  // Narrow viewport (mobile): SVG `viewBox` would shrink labels to <8px.
+  // Force a min legible W and let the wrapper scroll horizontally instead.
+  const isNarrow = parentW < 600;
+  const W = isNarrow ? 880 : Math.max(640, parentW);
+  const H = isNarrow ? 520 : 580;
+  // Wrapper handles horizontal scroll on narrow viewports.
+  wrap.style.overflowX = isNarrow ? 'auto' : '';
+  wrap.style.maxWidth = '100%';
+  // Drop a one-off scroll hint the first time a narrow user lands here.
+  const hint = document.getElementById('sankeyScrollHint');
+  if (hint) hint.classList.toggle('hidden', !isNarrow);
   // Build the filtered graph: drop nodes whose source category is hidden, and
   // drop nodes orphaned by that filtering (specific tools whose category is
   // off, impacts that have no remaining input, sources whose chip is off).
@@ -3249,6 +3517,10 @@ function renderSankey() {
   const svg = d3.select(wrap).append('svg')
     .attr('viewBox', `0 0 ${W} ${H}`)
     .attr('preserveAspectRatio', 'xMidYMid meet');
+  // On narrow viewports, set explicit width so the SVG keeps its intrinsic
+  // size and the wrapper's overflow-x:auto lets users scroll horizontally
+  // instead of squinting at sub-8px labels.
+  if (isNarrow) svg.attr('width', W).attr('height', H);
 
   // Column headers — read top to bottom, the column header tells you which
   // band you're in. Computed from the node x positions actually produced.
@@ -3682,6 +3954,7 @@ renderMasteryBuilder();
 renderMasterySprint();
 wireDoctor();
 renderLibrary();
+markSavedStars();
 renderWeeklyFeature();
 renderMasteryRecommendation();
 renderCoaxing();
@@ -4070,6 +4343,8 @@ document.querySelectorAll('[data-stat]').forEach(el => {
   const collapsibleIds = ['workflows','templates','commands','skills','mcps','prompts','mastery','coaxing','flow','recommended','glossary','learn'];
   let collapsed = {};
   try { collapsed = JSON.parse(_safeStorage.getItem('pegasus.collapsedSections') || '{}'); } catch {}
+  // Per-section button registry so the master toggle can update labels/aria too.
+  const perSection = [];
   collapsibleIds.forEach(id => {
     const sec = document.getElementById(id);
     if (!sec) return;
@@ -4089,9 +4364,38 @@ document.querySelectorAll('[data-stat]').forEach(el => {
       btn.textContent = isOn ? '+' : '–';
       btn.setAttribute('aria-expanded', !isOn);
       _safeStorage.setItem('pegasus.collapsedSections', JSON.stringify(collapsed));
+      syncMasterLabel();
     });
     h2.appendChild(btn);
+    perSection.push({ id, sec, btn });
   });
+
+  // Master toggle: when the majority of sections are open, collapse all; else expand all.
+  const masterBtn = document.getElementById('collapseAllBtn');
+  function syncMasterLabel() {
+    if (!masterBtn) return;
+    const open = perSection.filter(p => !p.sec.classList.contains('is-collapsed')).length;
+    const half = Math.ceil(perSection.length / 2);
+    const willCollapse = open >= half;
+    masterBtn.textContent = willCollapse ? '⊟ All' : '⊞ All';
+    masterBtn.title = willCollapse ? 'Collapse every section' : 'Expand every section';
+  }
+  if (masterBtn) {
+    syncMasterLabel();
+    masterBtn.addEventListener('click', () => {
+      const open = perSection.filter(p => !p.sec.classList.contains('is-collapsed')).length;
+      const half = Math.ceil(perSection.length / 2);
+      const collapseAll = open >= half;
+      perSection.forEach(({ id, sec, btn }) => {
+        sec.classList.toggle('is-collapsed', collapseAll);
+        collapsed[id] = collapseAll;
+        btn.textContent = collapseAll ? '+' : '–';
+        btn.setAttribute('aria-expanded', !collapseAll);
+      });
+      _safeStorage.setItem('pegasus.collapsedSections', JSON.stringify(collapsed));
+      syncMasterLabel();
+    });
+  }
 })();
 
 // Scroll-reveal: tag major card-grid containers and let an IntersectionObserver
@@ -4213,6 +4517,11 @@ function trackCopy(label, kind) {
   // streak: day visited
   const today = now.toISOString().slice(0, 10);
   p.days = Array.from(new Set([...(p.days || []), today])).slice(-30);
+  // daily bucket: feeds the daily-summary surface. Trim to last 30 days.
+  p.daily = p.daily || {};
+  p.daily[today] = (p.daily[today] || 0) + 1;
+  const cutoff = new Date(now); cutoff.setDate(cutoff.getDate() - 30);
+  Object.keys(p.daily).forEach(d => { if (d < cutoff.toISOString().slice(0, 10)) delete p.daily[d]; });
   // recent (last 8, dedup)
   p.recent = [{ label, kind, at: today }, ...(p.recent || []).filter(r => r.label !== label)].slice(0, 8);
   savePulse(p);
@@ -4247,6 +4556,68 @@ function renderPulse() {
       `<span class="recent-pill" title="${r.kind} · ${r.at}">${r.kind === 'Skill' ? '🛠' : r.kind === 'Template' ? '📁' : r.kind === 'Workflow' ? '⚡' : '⌘'} ${r.label.slice(0, 40)}${r.label.length > 40 ? '…' : ''}</span>`
     ).join('');
   }
+  renderBadges(p);
+  renderDailySummary(p);
+}
+
+// ─────────────────────────────────────────────
+// BADGES — compute-on-render achievements derived from pulse + library + sprint
+// ─────────────────────────────────────────────
+function computeBadges(pulse) {
+  const lib = (typeof loadLibrary === 'function') ? loadLibrary() : [];
+  const sprint = (typeof loadSprintDone === 'function') ? loadSprintDone() : [];
+  const streak = computeStreak(pulse.days || []);
+  const skillsCount = (pulse.skillsSeen || []).length;
+  const totalCopies = pulse.totalCopies || 0;
+  const wk1Days = sprint.filter(d => d <= 7).length;
+  const expertSaved = lib.some(i => /Tier expert/i.test(i.source || '') || (i.score || 0) >= 5);
+  return [
+    { id: 'first-copy', label: 'First copy', icon: '🌱', earned: totalCopies >= 1, hint: 'Click any copy button.' },
+    { id: 'streak-3',   label: '3-day streak', icon: '🔥', earned: streak >= 3, hint: 'Open the dashboard 3 days in a row.' },
+    { id: 'streak-7',   label: 'Week streak', icon: '✨', earned: streak >= 7, hint: 'A full week of practice.' },
+    { id: 'first-save', label: 'First save', icon: '📚', earned: lib.length >= 1, hint: 'Save a prompt to your library.' },
+    { id: 'lib-5',      label: 'Library × 5', icon: '🗂', earned: lib.length >= 5, hint: '5 saved prompts.' },
+    { id: 'skill-5',    label: 'Skill explorer', icon: '🛠', earned: skillsCount >= 5, hint: 'Try 5 different skills.' },
+    { id: 'sprint-w1',  label: 'Sprint Week 1', icon: '🎯', earned: wk1Days >= 7, hint: 'Finish all 7 sprint days in week 1.' },
+    { id: 'expert',     label: 'Expert tier', icon: '🏔', earned: expertSaved, hint: 'Save an Expert-tier prompt.' }
+  ];
+}
+function renderBadges(pulse) {
+  const list = document.getElementById('badgeList');
+  if (!list) return;
+  const badges = computeBadges(pulse || loadPulse());
+  list.innerHTML = badges.map(b => `
+    <span class="badge-chip ${b.earned ? 'is-earned' : ''}" title="${_esc(b.hint)}">
+      <span class="badge-icon" aria-hidden="true">${b.icon}</span>
+      <span class="badge-label">${_esc(b.label)}</span>
+    </span>`).join('');
+  const count = badges.filter(b => b.earned).length;
+  const prog = document.getElementById('badgeProgress');
+  if (prog) prog.textContent = `${count} / ${badges.length}`;
+}
+
+// ─────────────────────────────────────────────
+// DAILY SUMMARY — today-only stats inside the Today widget. Hides until first event.
+// ─────────────────────────────────────────────
+function renderDailySummary(pulse) {
+  const wrap = document.getElementById('dailySummary');
+  if (!wrap) return;
+  const p = pulse || loadPulse();
+  const today = new Date().toISOString().slice(0, 10);
+  const copiesToday = (p.daily && p.daily[today]) || 0;
+  const lib = (typeof loadLibrary === 'function') ? loadLibrary() : [];
+  const savedToday = lib.filter(i => i.savedAt === today).length;
+  const streak = computeStreak(p.days || []);
+  const sprint = (typeof loadSprintDone === 'function') ? loadSprintDone() : [];
+  const sprintDone = sprint.length;
+  // Hide entirely until there's something to celebrate.
+  const hasAny = copiesToday > 0 || savedToday > 0 || streak > 0 || sprintDone > 0;
+  wrap.classList.toggle('hidden', !hasAny);
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('dsCopies', copiesToday);
+  set('dsSaved', savedToday);
+  set('dsStreak', streak);
+  set('dsSprint', sprintDone);
 }
 // Track day visit on load
 (function() {
