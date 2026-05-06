@@ -63,7 +63,7 @@
   </script>
   <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
        Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
-  <link rel="stylesheet" href="./dashboard.css?v=27" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
+  <link rel="stylesheet" href="./dashboard.css?v=28" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
     // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
     window.tailwind = window.tailwind || {};
@@ -505,6 +505,32 @@
     .recent-pill:hover { background: #e7e5e4; }
     :root.dark .recent-pill:hover { background: #44403c; }
 
+    /* Did-you-know editorial card — a single rotating insight per day. */
+    .dyk-card {
+      position: relative;
+      padding: 0.85rem 1.1rem 0.85rem 1.6rem;
+      border-left: 3px solid var(--brand);
+      background: linear-gradient(90deg, var(--brand-glow) 0%, transparent 100%);
+      border-radius: 0 6px 6px 0;
+    }
+    :root.dark .dyk-card {
+      border-left-color: var(--brand-deep);
+      background: linear-gradient(90deg, rgba(249, 115, 22, 0.10) 0%, transparent 100%);
+    }
+    .dyk-eyebrow {
+      display: block;
+      font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--brand-ink); margin-bottom: 0.35rem;
+    }
+    :root.dark .dyk-eyebrow { color: var(--brand-deep); }
+    .dyk-body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 1.05rem; line-height: 1.5;
+      color: #292524; font-style: italic;
+    }
+    :root.dark .dyk-body { color: #e7e5e4; }
+
     /* Achievement badges — chips that light up when their condition is met. */
     .badge-chip {
       display: inline-flex; align-items: center; gap: 0.35rem;
@@ -821,6 +847,14 @@
         </div>
       </div>
     </section>
+
+    <!-- DID YOU KNOW — single rotating insight, deterministic by day-of-year. -->
+    <aside id="didYouKnow" class="py-3" data-search>
+      <div class="dyk-card">
+        <span class="dyk-eyebrow">Did you know</span>
+        <p id="dykBody" class="dyk-body"></p>
+      </div>
+    </aside>
 
     <!-- PEGASUS PULSE — usage stats + recently used -->
     <section id="pulse" class="py-8" data-search>
@@ -1200,6 +1234,16 @@
             </div>
           </div>
           <p class="text-sm text-stone-600 dark:text-stone-400 mb-5">Prompts you saved from the Doctor. Click any to copy. They persist between visits. Use Export to download your full progress as a portable markdown file.</p>
+          <!-- Filter + sort controls — appear once the library is large enough to benefit. -->
+          <div id="libraryControls" class="hidden mb-3 flex flex-wrap gap-2 items-center text-xs">
+            <input id="libraryFilter" type="search" placeholder="filter prompts…" aria-label="Filter library prompts" class="flex-1 min-w-0 px-2.5 py-1.5 rounded border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 focus:border-stone-900 dark:focus:border-stone-100 focus:outline-none" />
+            <select id="librarySort" aria-label="Sort library" class="px-2 py-1.5 rounded border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="score">Score</option>
+              <option value="length">Length</option>
+            </select>
+          </div>
           <div id="mastery-library"></div>
           <!-- Compare surface: tick 2 or 3 prompts and view them side-by-side. -->
           <div id="comparePanel" class="hidden mt-6 pt-5 border-t border-stone-200 dark:border-stone-800">
@@ -2909,14 +2953,31 @@ function downloadMasteryReport() {
 function renderLibrary() {
   const container = document.getElementById('mastery-library');
   if (!container) return;
-  const items = loadLibrary();
-  document.getElementById('libraryCount').textContent = '· ' + items.length;
-  if (!items.length) {
+  const allItems = loadLibrary();
+  document.getElementById('libraryCount').textContent = '· ' + allItems.length;
+  // Reveal filter+sort controls once the library is large enough to benefit.
+  const controls = document.getElementById('libraryControls');
+  if (controls) controls.classList.toggle('hidden', allItems.length < 4);
+  if (!allItems.length) {
     container.innerHTML = `
       <div class="text-center py-8 px-4 rounded-lg border border-dashed border-stone-300 dark:border-stone-700">
         <p class="text-sm text-stone-500 dark:text-stone-400">Your library is empty.</p>
         <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">Refine a prompt in the Doctor above and click ★ Save to add it here.</p>
       </div>`;
+    return;
+  }
+  // Filter + sort feed off the controls; missing controls (no DOM yet) → no-op defaults.
+  const q = (document.getElementById('libraryFilter')?.value || '').trim().toLowerCase();
+  const sortBy = document.getElementById('librarySort')?.value || 'newest';
+  let items = q ? allItems.filter(i =>
+    i.text.toLowerCase().includes(q) || (i.source || '').toLowerCase().includes(q)
+  ) : allItems.slice();
+  if (sortBy === 'oldest') items.reverse();
+  else if (sortBy === 'score') items.sort((a, b) => (b.score || 0) - (a.score || 0));
+  else if (sortBy === 'length') items.sort((a, b) => (b.text?.length || 0) - (a.text?.length || 0));
+  // 'newest' is default loadLibrary order (unshift on save).
+  if (!items.length) {
+    container.innerHTML = `<p class="text-xs text-stone-500 dark:text-stone-400 italic py-3">No prompts match "${_esc(q)}".</p>`;
     return;
   }
   container.innerHTML = `<div class="space-y-3">${items.map(item => {
@@ -2945,6 +3006,14 @@ function renderLibrary() {
   // Compare panel mirrors the library — refresh its picker too if visible.
   if (typeof renderComparePicker === 'function') renderComparePicker();
 }
+
+// Wire library filter + sort once. Both re-render in place, preserving query + sort.
+(function wireLibraryControls() {
+  const filter = document.getElementById('libraryFilter');
+  const sort = document.getElementById('librarySort');
+  filter?.addEventListener('input', renderLibrary);
+  sort?.addEventListener('change', renderLibrary);
+})();
 
 // ─────────────────────────────────────────────
 // COMPARE — pick 2 or 3 saved prompts and read them in parallel columns
@@ -3007,24 +3076,41 @@ function renderCompareResult() {
     out.innerHTML = '';
     return;
   }
-  // Find words that appear in every selected prompt — surface "what they share".
-  const tokenize = s => new Set(s.toLowerCase().match(/[a-z][a-z0-9-]{3,}/g) || []);
+  // Tokenize each prompt; STOPWORDS keeps the diff focused on meaningful words.
+  const STOPWORDS = new Set(('the and for with from this that your into than then them they than ' +
+    'have your when will what here there which where about would could should into ' +
+    'over also just very make made been being have has had only also like such').split(/\s+/));
+  const tokenize = s => {
+    const tokens = (s.toLowerCase().match(/[a-z][a-z0-9-]{3,}/g) || []).filter(w => !STOPWORDS.has(w));
+    return new Set(tokens);
+  };
   const sets = items.map(i => tokenize(i.text));
-  const sharedWords = [...sets[0]].filter(w => sets.every(s => s.has(w))).slice(0, 24);
+  const sharedWords = [...sets[0]].filter(w => sets.every(s => s.has(w))).sort().slice(0, 24);
+  // Unique-to-column words: present in this column's set, absent from all others.
+  const uniqueByCol = sets.map((s, idx) =>
+    [...s].filter(w => sets.every((other, i) => i === idx ? true : !other.has(w))).sort().slice(0, 14)
+  );
   const cls = items.length === 3 ? 'cols-3' : 'cols-2';
   out.innerHTML = `
     <div class="compare-grid ${cls}">
-      ${items.map(item => `
+      ${items.map((item, idx) => `
         <div class="compare-col">
           <div class="text-[10px] font-mono uppercase tracking-wider text-stone-500 dark:text-stone-400">${item.score}/5 · ${_esc(item.source)} · ${_esc(item.savedAt)}</div>
           <pre class="text-xs leading-relaxed bg-stone-50 dark:bg-stone-950 rounded p-3 whitespace-pre-wrap font-mono border border-stone-200 dark:border-stone-800">${_esc(item.text)}</pre>
+          ${uniqueByCol[idx].length ? `
+            <div class="text-[10px] text-stone-500 dark:text-stone-400">
+              <span class="uppercase tracking-wider">Only here</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${uniqueByCol[idx].map(w => `<span class="font-mono px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">${_esc(w)}</span>`).join('')}
+              </div>
+            </div>` : ''}
         </div>`).join('')}
     </div>
     ${sharedWords.length ? `
       <div class="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800">
         <p class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">Shared vocabulary <span class="font-mono">· ${sharedWords.length}</span></p>
         <div class="flex flex-wrap gap-1">
-          ${sharedWords.map(w => `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">${_esc(w)}</span>`).join('')}
+          ${sharedWords.map(w => `<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100">${_esc(w)}</span>`).join('')}
         </div>
       </div>` : ''}
   `;
@@ -3406,7 +3492,10 @@ function updateSankeyDetail(node) {
 
   const promptHtml = prompt
     ? `<div class="mt-3 pt-3 border-t border-stone-200 dark:border-stone-800">
-         <div class="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">Try this</div>
+         <div class="flex items-baseline justify-between gap-2 mb-1">
+           <span class="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Try this</span>
+           <button class="copy text-[10px] px-2 py-0.5 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90" data-copy='${_esc(prompt).replace(/'/g, '&#39;')}' aria-label="Copy starter prompt">📋 Copy</button>
+         </div>
          <button class="copy text-left text-xs bg-stone-50 dark:bg-stone-950 px-3 py-2 rounded w-full font-mono leading-relaxed border border-stone-200 dark:border-stone-800" data-copy='${_esc(prompt).replace(/'/g, '&#39;')}'>${_esc(prompt)}</button>
        </div>`
     : '';
@@ -4323,6 +4412,34 @@ applyTrack(activeTrack);
 })();
 
 // ─────────────────────────────────────────────
+// DID YOU KNOW — one editorial insight per day, deterministic by day-of-year
+// ─────────────────────────────────────────────
+const dykTips = [
+  'A prompt with one named skill, one pointed input, and one constraint beats a 200-word stream-of-consciousness brief almost every time.',
+  'Pegasus runs entirely in your browser — no servers, no analytics, no accounts. Closing the tab loses nothing because everything was always local.',
+  'The Better tier and Expert tier of any prompt are usually one constraint apart. Adding "max 80ch wide, Lighthouse perf > 90" turns guesswork into measurable output.',
+  'Iterating on a prompt 10–30 times beats writing one perfect prompt. The agent is a search-loop, not a vending machine.',
+  'A skill is just a folder in ~/.claude/skills with a SKILL.md frontmatter. You can clone any of the recommended repos and your agent gains that skill on the next chat.',
+  'The Sankey above is real flow data — every link maps to actual code paths. The diagram won\'t lie about which command produces which artifact.',
+  'Your library and Pulse are stored in localStorage. Open DevTools → Application → Local Storage to see exactly what Pegasus knows about you. (Spoiler: only what you typed.)',
+  'When a prompt result is wrong, course-correct in-place — don\'t restart the chat. The agent\'s context is the most valuable thing you have, and you usually don\'t want to throw it away.',
+  'Naming the file format ("output: index.html") and the start command ("then run npx serve .") often saves a whole back-and-forth round.',
+  'The 14-day sprint is calibrated for ~10 minutes a day. If a day takes longer, the design is wrong, not your speed.',
+  'Pegasus\'s value isn\'t the templates — it\'s knowing which skill goes with which template. Read the Workflows section the way a chef reads a mise-en-place.',
+  'You can paste your profile (Step 1) at the top of any chat to give the agent a 10-line summary of who you are. Skills like job-finder and interview-prep depend on this.',
+  'The Commands section ships with bash autocompletion. Type "pegasus " then Tab in a real terminal to see the live list.',
+  'If a tier-3 prompt feels intimidating, copy it and replace the bracketed bits with your own values. That\'s the whole game.',
+  'The Doctor scores prompts on five ingredients: skill, input, constraint, acceptance test, loop hook. A 5/5 isn\'t magic — it\'s a checklist.',
+];
+(function dykPick() {
+  const el = document.getElementById('dykBody');
+  if (!el) return;
+  const start = new Date(new Date().getFullYear(), 0, 0);
+  const day = Math.floor((new Date() - start) / 864e5);
+  el.textContent = dykTips[day % dykTips.length];
+})();
+
+// ─────────────────────────────────────────────
 // COUNT BADGES IN NAV
 // ─────────────────────────────────────────────
 const counts = { templates: templates.length, workflows: workflows.length, commands: commands.length, skills: skills.length, mcps: mcps.length, prompts: prompts.length, mastery: promptTiers.length, recommended: recommended.length, glossary: glossary.length };
@@ -4582,18 +4699,41 @@ function computeBadges(pulse) {
     { id: 'expert',     label: 'Expert tier', icon: '🏔', earned: expertSaved, hint: 'Save an Expert-tier prompt.' }
   ];
 }
+const BADGE_SEEN_KEY = 'pegasus.badgesSeen';
+function loadBadgesSeen() {
+  try { return new Set(JSON.parse(_safeStorage.getItem(BADGE_SEEN_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+function saveBadgesSeen(set) {
+  _safeStorage.setItem(BADGE_SEEN_KEY, JSON.stringify([...set]));
+}
 function renderBadges(pulse) {
   const list = document.getElementById('badgeList');
   if (!list) return;
   const badges = computeBadges(pulse || loadPulse());
   list.innerHTML = badges.map(b => `
-    <span class="badge-chip ${b.earned ? 'is-earned' : ''}" title="${_esc(b.hint)}">
+    <span class="badge-chip ${b.earned ? 'is-earned' : ''}" data-badge-id="${b.id}" title="${_esc(b.hint)}">
       <span class="badge-icon" aria-hidden="true">${b.icon}</span>
       <span class="badge-label">${_esc(b.label)}</span>
     </span>`).join('');
   const count = badges.filter(b => b.earned).length;
   const prog = document.getElementById('badgeProgress');
   if (prog) prog.textContent = `${count} / ${badges.length}`;
+  // Toast newly-earned badges. First render after a fresh install primes the
+  // seen-set silently so we don't stack toasts on initial paint.
+  const seen = loadBadgesSeen();
+  const seenInit = _safeStorage.getItem(BADGE_SEEN_KEY) !== null;
+  let staggerN = 0;
+  for (const b of badges) {
+    if (b.earned && !seen.has(b.id)) {
+      seen.add(b.id);
+      if (seenInit && typeof showToast === 'function') {
+        setTimeout(() => showToast(`${b.icon} Badge earned: ${b.label}`), 120 + staggerN * 1400);
+        staggerN++;
+      }
+    }
+  }
+  saveBadgesSeen(seen);
 }
 
 // ─────────────────────────────────────────────
