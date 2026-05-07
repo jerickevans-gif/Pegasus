@@ -63,7 +63,7 @@
   </script>
   <!-- Local pre-built Tailwind CSS (~45KB minified). Built via:  npm run build:css
        Falls back to the CDN JIT build if dashboard.css is missing for any reason. -->
-  <link rel="stylesheet" href="./dashboard.css?v=28" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
+  <link rel="stylesheet" href="./dashboard.css?v=29" onerror="(function(){var s=document.createElement('script');s.src='https://cdn.tailwindcss.com/3.4.16';document.head.appendChild(s);})()">
   <script>
     // CDN fallback config — only used if dashboard.css 404s and the JIT script loads.
     window.tailwind = window.tailwind || {};
@@ -505,6 +505,41 @@
     .recent-pill:hover { background: #e7e5e4; }
     :root.dark .recent-pill:hover { background: #44403c; }
 
+    /* Glossary inline links — dotted underline on terms whose definition lives
+       in the glossary. The native `title` tooltip handles screen readers; the
+       custom .gloss-pop bubble shows a styled tooltip on hover/focus. */
+    .glossary-link {
+      position: relative;
+      color: inherit;
+      border-bottom: 1px dotted var(--brand);
+      cursor: help;
+      text-decoration: none;
+    }
+    .glossary-link:hover, .glossary-link:focus { border-bottom-color: var(--brand-deep); }
+    .glossary-link::after {
+      content: attr(data-def);
+      position: absolute;
+      left: 50%; bottom: calc(100% + 6px);
+      transform: translateX(-50%) translateY(4px);
+      max-width: 18rem; min-width: 12rem;
+      padding: 0.5rem 0.7rem;
+      background: #1c1917; color: #fafaf9;
+      font: 400 11px/1.45 ui-sans-serif, system-ui, sans-serif;
+      font-style: normal;
+      border-radius: 6px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      opacity: 0; pointer-events: none;
+      transition: opacity 120ms ease, transform 120ms ease;
+      white-space: normal; text-align: left;
+      z-index: 60;
+    }
+    .glossary-link:hover::after,
+    .glossary-link:focus::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    :root.dark .glossary-link::after { background: #fafaf9; color: #1c1917; }
+
     /* Did-you-know editorial card — a single rotating insight per day. */
     .dyk-card {
       position: relative;
@@ -530,6 +565,24 @@
       color: #292524; font-style: italic;
     }
     :root.dark .dyk-body { color: #e7e5e4; }
+
+    /* Surprise-me card — companion to DYK, but on-demand instead of daily. */
+    .surprise-card {
+      padding: 0.85rem 1.1rem;
+      border: 1px dashed rgba(120, 113, 108, 0.4);
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(120, 113, 108, 0.04) 0%, transparent 100%);
+    }
+    :root.dark .surprise-card {
+      border-color: rgba(168, 162, 158, 0.3);
+      background: linear-gradient(90deg, rgba(168, 162, 158, 0.06) 0%, transparent 100%);
+    }
+    .surprise-eyebrow {
+      font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #57534e;
+    }
+    :root.dark .surprise-eyebrow { color: #a8a29e; }
 
     /* Achievement badges — chips that light up when their condition is met. */
     .badge-chip {
@@ -678,6 +731,51 @@
     @media (prefers-reduced-motion: reduce) {
       #versionDot[data-version-state="behind"],
       .theme-toggle.pulse-hint::after { animation: none !important; }
+    }
+
+    /* Print stylesheet — surfaces the parts a user might want on paper
+       (their library, the sprint plan, doctor results) and hides the
+       interactive scaffolding (nav, sankey, toasts, palette). Forces light
+       theme so we don't burn an ink cartridge on a black background. */
+    @media print {
+      :root, :root.dark { color-scheme: light; }
+      :root.dark { background: white !important; color: #1c1917 !important; }
+      :root.dark *,
+      :root.dark .card,
+      :root.dark section,
+      :root.dark aside,
+      :root.dark pre,
+      :root.dark code { background: white !important; color: #1c1917 !important; border-color: #d6d3d1 !important; }
+      .sticky-nav,
+      .scrubber,
+      #scrubber,
+      #toast,
+      #palette,
+      #helpOverlay,
+      #workflowModal,
+      #walkthroughModal,
+      .back-to-top,
+      .palette-overlay,
+      #brandRibbon,
+      #didYouKnow,
+      #pulse,
+      #flow,
+      #recommended,
+      #compareToggle,
+      #libraryControls,
+      #surpriseSection,
+      [data-search="hero-stats"],
+      .badge-chip,
+      button.copy,
+      button[onclick],
+      .theme-toggle,
+      .density-toggle,
+      [data-print-hide] { display: none !important; }
+      a, a:visited { color: #1c1917 !important; text-decoration: underline; }
+      .card, section, aside { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; border: 1px solid #e7e5e4 !important; }
+      pre, code { white-space: pre-wrap !important; word-break: break-word; }
+      h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+      body { font-size: 11pt; }
     }
   </style>
 </head>
@@ -853,6 +951,17 @@
       <div class="dyk-card">
         <span class="dyk-eyebrow">Did you know</span>
         <p id="dykBody" class="dyk-body"></p>
+      </div>
+    </aside>
+
+    <!-- SURPRISE ME — pull a random tier-3 prompt with provenance. Pure delight. -->
+    <aside id="surpriseSection" class="py-3" data-search>
+      <div class="surprise-card">
+        <div class="flex items-baseline justify-between gap-3 flex-wrap">
+          <span class="surprise-eyebrow">🎲 Surprise me</span>
+          <button id="surpriseRoll" type="button" class="text-xs px-3 py-1.5 rounded bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:opacity-90">Roll a tier-3 prompt</button>
+        </div>
+        <div id="surpriseBody" class="hidden mt-3"></div>
       </div>
     </aside>
 
@@ -1553,6 +1662,29 @@ const _safeStorage = {
   setItem: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
   removeItem: k => { try { localStorage.removeItem(k); } catch {} },
 };
+
+// Reduced-motion shim — JS scrollIntoView({behavior:'smooth'}) overrides the
+// CSS scroll-behavior: auto fallback, so we replace 'smooth' with 'auto' at
+// the call site when the user prefers reduced motion. Cheaper than rewriting
+// every callsite, and isolated to reduced-motion users.
+(function reducedMotionShim() {
+  if (!window.matchMedia) return;
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (!mq.matches) return;
+  const swap = opts => {
+    if (opts && typeof opts === 'object' && opts.behavior === 'smooth') {
+      return { ...opts, behavior: 'auto' };
+    }
+    return opts;
+  };
+  const origElScroll = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = function (opts) { return origElScroll.call(this, swap(opts)); };
+  const origWinScroll = window.scrollTo;
+  window.scrollTo = function (...args) {
+    if (args.length === 1) return origWinScroll.call(window, swap(args[0]));
+    return origWinScroll.apply(window, args);
+  };
+})();
 
 // ─────────────────────────────────────────────
 // DATA
@@ -4431,12 +4563,113 @@ const dykTips = [
   'If a tier-3 prompt feels intimidating, copy it and replace the bracketed bits with your own values. That\'s the whole game.',
   'The Doctor scores prompts on five ingredients: skill, input, constraint, acceptance test, loop hook. A 5/5 isn\'t magic — it\'s a checklist.',
 ];
+// Glossary inline tooltips — walks text nodes inside `el` and wraps whole-word
+// matches against the glossary array with a hover-tooltipped anchor. Conservative:
+// only applied to specific surfaces (DYK, Today widget) to avoid unintended
+// rewrites of structural copy. Each call is idempotent via the data-glossarized
+// flag on the container.
+const _glossaryTermRegex = (function buildGlossaryRegex() {
+  // Sort longest-first so "Claude Code" wins over "Code". Whole-word boundaries
+  // on both sides; `i` for case-insensitive matches.
+  const terms = glossary
+    .map(g => g.term)
+    .filter(t => /^[A-Za-z][A-Za-z\s]+$/.test(t) && t.length >= 3) // skip ~, cd, ls
+    .sort((a, b) => b.length - a.length)
+    .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (!terms.length) return null;
+  return new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
+})();
+const _glossaryByLower = Object.fromEntries(glossary.map(g => [g.term.toLowerCase(), g.def]));
+function glossarize(root) {
+  if (!root || !_glossaryTermRegex || root.dataset.glossarized) return;
+  // Walk text nodes; collect first to avoid live-NodeList mutation issues.
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => {
+      if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      // Skip nodes already inside an anchor or button.
+      let p = n.parentElement;
+      while (p && p !== root) {
+        if (p.tagName === 'A' || p.tagName === 'BUTTON' || p.tagName === 'CODE') return NodeFilter.FILTER_REJECT;
+        p = p.parentElement;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  const targets = [];
+  let n; while ((n = walker.nextNode())) targets.push(n);
+  for (const node of targets) {
+    const text = node.nodeValue;
+    _glossaryTermRegex.lastIndex = 0;
+    if (!_glossaryTermRegex.test(text)) continue;
+    _glossaryTermRegex.lastIndex = 0;
+    const frag = document.createDocumentFragment();
+    let last = 0, m;
+    while ((m = _glossaryTermRegex.exec(text)) !== null) {
+      if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+      const def = _glossaryByLower[m[0].toLowerCase()];
+      const a = document.createElement('a');
+      a.className = 'glossary-link';
+      a.href = '#glossary';
+      a.textContent = m[0];
+      a.title = def;
+      a.setAttribute('data-def', def);
+      a.setAttribute('aria-label', `${m[0]} — ${def}`);
+      frag.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  }
+  root.dataset.glossarized = '1';
+}
+
 (function dykPick() {
   const el = document.getElementById('dykBody');
   if (!el) return;
   const start = new Date(new Date().getFullYear(), 0, 0);
   const day = Math.floor((new Date() - start) / 864e5);
   el.textContent = dykTips[day % dykTips.length];
+  glossarize(el);
+})();
+// Glossarize the Today widget retroactively (its IIFE ran earlier).
+(function glossarizeToday() {
+  const t = document.getElementById('todayMsg') || document.getElementById('today-message');
+  if (t) glossarize(t);
+})();
+
+// SURPRISE ME — pulls a random tier-3 (expert) prompt from promptTiers, shows
+// it with provenance + a copy button. Tracks last index to avoid back-to-back
+// repeats. Pure delight, no streaks or scoring tied to it.
+(function surpriseMe() {
+  const btn = document.getElementById('surpriseRoll');
+  const body = document.getElementById('surpriseBody');
+  if (!btn || !body || !Array.isArray(promptTiers) || promptTiers.length === 0) return;
+  let lastIdx = -1;
+  function roll() {
+    let idx;
+    do { idx = Math.floor(Math.random() * promptTiers.length); }
+    while (promptTiers.length > 1 && idx === lastIdx);
+    lastIdx = idx;
+    const t = promptTiers[idx];
+    const trackBadge = t.track === 'design' ? '🎨 design' : t.track === 'jobs' ? '💼 jobs' : '⊕ both';
+    body.classList.remove('hidden');
+    body.innerHTML = `
+      <div class="text-[10px] font-mono uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-1">
+        ${_esc(t.goal)} · ${_esc(trackBadge)} · tier 3
+      </div>
+      <button class="copy text-left text-xs bg-white dark:bg-stone-950 px-3 py-2 rounded w-full font-mono leading-relaxed border border-stone-200 dark:border-stone-800 hover:border-stone-400 dark:hover:border-stone-600" data-copy='${_esc(t.expert).replace(/'/g, '&#39;')}'>${_esc(t.expert)}</button>
+      ${Array.isArray(t.gain) && t.gain.length ? `
+        <details class="mt-2 text-xs text-stone-600 dark:text-stone-400">
+          <summary class="cursor-pointer hover:text-stone-900 dark:hover:text-stone-100">Why this is a tier-3 prompt</summary>
+          <ul class="mt-2 ml-4 list-disc space-y-1">
+            ${t.gain.map(g => `<li>${_esc(g)}</li>`).join('')}
+          </ul>
+        </details>` : ''}
+    `;
+    body.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () => copyAndFlash(b)));
+    btn.textContent = 'Roll again';
+  }
+  btn.addEventListener('click', roll);
 })();
 
 // ─────────────────────────────────────────────
@@ -5034,6 +5267,26 @@ searchInput.addEventListener('blur', () => {
     _safeStorage.setItem(SEARCH_HIST_KEY, JSON.stringify(searchHist));
   }
   searchHistIdx = -1;
+});
+
+// Focus trap — when any aria-modal dialog is open, Tab cycles within it instead
+// of escaping behind the overlay. Looks at the current open modal on each keypress
+// rather than caching, so dynamic content (palette results growing) works.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const openModal = document.querySelector('[role="dialog"][aria-modal="true"].open, [role="dialog"][aria-modal="true"].is-open');
+  if (!openModal) return;
+  const focusables = openModal.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault(); last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault(); first.focus();
+  }
 });
 
 document.addEventListener('keydown', e => {
